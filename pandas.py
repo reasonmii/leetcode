@@ -32,10 +32,13 @@ df1.merge(df2, left_on='left key col', right_on='right key col', how='inner', su
 
 # group by & calculate
 # reset_index : series -> DataFrame
-df.groupby('col').size().reset_index(name='col') # count 개수
+df.groupby('col').size().reset_index(name='col') # 개수
 
 # group by & calculate -> column
+df['newCol'] = df.groupby('col')['max col'].transform('count')
+df['newCol'] = df.groupby('col')['max col'].transform('min')
 df['newCol'] = df.groupby('col')['max col'].transform('max')
+df['newCol'] = df.groupby('col')['max col'].transform('mean')
 
 # rank
 df['col'].rank(method='dense', ascending=False)
@@ -47,6 +50,9 @@ df[(df.col.diff() == 0) & (df.num.diff().diff()==0)] # 직전 값, 전전 값 �
 
 # shift
 df['new col'] = df['col'].shift(1) # row 한 칸씩 밑으로 내리기
+
+# 문자 값이 'blabla'로 시작하는 행
+df[df['col'].str.startswith('blabla')]
 
 # time
 df['new col'] = df['date col'] + pd.to_timedelta(1, unit='D') # add 1 day
