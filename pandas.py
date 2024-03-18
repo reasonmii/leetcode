@@ -1,4 +1,4 @@
-## 핵심 코드 정리
+## PANDAS
 
 # get the 2nd
 df.head(2).tail(1)
@@ -32,7 +32,7 @@ df1.merge(df2, left_on='left key col', right_on='right key col', how='inner', su
 
 # group by & calculate
 # reset_index : series -> DataFrame
-df.groupby('col').size().reset_index(name='col') # 개수
+df.groupby('col').size().reset_index(name='col') # count rows
 df.groupby('col')['cal col'].min().reset_index()
 
 # group by & calculate -> column
