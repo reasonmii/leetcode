@@ -33,12 +33,13 @@ df1.merge(df2, left_on='left key col', right_on='right key col', how='inner', su
 # group by & calculate
 # reset_index : series -> DataFrame
 df.groupby('col').size().reset_index(name='col') # 개수
+df.groupby('col')['cal col'].min().reset_index()
 
 # group by & calculate -> column
-df['newCol'] = df.groupby('col')['max col'].transform('count')
-df['newCol'] = df.groupby('col')['max col'].transform('min')
-df['newCol'] = df.groupby('col')['max col'].transform('max')
-df['newCol'] = df.groupby('col')['max col'].transform('mean')
+df['newCol'] = df.groupby('col')['cal col'].transform('count')
+df['newCol'] = df.groupby('col')['cal col'].transform('min')
+df['newCol'] = df.groupby('col')['cal col'].transform('max')
+df['newCol'] = df.groupby('col')['cal col'].transform('mean')
 
 # rank
 df['col'].rank(method='dense', ascending=False)
