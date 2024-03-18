@@ -3,6 +3,9 @@
 # get the 2nd
 df.head(2).tail(1)
 
+# count unique values
+len(df['col'].unique())
+
 # change column name
 df.rename({'col':'new name'}, axis=1, inplace=True)
 df.rename(columns={'col':'new name'})
@@ -19,9 +22,6 @@ df.drop_duplicates(subset='col', keep='first', inplace=True) # keep the first ro
 
 # create DataFrame
 pd.DataFrame({'name_{}'.format(num) : [np.NaN]})
-
-# count unique values
-len(df['col'].unique())
 
 # isin
 df[~df['col1'].isin(df['col2'])]
