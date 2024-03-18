@@ -2,7 +2,7 @@
 
 # merge
 df1.merge(df2, on='key col', how='left')
-df1.merge(df2, left_on='left key col', right_on='right key col', how='inner', suffixes=['_a', '_b'])
+df1.merge(df2, left_on='left key col', right_on='right key col', how='inner', suffixes=['_a', '_b']) # how : left, right, inner
 
 # drop duplicates
 df.drop_duplicates(['col'])
@@ -35,3 +35,6 @@ df[(df.col.diff() == 0) & (df.num.diff().diff()==0)]
 # group by
 # reset_index : series -> DataFrame
 df.groupby('col').size().reset_index(name='col')
+
+# isin
+df[~df['col1'].isin(df['col2'])]
