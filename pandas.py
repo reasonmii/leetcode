@@ -1,14 +1,11 @@
 ## 핵심 코드 정리
 
-# merge
-df1.merge(df2, on='key col', how='left')
-df1.merge(df2, left_on='left key col', right_on='right key col', how='inner', suffixes=['_a', '_b']) # how : left, right, inner
+# get the 2nd
+df.head(2).tail(1)
 
-# drop duplicates
-df.drop_duplicates(['col'])
-
-# count unique values
-len(df['col'].unique())
+# change column name
+df.rename({'col':'new name'}, axis=1, inplace=True)
+df.rename(columns={'col':'new name'})
 
 # sort
 df.sort_values('col', ascending=False, inplace=True)
@@ -16,25 +13,42 @@ df.sort_values('col', ascending=False, inplace=True)
 # drop columns
 df.drop('col', axis=1, inplace=True)
 
-# change column name
-df.rename({'col':'new name'}, axis=1, inplace=True)
-df.rename(columns={'col':'new name'})
-
-# get the 2nd
-df.head(2).tail(1)
+# drop duplicates rows
+df.drop_duplicates(['col'])
+df.drop_duplicates(subset='col', keep='first', inplace=True) # keep the first row
 
 # create DataFrame
 pd.DataFrame({'name_{}'.format(num) : [np.NaN]})
 
-# rank
-df['col'].rank(method='dense', ascending=False)
-
-# 직전 값, 전전 값 모두 차이 0
-df[(df.col.diff() == 0) & (df.num.diff().diff()==0)]
-
-# group by
-# reset_index : series -> DataFrame
-df.groupby('col').size().reset_index(name='col')
+# count unique values
+len(df['col'].unique())
 
 # isin
 df[~df['col1'].isin(df['col2'])]
+
+# merge
+df1.merge(df2, on='key col', how='left')
+df1.merge(df2, left_on='left key col', right_on='right key col', how='inner', suffixes=['_a', '_b']) # how : left, right, inner
+
+# group by & calculate
+# reset_index : series -> DataFrame
+df.groupby('col').size().reset_index(name='col') # count 개수
+
+# group by & calculate -> column
+df['newCol'] = df.groupby('col')['max col'].transform('max')
+
+# rank
+df['col'].rank(method='dense', ascending=False)
+df.groupby('col')['rank col'].rank(method='dense', ascending=False)
+
+# 직전 행 값과의 차이
+df['col'].diff().fillna(0)
+df[(df.col.diff() == 0) & (df.num.diff().diff()==0)] # 직전 값, 전전 값 모두 차이 0
+
+# shift
+df['new col'] = df['col'].shift(1) # row 한 칸씩 밑으로 내리기
+
+# time
+df['new col'] = df['date col'] + pd.to_timedelta(1, unit='D') # add 1 day
+
+
