@@ -5,12 +5,14 @@ df.head(2).tail(1)
 
 # count unique values
 len(df['col'].unique())
+df['col'].nunique()
 
 # change column name
 df.rename({'col':'new name'}, axis=1, inplace=True)
 df.rename(columns={'col':'new name'})
 
 # sort
+df = df.sort_values('col', ascending=True)
 df.sort_values('col', ascending=False, inplace=True)
 
 # drop columns
@@ -22,6 +24,7 @@ df.drop_duplicates(subset='col', keep='first', inplace=True) # keep the first ro
 
 # create DataFrame
 pd.DataFrame({'name_{}'.format(num) : [np.NaN]})
+pd.DataFrame({'column name' : [value]}) # value should be in the list!
 
 # isin
 df[~df['col1'].isin(df['col2'])]
@@ -34,6 +37,7 @@ df1.merge(df2, left_on='left key col', right_on='right key col', how='inner', su
 # reset_index : series -> DataFrame
 df.groupby('col').size().reset_index(name='col') # count rows
 df.groupby('col')['cal col'].min().reset_index()
+df.groupby('col')['cal col'].cumsum() # cumulative sum
 
 # group by & calculate -> column
 df['newCol'] = df.groupby('col')['cal col'].transform('count')
@@ -56,6 +60,8 @@ df['new col'] = df['col'].shift(1) # row 한 칸씩 밑으로 내리기
 df[df['col'].str.startswith('blabla')]
 
 # time
+df['new col'] = (df['col1'] - df['col2']).dt.days # day difference
 df['new col'] = df['date col'] + pd.to_timedelta(1, unit='D') # add 1 day
+
 
 
