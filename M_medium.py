@@ -689,6 +689,84 @@ class Solution(object):
 
         return grid[-1][-1]
 
+# ======================================================================
+# 72. Edit Distance
+# Topic : dynamic programming
+# https://leetcode.com/problems/edit-distance/solutions/3230662/clean-codes-full-explanation-dynamic-programming-c-java-python3/
+# ======================================================================
+
+class Solution(object):
+    def minDistance(self, word1, word2):
+
+        prev = list(range(len(word2)+1))
+        cur = [0] * (len(word2) + 1)
+
+        for i in range(1, len(word1)+1):
+            cur[0] = i
+            for j in range(1, len(word2)+1):
+                if word1[i-1] == word2[j-1]:
+                    cur[j] = prev[j-1]
+                else:
+                    cur[j] = min(prev[j-1] + 1, prev[j] + 1, cur[j-1] + 1)
+                
+            prev = cur
+            cur = [0] * (len(word2) + 1)
+        
+        return prev[-1]
+
+# ======================================================================
+# 74. Search a 2D Matrix
+# Topic : mid value of matrix (left, right)
+# ======================================================================
+
+class Solution(object):
+    def searchMatrix(self, matrix, target):
+
+        # [[1,3,5,7],[10,11,16,20],[23,30,34,60]]
+        m, n = len(matrix), len(matrix[0])
+
+        left, right = 0, m*n-1
+
+        while left <= right:
+            mid = (left + right) // 2
+            mid_val = matrix[mid // n][mid % n] ###
+            
+            if target == mid_val:
+                return True
+            elif target < mid_val:
+                right = mid-1
+            else:
+                left = mid+1
+
+        return False
+
+# ======================================================================
+# 75. Sort Colors
+# Topic : while
+# ======================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
