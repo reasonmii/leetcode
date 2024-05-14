@@ -61,6 +61,48 @@ class Solution(object):
 
 
 
+# ======================================================================
+# 6. Zigzag Conversion
+# Topic : string
+# ======================================================================
+
+
+
+# ======================================================================
+# 7. Reverse Integer
+# Topic : mod
+# ======================================================================
+
+class Solution(object):
+    def reverse(self, x):
+
+        neg = False if x >= 0 else True
+        x = abs(x)
+        rst = 0
+
+        while x != 0:
+            digit = x % 10 # 3, 2, 1
+            rst = rst * 10 + digit
+            x //= 10
+
+        if rst >= 2**31 - 1 or rst < -2**31:
+            return 0
+
+        if neg:
+            rst *= -1
+
+        return rst
+
+
+
+
+
+
+
+
+
+
+
 
 
 
