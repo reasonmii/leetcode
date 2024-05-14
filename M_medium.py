@@ -258,8 +258,303 @@ class Solution(object):
 
 # ======================================================================
 # 17. Letter Combinations of a Phone Number
-# Topic : 
+# Topic : dfs
 # ======================================================================
+
+class Solution(object):
+    def letterCombinations(self, digits):
+        """
+        :type digits: str
+        :rtype: List[str]
+        """
+
+        dic = {"2":"abc", "3":"def", "4":"ghi", "5":"jkl", "6":"mno", "7":"pqrs", "8":"tuv", "9":"wxyz"}
+
+        rst = []
+
+        if len(digits) == 0:
+            return rst
+
+        self.dfs(digits, 0, dic, '', rst) # "23"
+        return rst
+    
+    def dfs(self, nums, idx, dic, path, rst):
+
+        if idx >= len(nums):
+            rst.append(path) # "ad"
+            return
+
+        strings = dic[nums[idx]] # dic[2] => dic[3]
+        for i in strings: # a -> b -> c => d -> e -> f
+            self.dfs(nums, idx+1, dic, path+i, rst)
+            # "23", 1, dic, "a", []
+            # "23", 2, dic, "ad", []
+
+# ======================================================================
+# 18. 4Sum
+# Topic : while, append
+# ======================================================================
+
+class Solution(object):
+    def fourSum(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: List[List[int]]
+        """
+
+        nums.sort()
+        N = len(nums)
+        rst = []
+
+        for i in range(N):
+            if i > 0 and nums[i] == nums[i-1]:
+                continue # [2, 2, 2, 2] -> duplicates!
+
+            for j in range(i+1, N):
+                if j > i+1 and nums[j] == nums[j-1]:
+                    continue # duplicates!
+
+                x = target - nums[i] - nums[j] # new target
+                s, e = j+1, N-1 # start, end
+                while s < e:
+                    if nums[s] + nums[e] == x:
+                        rst.append([nums[i], nums[j], nums[s], nums[e]])
+                        s += 1
+                        while s < e and nums[s] == nums[s-1]:
+                            s += 1 # duplicates!
+                    elif nums[s] + nums[e] < x:
+                        s += 1
+                    else: # nums[s] + nums[e] > x
+                        e -= 1
+
+        return rst
+
+# ======================================================================
+# 19. Remove Nth Node From End of List
+# Topic : LinkedList, fast and slow
+# ======================================================================
+
+class Solution(object):
+    def removeNthFromEnd(self, head, n):
+        """
+        :type head: ListNode
+        :type n: int
+        :rtype: ListNode
+        """
+
+        fast, slow = head, head
+
+        for _ in range(n): fast = fast.next # 2 -> 3
+ 
+        # print(head.val, slow.val, fast.val) # 1, 1, 3
+
+        if not fast:
+            return head.next
+
+        while fast.next:
+            fast = fast.next # 4 -> 5
+            slow = slow.next # 2 -> 3
+
+        slow.next = slow.next.next # 5
+        return head
+
+# ======================================================================
+# 22. Generate Parentheses
+# Topic : dfs, string
+# ======================================================================
+
+class Solution(object):
+    def generateParenthesis(self, n):
+        """
+        :type n: int
+        :rtype: List[str]
+        """
+
+        def dfs(left, right, s):
+            if len(s) == n*2:
+                rst.append(s)
+                return
+            if left < n:
+                dfs(left+1, right, s+'(')
+            if right < left:
+                dfs(left, right+1, s+')')
+            
+        rst = []
+        dfs(0, 0, '')
+        return rst
+
+# ======================================================================
+# 31. Next Permutation
+# Topic : sort, reverse
+# ======================================================================
+
+class Solution(object):
+    def nextPermutation(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: None Do not return anything, modify nums in-place instead.
+        """
+
+        # [1,2,3] // [1,3,2]
+        for i in range(len(nums)-1, 0, -1):   # 2 // 2 -> 1
+            if nums[i-1] < nums[i]:           # nums[1] < nums[2] // nums[0] < nums[1]
+                nums[i:] = sorted(nums[i:])   # [1,2,3] // [1,2,3]
+
+                j = i - 1                     # 1 // 0
+
+                for k in range(i, len(nums)):               # 2 // 1
+                    if nums[j] < nums[k]:                   # nums[1] < nums[2] // nums[0] < nums[1]
+                        nums[k], nums[j] = nums[j], nums[k] # [1,3,2] // [2,1,3]
+                        return nums
+
+        return nums.reverse()
+
+# ======================================================================
+# 33. Search in Rotated Sorted Array
+# Topic : Array, mid, while
+# ======================================================================
+
+class Solution(object):
+    def search(self, nums, target):
+        """
+        :type nums: List[int]
+        :type target: int
+        :rtype: int
+        """
+
+        n = len(nums)
+        left, right = 0, n -1
+
+        while left <= right:
+            mid = (left+right) // 2
+
+            if nums[mid] == target:
+                return mid
+
+            if nums[left] <= nums[mid]:
+                if nums[left] <= target < nums[mid]:
+                    right = mid - 1
+                else:
+                    left = mid + 1
+            else:
+                if nums[mid] < target <= nums[right]:
+                    left = mid + 1
+                else:
+                    right = mid - 1
+        
+        return -1
+
+# ======================================================================
+# 36. Valid Sudoku
+# Topic : Array
+# ======================================================================
+
+class Solution(object):
+    def isValidSudoku(self, board):
+        
+        seen = []
+        for i, row in enumerate(board):
+            for j, c in enumerate(row):
+                if c != '.':
+                    seen += [(c, j), (i, c), (i//3, j//3, c)]
+
+        return len(seen) == len(set(seen))
+
+# ======================================================================
+# 39. Combination Sum
+# Topic : dfs
+# ======================================================================
+
+class Solution(object):
+    def combinationSum(self, candidates, target):
+        rst = []
+        candidates.sort
+
+        def dfs(target, idx, path):
+            if target < 0:
+                return
+            if target == 0:
+                rst.append(path)
+                return
+            for i in range(idx, len(candidates)):
+                dfs(target - candidates[i], i, path+[candidates[i]])
+
+        dfs(target, 0, [])
+        return rst
+
+# ======================================================================
+# 43. Multiply Strings
+# Topic : string to number (ord), decode, encode
+# ======================================================================
+
+class Solution(object):
+    def multiply(self, num1, num2):
+
+        if num1 == '0' or num2 == '0':
+            return '0'
+        
+        def decode(word):
+            num = 0
+            for w in word:
+                num = num *10 + (ord(w) - ord('0'))
+            return num
+        
+        def encode(num):
+            word = ''
+            while num:
+                n = num % 10
+                num //= 10
+                word = chr(ord('0') + n) + word
+            return word
+
+        rst = decode(num1) * decode(num2)
+        return encode(rst)
+        
+# ======================================================================
+# 48. Rotate Image
+# Topic : Array, rotate
+# ======================================================================
+
+class Solution(object):
+    def rotate(self, matrix):
+        matrix.reverse()
+
+        for i in range(len(matrix)):
+            for j in range(i):
+                matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+
+        return matrix
+
+# ======================================================================
+# 49. Group Anagrams
+# Topic : Array, rotate
+# ======================================================================
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
