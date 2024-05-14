@@ -8,7 +8,6 @@ class Solution:
     def twoSum(self, nums: List[int], target: int) -> List[int]:
 
         dic = {}
-
         for i, n in enumerate(nums):
             diff = target - n
             if diff in dic:
@@ -61,11 +60,6 @@ class Solution(object):
 
 class Solution(object):
     def isValid(self, s):
-        """
-        :type s: str
-        :rtype: bool
-        """
-
         stack = []
 
         for char in s:
@@ -111,24 +105,47 @@ class Solution(object):
 
 class Solution(object):
     def strStr(self, haystack, needle):
-        """
-        :type haystack: str
-        :type needle: str
-        :rtype: int
-        """
-
+        
         end = len(needle)
         for start in range(len(haystack)):
             if haystack[start:start+end] == needle:
                 return start
         return -1
 
+# ======================================================================
+# 66. Plus One
+# Topic : list, plus
+# ======================================================================
 
+class Solution(object):
+    def plusOne(self, digits):
 
+        for i in reversed(range(len(digits))):
+            if digits[i] != 9:
+                digits[i] += 1
+                return digits
+            digits[i] = 0
 
+        return [1] + digits
 
+# ======================================================================
+# 70. Climbing Stairs
+# Topic : Dynamic Programming
+# ======================================================================
 
+class Solution(object):
+    def climbStairs(self, n):
 
+        if n == 1:
+            return 1
+        
+        dp = [0 for _ in range(n+1)]
+        dp[1], dp[2] = 1, 2
+
+        for i in range(3, n+1):
+            dp[i] = dp[i-2] + dp[i-1]
+
+        return dp[-1]
 
 
 
