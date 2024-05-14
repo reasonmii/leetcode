@@ -528,26 +528,166 @@ class Solution(object):
 
 # ======================================================================
 # 49. Group Anagrams
-# Topic : Array, rotate
+# Topic : dic, join
 # ======================================================================
 
+class Solution(object):
+    def groupAnagrams(self, strs):
+        dic = {}
+        rst = []
 
+        for s in strs:
+            word = ''.join(sorted(s))    # aet (eat) -> aet (tea)
+            if word in dic:              
+                rst[dic[word]].append(s) # rst[0].append('tea')
+            else:
+                dic[word] = len(rst) # dic['aet'] = 0
+                rst.append([s])      # ['eat']
 
+        return rst
 
+# ======================================================================
+# 53. Maximum Subarray
+# Topic : Array, max, dynamic programming
+# ======================================================================
 
+class Solution(object):
+    def maxSubArray(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: int
+        """
 
+        # [5,4,-1,7,8]
+        max_v = nums[0] # 5
+        arr = [max_v]   # [5]
 
+        for i in range(1, len(nums)): # 1 -> 2 -> 3 -> 4
+            val = max(arr[i-1]+nums[i], nums[i]) # max(5+4, 4) -> max(9-1, -1) -> max(8+7, 7)
+            arr.append(val) # [5,9], [5,9,8], [5,9,8,15]
 
+            if arr[i] > max_v: # 9 > 5 -> 8 > 9 -> 15 > 9
+                max_v = arr[i] # 9 -> 9 -> 15
+        return max_v
 
+# ======================================================================
+# 54. Spiral Matrix
+# Topic : matrix, pop, append
+# ======================================================================
 
+class Solution(object):
+    def spiralOrder(self, matrix):
+        """
+        :type matrix: List[List[int]]
+        :rtype: List[int]
+        """
 
+        rst = []
 
+        while matrix:
 
+            # rst : [1,2,3] -> [1,2,3,6,9,8,7,4,5]
+            # matrix : [[4,5,6],[7,8,9]]
+            rst += matrix.pop(0)
 
+            # rst : [1,2,3,6] -> [1,2,3,6,9]
+            # matrix : [[4,5], [7,8,9]] -> [[4,5], [7,8]]
+            if matrix and matrix[0]:
+                for row in matrix:
+                    rst.append(row.pop())
 
+            # rst : [1,2,3,6,9,8,7]
+            # matrix : [[4,5]]
+            if matrix:
+                rst += matrix.pop()[::-1]
 
+            # rst : [1,2,3,6,9,8,7,4]
+            # matrix[[5]]
+            if matrix and matrix[0]:
+                for row in matrix[::-1]:
+                    rst.append(row.pop(0))
 
+        return rst
 
+# ======================================================================
+# 55. Jump Game
+# Topic : Array
+# ======================================================================
+
+class Solution(object):
+    def canJump(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: bool
+        """
+
+        last = len(nums)-1 # 4
+
+        for i in range(len(nums)-2, -1, -1): # 3 -> 2 -> 1 -> 0
+            # 3+nums[3]=3+0=3 >= 4
+            # 2+nums[2]=2+1=3 >= 4
+            # 1+nums[1]=1+2=3 >= 4
+            # 0+nums[0]=0+3=3 >= 4
+            if i + nums[i] >= last:
+                last = i
+        return last == 0
+
+# ======================================================================
+# 56. Merge Intervals
+# Topic : Array, sort (lambda)
+# ======================================================================
+
+class Solution(object):
+    def merge(self, intervals):        
+        itv = sorted(intervals, key=lambda x: x[0]) ###
+        rst = []
+
+        for arr in itv:
+            if rst and arr[0] <= rst[-1][1]:
+                rst[-1][1] = max(rst[-1][1], arr[1])
+            else:
+                rst += [arr]
+        return rst
+
+# ======================================================================
+# 62. Unique Paths
+# Topic : dynamic programming
+# ======================================================================
+
+class Solution(object):
+    def uniquePaths(self, m, n):
+        dp = [[1] * n] * m
+
+        for r in range(1, m):
+            for c in range(1, n):
+                dp[r][c] = dp[r-1][c] + dp[r][c-1]
+
+        return dp[-1][-1]
+
+# ======================================================================
+# 64. Minimum Path Sum
+# Topic : dynamic programming
+# ======================================================================
+
+class Solution(object):
+    def minPathSum(self, grid):
+    
+        # [[1,2,3],[4,5,6]]
+        m, n = len(grid), len(grid[0]) # 2, 3
+
+        # [[1,3,6],[4,5,6]]
+        for i in range(1, n):
+            grid[0][i] += grid[0][i-1]
+
+        # [[1,3,6],[5,5,6]]
+        for i in range(1,m):
+            grid[i][0] += grid[i-1][0]
+
+        for i in range(1,m):
+            for j in range(1,n):
+                grid[i][j] += min(grid[i-1][j], grid[i][j-1])
+
+        return grid[-1][-1]
 
 
 
