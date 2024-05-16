@@ -35,4 +35,35 @@ Geometric series
   - $S(1-r) = a$
   - $S = a / (1-r)$
 
-Infinite Geometric series : 1/6 / (1 - 25/36) = \textbf{6/11}
+Infinite Geometric series : 1/6 / (1 - 25/36) = 6/11 </br>
+Answer : 6/11
+
+### Raining in Seattle
+
+You are about to get on a plane to Seattle. You want to know if you should bring an umbrella. You call 3 random friends of yours who live there and ask each independently if it’s raining. Each of your friends has a 2⁄3 chance of telling you the truth and a 1⁄3 chance of messing with you by lying. All 3 friends tell you that “Yes” it is raining. </br>
+
+What is the probability that it’s actually raining in Seattle? </br>
+
+Assume : P(rain) = 0.5 </br>
+P(all truth) = 2/3 * 2/3 * 2/3 = 8/27 </br>
+P(all lie) = 1/3 * 1/3 * 1/3 = 1/27 </br>
+P(yes) = P(yes|rain) * P(rain) + P(yes|not rain) * P(not rain) </br>
+conditional probability = 8/27 / (8/27 + 1/27) = 8/27 / (1/3) = 8/9
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
