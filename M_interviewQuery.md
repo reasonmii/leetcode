@@ -50,9 +50,25 @@ P(all lie) = 1/3 * 1/3 * 1/3 = 1/27 </br>
 P(yes) = P(yes|rain) * P(rain) + P(yes|not rain) * P(not rain) </br>
 conditional probability = 8/27 / (8/27 + 1/27) = 8/27 / (1/3) = 8/9
 
+### Random SQL Sample
 
+```SELECT * FROM big_table ORDER BY RAND() limit 1```
 
+### Approval Drop
 
+Capital approval rates have gone down for our overall approval rate. Let’s say last week it was 85% and the approval rate went down to 82% this week which is a statistically significant reduction.
+
+The first analysis shows that all approval rates stayed flat or increased over time when looking at the individual products:
+
+Product 1: 84% to 85% week over week </br>
+Product 2: 77% to 77% week over week </br>
+Product 3: 81% to 82% week over week </br>
+Product 4: 88% to 88% week over week </br>
+What could be the cause of the decrease? </br>
+
+This is becaue the weight in overall approval of individual product has changes. This is \textbf{Simpson paradox} as mentioned by other users.
+```
+```
 
 
 
