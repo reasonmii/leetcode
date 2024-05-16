@@ -22,10 +22,10 @@ def merge_list(list1, list2):
 ### First to Six
 Amy and Brad take turns in rolling a fair six-sided die. Whoever rolls a “6” first wins the game. Amy starts by rolling first. What’s the probability that Amy wins?
 
-P(Amy|first roll) = 1/6
-P(Brad|first roll) = 5/6 * 1/6
-P(Amy|second roll) = 5/6 * 5/6 * 1/6
-P(Brad|second roll) = 5/6 * 5/6 * 5/6 * 1/6
+P(Amy|first roll) = 1/6 </br>
+P(Brad|first roll) = 5/6 * 1/6 </br>
+P(Amy|second roll) = 5/6 * 5/6 * 1/6 </br>
+P(Brad|second roll) = 5/6 * 5/6 * 5/6 * 1/6 </br>
 
 Geometric series
 - 1/6 + (5/6)^2 * 1/6 + (5/6)^4 * 1/6 + (5/6)^6 * 1/6 + ...
