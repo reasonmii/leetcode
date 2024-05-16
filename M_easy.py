@@ -169,6 +169,185 @@ class Solution(object):
 
         return nums1
 
+# ======================================================================
+# 101. Symmetric Tree
+# Topic : Tree
+# ======================================================================
+
+class Solution(object):
+    
+    def isMirror(self, left, right):
+        if not left and not right:
+            return True
+        if not left or not right:
+            return False
+        return left.val == right.val and \
+            self.isMirror(left.left, right.right) and \
+            self.isMirror(left.right, right.left)
+
+    
+    def isSymmetric(self, root):
+        if not root:
+            return True
+        return self.isMirror(root.left, root.right)
+
+# ======================================================================
+# 108. Convert Sorted Array to Binary Search Tree
+# Topic : Binary Tree, Array, med
+# ======================================================================
+
+class Solution(object):
+    def sortedArrayToBST(self, nums):
+        if not nums:
+            return
+
+        med = len(nums) // 2
+
+        return TreeNode(
+            nums[med],
+            self.sortedArrayToBST(nums[:med]),
+            self.sortedArrayToBST(nums[med+1:])
+        )
+
+# ======================================================================
+# 112. Path Sum
+# Topic : Binary Tree, left, right
+# ======================================================================
+
+class Solution(object):
+    def hasPathSum(self, root, targetSum):
+        if not root:
+            return False
+        
+        if not root.left and not root.right:
+            return targetSum == root.val
+
+        left = self.hasPathSum(root.left, targetSum - root.val)
+        right = self.hasPathSum(root.right, targetSum - root.val)
+
+        return left or right
+
+# ======================================================================
+# 118. Pascal's Triangle
+# Topic : Pascal
+# ======================================================================
+
+class Solution(object):
+    def generate(self, numRows):
+        if numRows == 0:
+            return []
+
+        rst = [[1]]
+
+        for i in range(1, numRows):
+            prev = rst[-1]
+            cur = [1]
+
+            for j in range(1, i):
+                cur.append(prev[j-1] + prev[j])
+            cur.append(1)
+            rst.append(cur)
+
+        return rst
+
+# ======================================================================
+# 121. Best Time to Buy and Sell Stock
+# Topic : min, max
+# ======================================================================
+
+class Solution(object):
+    def maxProfit(self, prices):
+
+        min_price = prices[0]
+        profit = 0
+
+        for p in prices:
+            profit = max(p - min_price, profit)
+            min_price = min(min_price, p)
+
+        return profit
+
+# ======================================================================
+# 125. Valid Palindrome
+# Topic : string, regular expression
+# ======================================================================
+
+class Solution(object):
+    def isPalindrome(self, s):
+
+        # sub(A, B, C) : if C is not in A, substitute it to B
+        s = re.sub("[^a-z0-9]", "", s.lower()).replace(" ", "")
+        return s == s[::-1]
+
+# ======================================================================
+# 160. Intersection of Two Linked Lists
+# Topic : Linked List
+# ======================================================================
+
+class Solution(object):
+    def getIntersectionNode(self, headA, headB):
+        
+        # speed : O(1)
+        # 1) concatenate A and B : A+B and B+A
+        # 2) Check if at some point, the 2 merged lists are pointing to the same node
+
+        a, b = headA, headB
+        while (a != b):
+            a = headB if not a else a.next # 1 -> 8 -> 4 -> 5 -> NA -> 5  -> 6 -> 1
+            b = headA if not b else b.next # 6 -> 1 -> 8 -> 4  -> 5 -> NA -> 4 -> 1
+        return a # 8
+
+# ======================================================================
+# 168. Excel Sheet Column Title
+# Topic : dic, chr, ord
+# ======================================================================
+
+class Solution(object):
+    def convertToTitle(self, columnNumber):
+
+        letters = [chr(x) for x in range(ord('A'), ord('Z')+1)] # unicode : A = 65
+        rst = []
+
+        while columnNumber > 0: # 701
+            rst.append(letters[(columnNumber-1) % 26]) # 25 : Y
+            columnNumber = (columnNumber-1) // 26 # 26 : Z 
+
+        rst.reverse() # ZY
+        return ''.join(rst)
+
+# ======================================================================
+# 169. Majority Element
+# Topic : cnt
+# ======================================================================
+
+class Solution(object):
+    def majorityElement(self, nums):
+
+        cnt, maj = 0, 0
+
+        for i in range(len(nums)):
+            if cnt == 0 and maj != nums[i]:
+                maj = nums[i]
+                cnt += 1
+            elif maj == nums[i]:
+                cnt += 1
+            else:
+                # if current element is different
+                # from the majority candidate
+                cnt -= 1
+        return maj
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
