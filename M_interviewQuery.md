@@ -66,11 +66,8 @@ Product 3: 81% to 82% week over week </br>
 Product 4: 88% to 88% week over week </br>
 What could be the cause of the decrease? </br>
 
-This is becaue the weight in overall approval of individual product has changes. This is \textbf{Simpson paradox} as mentioned by other users.
-```
-```
-
-
+This is becaue the weight in overall approval of individual product has changes. This is **Simpson paradox** as mentioned by other users.
+- Simpson’s Paradox occurs when a trend shows in several groups but either disappears or is reversed when combining the data.
 
 
 
