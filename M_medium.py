@@ -742,27 +742,733 @@ class Solution(object):
 
 # ======================================================================
 # 75. Sort Colors
-# Topic : while
+# Topic : while, swap
+# ======================================================================
+
+class Solution(object):
+    def sortColors(self, nums):
+
+        red, white, blue = 0, 0, len(nums)-1
+
+        while white <= blue:
+            if nums[white] == 0:
+                nums[white], nums[red] = nums[red], nums[white]
+                white += 1
+                red += 1
+            elif nums[white] == 1:
+                white += 1
+            else:
+                nums[white], nums[blue] = nums[blue], nums[white]
+                blue -= 1
+
+# ======================================================================
+# 77. Combinations
+# Topic : backtracking
+# ======================================================================
+
+class Solution(object):
+    def combine(self, n, k):
+        """
+        :type n: int
+        :type k: int
+        :rtype: List[List[int]]
+        """
+
+        combs = [[]]
+        for _ in range(k):
+            combs = [[i] + c for c in combs for i in range(1, c[0] if c else n+1)]
+        return combs
+
+# ======================================================================
+# 77. Combinations
+# Topic : backtracking
 # ======================================================================
 
 
 
+# ======================================================================
+# 78. Subsets
+# Topic : dfs
+# ======================================================================
 
 
 
+# ======================================================================
+# 79. Word Search
+# Topic : dfs, backtrack
+# ======================================================================
+
+
+# ======================================================================
+# 88. Word Search
+# Topic : dfs, backtrack
+# ======================================================================
 
 
 
+# ======================================================================
+# 90. Subsets II
+# Topic : append
+# ======================================================================
+
+class Solution(object):
+    def subsetsWithDup(self, nums):
+        """
+        :type nums: List[int]
+        :rtype: List[List[int]]
+        """
+
+        rst = [[]] # len(rst) = 1
+        nums.sort()
+
+        for i in range(len(nums)):
+            if i == 0 or nums[i] != nums[i-1]:
+                l = len(rst) # 1 -> 2
+            for j in range(len(rst)-l, len(rst)): # 0,1 -> 0,2
+                # 0 : rst[0]+[nums[0]] = [[], [1]]
+                # 0 : rst[0]+[nums[1]] = [[], [1], [2]]
+                # 1 : rst[1]+[nums[1]] = [[], [1], [2], [1,2]]
+                rst.append(rst[j] + [nums[i]])
+        return rst
+
+# ======================================================================
+# 92. Reverse Linked List II
+# Topic : LinkedList
+# ======================================================================
+
+class Solution(object):
+    def reverseBetween(self, head, left, right):
+
+        if not head or not head.next or left == right:
+            return head
+
+        dummy = ListNode(-1, next=head)
+        prev = dummy
+
+        for _ in range(left-1): # 2-1 = 1
+            prev = prev.next # 1
+        
+        cur = prev.next # 2
+
+        for _ in range(right - left):
+            next_ = cur.next       # 3 -> 4
+            cur.next = next_.next  # 4 -> 5
+            next_.next = prev.next # 2 -> 3
+            prev.next = next_      # 3 -> 4
+
+        return dummy.next
+
+# ======================================================================
+# 93. Restore IP Addresses
+# Topic : dfs, backtracking
+# ======================================================================
+
+class Solution(object):
+    def restoreIpAddresses(self, s):
+        """
+        :type s: str
+        :rtype: List[str]
+        """
+        
+        rst = []
+        self.dfs(s, 0, "", rst)
+        return rst
+
+    def dfs(self, s, idx, path, rst):
+
+        if idx > 4:
+            return
+        # when idx == 4, s should not have any more letters
+        if idx == 4 and not s:
+            rst.append(path[:-1])
+
+        for i in range(1, len(s)+1):
+            # first letter is 0 or  0 < so far letters < 256
+            if s[:i] == '0' or (s[0] != '0' and 0 < int(s[:i]) < 256):
+                self.dfs(s[i:], idx+1, path+s[:i]+".", rst)
+
+# ======================================================================
+# 97. Interleaving String
+# Topic : dynamic programming
+# ======================================================================
+
+class Solution(object):
+    def isInterleave(self, s1, s2, s3):
+        m = len(s1)
+        n = len(s2)
+
+        if m+n != len(s3): return False   
+
+        dp = [[False for j in range(n+1)] for i in range(m+1)]
+        dp[0][0] = True           
+        
+        for i in range(0, m+1):
+            for j in range(0, n+1):
+                if (i>0 and dp[i-1][j] and s1[i-1] == s3[i+j-1]) or \
+                (j> 0 and dp[i][j-1] and s2[j-1] == s3[i+j-1]):
+                    dp[i][j] = True
+
+        return dp[-1][-1]
+
+# ======================================================================
+# 98. Validate Binary Search Tree
+# Topic : BST
+# ======================================================================
+
+class Solution(object):
+    def isValidBST(self, root):
+        """
+        :type root: TreeNode
+        :rtype: bool
+        """
+
+        out = []
+        self.inOrder(root, out)
+
+        for i in range(1, len(out)):
+            if out[i-1] >= out[i]:
+                return False
+        return True
 
 
+    def inOrder(self, root, out):
+        if not root:
+            return
+        self.inOrder(root.left, out)
+        out.append(root.val)
+        self.inOrder(root.right, out)
+
+# ======================================================================
+# 103. Binary Tree Zigzag Level Order Traversal
+# Topic : Binary Tree, while, queue
+# ======================================================================
+
+class Solution(object):
+    def zigzagLevelOrder(self, root):
+        queue = [(root, 0)]
+        rst = []
+        while queue:
+            node, level = queue.pop() # 3, 0 -> 9, 1 -> 20, 1 -> 15, 2
+            if node:
+                if len(rst) <= level: # 0 <= 0 -> 1 <= 1 -> 2 <= 1 -> 2 <= 2
+                    rst.append([]) # [[]] -> [[3], []] -> [[3], [20, 9], []]
+                if level % 2 == 0:
+                    # left value first
+                    rst[level].append(node.val) # [[3]] -> [[3], [20, 9], [15]]
+                else:
+                    # right value first
+                    rst[level] = [node.val] + rst[level] # [[3], [9]] -> [[3], [20, 9]]
+                queue.append((node.right, level+1)) # [(20, 1)] -> [(7, 2)]
+                queue.append((node.left, level+1)) # [(20, 1), (9, 1)] -> [(7, 2), (15, 2)]
+
+        return rst
+
+# ======================================================================
+# 105. Construct Binary Tree from Preorder and Inorder Traversal
+# Topic : Binary Tree, Preorder, Inorder
+# ======================================================================
+
+class Solution(object):
+    def buildTree(self, preorder, inorder):
+        if inorder:
+            idx = inorder.index(preorder.pop(0))
+            root = TreeNode(inorder[idx])
+            root.left = self.buildTree(preorder, inorder[:idx]) ## left first!!!
+            root.right = self.buildTree(preorder, inorder[idx+1:])
+
+            return root
+
+# ======================================================================
+# 106. Construct Binary Tree from Inorder and Postorder Traversal
+# Topic : Binary Tree, Preorder, Inorder
+# ======================================================================
+
+class Solution(object):
+    def buildTree(self, inorder, postorder):
+        if inorder:
+            idx = inorder.index(postorder.pop())
+            root = TreeNode(inorder[idx])
+            root.right = self.buildTree(inorder[idx+1:], postorder) ## right first!!!
+            root.left = self.buildTree(inorder[:idx], postorder)
+            return root
+
+# ======================================================================
+# 116. Populating Next Right Pointers in Each Node
+# Topic : Binary Tree
+# ======================================================================
+
+class Solution(object):
+    def connect(self, root):
+
+        if not root:
+            return root
+
+        if root.left:
+            left, right = root.left, root.right
+            self.connect(left) 
+            self.connect(right)
+
+            while left:
+                left.next = right
+                left, right = left.right, right.left
+        return root
+
+# ======================================================================
+# 122. Best Time to Buy and Sell Stock II
+# Topic : for
+# ======================================================================
+
+class Solution(object):
+    def maxProfit(self, prices):
+        profit = 0
+        start = prices[0]
+
+        for i in range(1, len(prices)):
+            if start < prices[i]:
+                profit += prices[i] - start
+
+            start = prices[i]
+        return profit
+
+# ======================================================================
+# 128. Longest Consecutive Sequence
+# Topic : sort, set
+# ======================================================================
+
+class Solution(object):
+    def longestConsecutive(self, nums):
+
+        if not nums:
+            return 0
+        
+        nums = sorted(set(nums))
+
+        rst, cur = 1, 1
+        for i in range(1, len(nums)):
+            if nums[i-1] == nums[i] - 1:
+                cur += 1
+                rst = max(rst, cur)
+            else:
+                cur = 1
+
+        return rst
+
+# ======================================================================
+# 134. Gas Station
+# Topic : greedy method
+# Greedy Method
+# - Goal is to find the best solution from a set of feasible solutions.
+# - It is a strategy for solving optimization problems.
+# ======================================================================
+
+class Solution(object):
+    def canCompleteCircuit(self, gas, cost):
+
+        tank, cur, start = 0, 0, 0
+        for i in range(len(gas)):
+            tank += gas[i] - cost[i]
+            cur += gas[i] - cost[i]
+
+            if cur < 0:
+                start = i+1
+                cur = 0
+
+        return start if tank >= 0 else -1
+
+# ======================================================================
+# 138. Copy List with Random Pointer
+# Topic : Linked List
+# ======================================================================
+
+# ======================================================================
+# 139. Word Break
+# Topic : string
+# ======================================================================
+
+class Solution(object):
+    def wordBreak(self, s, wordDict):
+        """
+        :type s: str
+        :type wordDict: List[str]
+        :rtype: bool
+        """
+
+        ok = [True]
+        for i in range(1, len(s)+1): # (1,9)
+            # if both conditions are true for any j -> True
+            ok += [any(ok[j] and s[j:i] in wordDict for j in range(i))]
+            # i=1 [True, False]
+            # i=2 [True, False, False]
+            # i=3 [True, False, False, False]
+            # i=4 [True, False, False, False, True] ###
+            # i=5 [True, False, False, False, True, False]
+            # i=6 [True, False, False, False, True, False, False]
+            # i=7 [True, False, False, False, True, False, False, False]
+            # i=8 [True, False, False, False, True, False, False, False, True] ###
+
+        return ok[-1]
+
+# ======================================================================
+# 143. Reorder List
+# Topic : Linked List, reverse, slow, fast, mid
+# ======================================================================
+
+class Solution(object):
+    def reorderList(self, head):
+        
+        if head is None:
+            return
+
+        slow = head # 1
+        fast = head.next # 2
+
+        # Catch middle
+        while fast and fast.next:
+            fast = fast.next.next # last : 4
+            slow = slow.next # middle : 2
+
+        # Reverse the latter half
+        rev = None
+        cur = slow.next # 3
+        while cur: # 3 -> 4
+            rev, rev.next, cur = cur, rev, cur.next # 3-None, 4 -> 4-3-None, None 
+
+        slow.next = None
+
+        # Connect
+        while rev: # 4-3-None
+            h_next = head.next # 2
+            r_next = rev.next # 3
+            head.next = rev   # 4
+            rev.next = h_next # 2
+            rev = r_next      # 3
+            head = h_next      # 2
+
+# ======================================================================
+# 146. LRU Cache
+# Topic : HashMap, put, get
+# ======================================================================          
+
+class LRUCache(object):
+
+    def __init__(self, capacity):
+        
+        # ex) 2 : it can hold at most 2 key-pair values at a time
+        self.capacity = capacity
+        # retain the original insertion order of items
+        self.cache = OrderedDict()
+
+    def get(self, key):
+        
+        if key not in self.cache:
+            return -1
+        
+        # if the key accessed, the position should be moved the last
+        self.cache[key] = self.cache.pop(key)
+        return self.cache[key]
+
+    def put(self, key, value):
+       
+        if key in self.cache:
+            self.cache.pop(key)
+
+        # if it's full
+        elif len(self.cache) == self.capacity:
+            # popitem : remove and return a (key, val) pair
+            # last=False : remove the first item
+            self.cache.popitem(last=False)
+
+        self.cache[key] = value
+
+# ======================================================================
+# 153. Find Minimum in Rotated Sorted Array
+# Topic : Array, mid
+# ======================================================================          
+
+class Solution(object):
+    def findMin(self, nums):
+
+        left = 0
+        right = len(nums) - 1
+
+        while left < right:
+            mid = (left+right) // 2
+            if nums[right] < nums[mid]:
+                left = mid+1
+            else:
+                right = mid
+
+        return nums[left]
+
+# ======================================================================
+# 186. Reverse Words in a String II
+# Topic : string, in-place reverse
+# ======================================================================          
+
+class Solution(object):
+    def reverseWords(self, s):
+
+        def reverse(left, right):
+            while left < right:
+                s[left], s[right] = s[right], s[left]
+                left += 1
+                right -= 1
+
+        reverse(0, len(s)-1) # reverse all
+
+        left = 0
+        for idx, ch in enumerate(s):
+            if ch == " ":
+                reverse(left, idx-1) # eulb -> blue
+                left = idx +1 # next to " "
+        
+        # last word
+        reverse(left, len(s)-1)
+        
+# ======================================================================
+# 198. House Robber
+# Topic : swap, adjacent
+# ======================================================================    
+
+class Solution(object):
+    def rob(self, nums):
+        
+        bf3, bf2, adj = 0, 0, 0
+        for cur in nums:
+            bf3, bf2, adj = bf2, adj, cur + max(bf3, bf2)
+
+        return max(bf2, adj)
+
+# ======================================================================
+# 200. Number of Islands
+# Topic : dfs
+# ======================================================================    
+
+class Solution(object):
+    def numIslands(self, grid):
+        
+        if not grid: return 0
+
+        rows = len(grid)
+        cols = len(grid[0])
+
+        def dfs(row, col):
+            if row < 0 or col < 0 or row >= rows or col >= cols or grid[row][col] != '1':
+                return
+            
+            grid[row][col] = '0'
+            dfs(row-1, col)
+            dfs(row+1, col)
+            dfs(row, col-1)
+            dfs(row, col+1)
+
+        cnt = 0
+        for row in range(rows):
+            for col in range(cols):
+                if grid[row][col] == '1':
+                    dfs(row, col)
+                    cnt += 1
+
+        return cnt
+
+# ======================================================================
+# 207. Course Schedule
+# Topic : dfs
+# ======================================================================    
+
+class Solution(object):
+    def canFinish(self, numCourses, prerequisites):
+
+        graph = [[] for _ in range(numCourses)] # [[], []]
+        visit = [0 for _ in range(numCourses)] # [0, 0]
+
+        # create graph
+        for x, y in prerequisites:
+            graph[x].append(y)
+
+        # visit each node
+        for i in range(numCourses):
+            if not self.dfs(i, graph, visit):
+                return False
+        
+        return True
+
+    def dfs(self, i, graph, visit):
+
+        # if the node is marked as being visited
+        if visit[i] == -1:
+            return False
+
+        # if it's done visited
+        if visit[i] == 1:
+            return True
+
+        # mark as visit
+        visit[i] = -1
+
+        # visit all the neighbors
+        for j in graph[i]:
+            if not self.dfs(j, graph, visit):
+                return False
+        
+        # after visit all the neighbors, mark it as done
+        visit[i] = 1
+        return True
+
+# ======================================================================
+# 208. Implement Trie (Prefix Tree)
+# Topic : dic
+# ======================================================================    
+
+class Trie(object):
+
+    def __init__(self):
+        self.trie = {}
+
+    def insert(self, word):
+
+        t = self.trie
+
+        for c in word:
+            if c not in t:
+                t[c] = {}
+            t = t[c] # {'a':{}}
+        t["-"] = True
+        # {'a': {'p': {'p': {'l': {'e': {'-': True}}}}}}
+        # self.trie['a']['p']
+
+    def search(self, word):
+
+        t = self.trie
+        for c in word:
+            if c not in t: return False
+            t = t[c]
+        return "-" in t        
+
+    def startsWith(self, prefix):
+
+        t = self.trie
+        for c in prefix:
+            if c not in t:return False
+            t = t[c]
+        return True
+
+# ======================================================================
+# 210. Course Schedule II
+# Topic : dfs
+# ======================================================================    
+
+# ======================================================================
+# 211. Design Add and Search Words Data Structure
+# Topic : dfs
+# ======================================================================    
 
 
+# ======================================================================
+# 213. House Robber II
+# Topic : swap, adjacent
+# ======================================================================    
 
+class Solution(object):
+    def rob(self, nums):
+        
+        def simple(nums):
+            bf3, bf2, adj = 0, 0, 0
 
+            for cur in nums:
+                bf3, bf2, adj = bf2, adj, max(cur+bf2, adj)
+            return max(bf2, adj)
 
+        if len(nums) <= 1:
+            return sum(nums)
 
+        return max(simple(nums[1:]), simple(nums[:len(nums)-1]))
 
+# ======================================================================
+# 215. Kth Largest Element in an Array
+# Topic : heap, heapq, heappush, heappop
+# num.sort(reverse = True)
+# ======================================================================    
 
+class Solution(object):
+    def findKthLargest(self, nums, k):
+
+        heap = []
+        for num in nums:
+             # heap :
+             # [3]
+             # -> [2, 3] : since 2 is small, it becomes root
+             # -> [1, 3, 2] : since 1 is small, it becomes root and two become children
+             # -> [2, 3, 5] -> [3, 5, 6] -> [4, 6, 5]
+            heapq.heappush(heap, num)
+            if len(heap) > k:
+                heapq.heappop(heap) # remove the smallest element
+                # [2, 3] -> [3, 5] -> [5, 6] -> [5, 6]
+        
+        return heap[0]
+        
+# ======================================================================
+# 227. Basic Calculator II
+# Topic : heap, heapq, heappush, heappop
+# ======================================================================    
+
+class Solution(object):
+    def calculate(self, s):
+        total = 0
+        # ['+', 'a', '+', 'b', '-', 'c']
+        outer = iter(['+'] + re.split('([+-])', s))
+
+        for addsub in outer:
+            inner = iter(['*'] + re.split('([*/])', next(outer)))
+            term = 1
+            for muldiv in inner:
+                n = int(next(inner))
+                term = term * n if muldiv == "*" else term/n
+            total += term if addsub == '+' else -term
+
+        return total
+
+# ======================================================================
+# 236. Lowest Common Ancestor of a Binary Tree
+# Topic : binary tree
+# ======================================================================    
+
+class Solution(object):
+    def lowestCommonAncestor(self, root, p, q):
+
+        if not root or root == p or root == q:
+            return root
+
+        # find p, q
+        left = self.lowestCommonAncestor(root.left, p, q)
+        right = self.lowestCommonAncestor(root.right, p, q)
+
+        if left and right:
+            return root
+
+        return left if left else right
+ 
+# ======================================================================
+# 238. Product of Array Except Self
+# Topic : Array
+# ======================================================================    
+
+class Solution(object):
+    def productExceptSelf(self, nums):
+
+        n = len(nums) # [1, 2, 3, 4]
+        cal = [1] * n # [1, 1, 1, 1]
+
+        for i in range(1, n):
+            cal[i] = cal[i-1] * nums[i-1] # [1, 1, 2, 6]
+
+        right = nums[-1] # 4
+        for i in range(n-2, -1, -1):
+            cal[i] *= right
+            # [1,1,8,6] -> [1,12,8,6] -> [24,12,8,6]
+            right *= nums[i] # 12 -> 24
+            
+        return cal
 
 
 
