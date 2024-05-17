@@ -18,6 +18,32 @@ This is becaue the weight in overall approval of individual product has changes.
 Why would the same machine learning algorithm generate different success rates using the same dataset? </br>
 Note: When they ask us an ambiguous question, we need to gather context and restate it in a way that’s clear for us to answer. </br>
 
+- Random Initialization
+  - Many machine learning algorithms, especially those involving neural networks, use random initialization of weights and biases.
+  - This randomness can lead to different outcomes each time the model is trained.
+- Stochastic Nature of the Algorithm
+  - Algorithms like stochastic gradient descent (SGD) introduce randomness through their iterative process, as they sample batches of data randomly in each epoch.
+  - This can lead to different models and, consequently, different success rates.
+- Data Splitting
+  - If the dataset is split into training and testing sets randomly each time, different splits can result in different training and testing datasets.
+  - This can cause variations in model performance due to the different compositions of these datasets.
+- Cross-Validation
+  - When using cross-validation, the data is split into different subsets multiple times.
+  - Each split can lead to slightly different model training processes and, therefore, different success rates.
+- Hyperparameter Tuning
+  - If the hyperparameters of the algorithm are not fixed and are being tuned through methods like grid search or random search,
+  - different hyperparameter values can lead to different model performances.
+= Hardware and Computational Differences
+  - Variations in the hardware or computational environment can lead to slight differences in numerical computations, which can affect the outcome.
+  - ex) GPU vs. CPU, different versions of libraries, etc.
+- Overfitting and Underfitting
+  - If the model is overfitting or underfitting, small changes in the data or initialization can lead to significant changes in performance.
+  - Overfitting to noise in the training data can especially cause high variance in the success rates.
+- Data Preprocessing
+  - Differences in how data is preprocessed can lead to different results.
+  - Even small changes in preprocessing can impact the performance of the model.
+  - ex) scaling, normalization, handling missing values
+
 # Statistics
 
 ## Same Side Probability
@@ -61,6 +87,22 @@ P(all lie) = 1/3 * 1/3 * 1/3 = 1/27 </br>
 P(yes) = P(yes|rain) * P(rain) + P(yes|not rain) * P(not rain) </br>
 conditional probability = 8/27 / (8/27 + 1/27) = 8/27 / (1/3) = 8/9
 
+## Skewed Pricing
+
+Let’s say that we’re building a model to predict real estate home prices in a particular city. We analyze the distribution of the home prices and see that the **homes values are skewed to the right.** Do we need to do anything or take it into consideration? If so, what should we do? </br>
+Bonus: Let’s say you see your target distribution is **heavily left** instead. What do you do now?
+
+**Right-Skewed** Distribution (Positively Skewed)
+- Log Transform : $y = log(y)$
+- Box-Cox Transform : more flexible transformation that includes a parameter lambda that can be adjusted to **best normalize the data**
+  - $y = (y^{\lambda} - 1) / \lambda$
+- Square Root Transform : $y = \sqrt{y}$
+
+**Left-Skewed** Distribution (Negatively Skewed)
+- Log Transform : $y = max(y) + 1 - y -> y = log(y)$
+- Box Cox Transform : make $\lambda < 0$
+- Square Root Transform : $y = max(y) + 1 - y -> y = \sqrt{y}$
+
 # SQL
 
 ## Random SQL Sample
@@ -76,6 +118,75 @@ select job_title
      , sum(salary) + sum(overtime_hours * overtime_rate) total_compensation
 from employees
 group by 1
+```
+
+## Employee Salaries (ETL Error)
+
+```
+select first_name
+     , last_name
+     , salary
+from (
+    select first_name
+        , last_name
+        , salary
+        , rank()over(partition by first_name, last_name order by id desc) rk
+    from employees
+) as t
+where rk = 1
+```
+
+## Download Facts
+
+```
+select d.download_date
+     , a.paying_customer
+     , ROUND(avg(downloads),2) average_downloads
+from accounts a
+inner join downloads d on a.account_id = d.account_id
+group by 1, 2
+```
+
+## Sequentially Fill in Integers
+
+```
+WITH RECURSIVE t_rp AS (
+    SELECT int_numbers
+         , 1 as lvl
+    FROM tbl_numbers
+    UNION ALL
+    SELECT int_numbers
+         , lvl+1
+    FROM t_rp
+    where lvl+1 <= int_numbers
+)
+select int_numbers as seq_numbers
+from t_rp
+order by int_numbers
+;
+```
+
+## Lowest Paid
+
+```
+with t as (
+    select e.id employee_id
+        , e.salary
+        , count(*) completed_projects
+    from employees e
+    left join employee_projects ep on e.id = ep.employee_id
+    left join projects p on ep.project_id = p.id
+    where p.end_date is not null
+    group by e.id
+    having count(*) >= 2
+)
+select t.employee_id
+     , t.salary
+     , t.completed_projects
+from employees e
+inner join t on e.id = t.employee_id
+order by e.salary
+limit 3
 ```
 
 # Python
@@ -99,3 +210,45 @@ def merge_list(list1, list2):
 
     return list1 + list2 + rst
 ```
+
+## Find the Missing Number
+
+```
+def missing_number(nums):
+
+  nums = sorted(nums)  
+  for i in range(1, len(nums)):
+    if nums[i-1] != nums[i] - 1:
+      return nums[i] - 1
+
+  return 0
+```
+
+## Target Value Search 
+
+```
+def target_value_search(rotated_input, target_value):
+
+    for i, n in enumerate(rotated_input):
+        if n == target_value:
+            return i
+    return -1
+```
+
+## Good Grades and Favorite Color
+
+```
+import pandas as pd
+
+def grades_colors(students_df: pd.DataFrame):
+
+    return students_df[
+        ((students_df.favorite_color == 'green') |
+         (students_df.favorite_color == 'red'))
+         & (students_df.grade > 90)]
+```
+
+
+
+
+
