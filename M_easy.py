@@ -337,16 +337,89 @@ class Solution(object):
                 cnt -= 1
         return maj
 
+# ======================================================================
+# 206. Reverse Linked List
+# Topic : Linked List
+# ======================================================================
 
+class Solution(object):
+    def reverseList(self, head):
+        
+        prev = None
+        cur = head
 
+        while cur:
+            next_p = cur.next
+            cur.next = prev
+            prev = cur
+            cur = next_p
 
+        return prev
 
+# ======================================================================
+# 217. Contains Duplicate
+# Topic : set
+# ======================================================================
 
+class Solution(object):
+    def containsDuplicate(self, nums):
+        return len(set(nums)) != len(nums)
 
+# ======================================================================
+# 225. Implement Stack using Queues
+# Topic : Queue (collections - deque)
+# ======================================================================
 
+from collections import deque
 
+class MyStack(object):
 
+    def __init__(self):
+        self.queue = deque()
 
+    def push(self, x):
+        # [1] -> [2, 1] -> [3, 2, 1]
+        tmp = deque([x])
+        tmp.extend(self.queue) # place x at the front
+        self.queue = tmp
+
+    def pop(self):
+        return self.queue.popleft()
+        
+    def top(self):
+        return self.queue[0]        
+
+    def empty(self):
+        return len(self.queue) == 0
+
+# ======================================================================
+# 232. Implement Queue using Stacks
+# Topic : queue
+# ======================================================================    
+
+Class MyQueue(object):
+
+    def __init__(self):
+        self.queue = deque()
+
+    def push(self, x):
+        tmp = deque([x])
+        tmp.extend(self.queue) # place x at the front
+        self.queue = tmp
+
+    def pop(self):
+        return self.queue.pop()
+
+    def peek(self):
+        return self.queue[-1]
+
+    def empty(self):
+        return len(self.queue) == 0
+
+# ======================================================================
+# 242. Valid Anagram
+# Topic : string
+# ======================================================================    
 
 
 
