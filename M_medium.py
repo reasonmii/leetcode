@@ -6,11 +6,6 @@
 
 class Solution(object):
     def addTwoNumbers(self, l1, l2):
-        """
-        :type l1: ListNode
-        :type l2: ListNode
-        :rtype: ListNode
-        """
 
         carry = 0
         root = n = ListNode(0)
@@ -208,10 +203,6 @@ class Solution(object):
 
 class Solution(object):
     def threeSum(self, nums):
-        """
-        :type nums: List[int]
-        :rtype: List[List[int]]
-        """
 
         rst = set() # [-1, 0, 1], [0, 1, -1] --> [-1, 0, 1]
 
@@ -263,10 +254,6 @@ class Solution(object):
 
 class Solution(object):
     def letterCombinations(self, digits):
-        """
-        :type digits: str
-        :rtype: List[str]
-        """
 
         dic = {"2":"abc", "3":"def", "4":"ghi", "5":"jkl", "6":"mno", "7":"pqrs", "8":"tuv", "9":"wxyz"}
 
@@ -297,12 +284,7 @@ class Solution(object):
 
 class Solution(object):
     def fourSum(self, nums, target):
-        """
-        :type nums: List[int]
-        :type target: int
-        :rtype: List[List[int]]
-        """
-
+        
         nums.sort()
         N = len(nums)
         rst = []
@@ -337,11 +319,6 @@ class Solution(object):
 
 class Solution(object):
     def removeNthFromEnd(self, head, n):
-        """
-        :type head: ListNode
-        :type n: int
-        :rtype: ListNode
-        """
 
         fast, slow = head, head
 
@@ -366,10 +343,6 @@ class Solution(object):
 
 class Solution(object):
     def generateParenthesis(self, n):
-        """
-        :type n: int
-        :rtype: List[str]
-        """
 
         def dfs(left, right, s):
             if len(s) == n*2:
@@ -391,10 +364,6 @@ class Solution(object):
 
 class Solution(object):
     def nextPermutation(self, nums):
-        """
-        :type nums: List[int]
-        :rtype: None Do not return anything, modify nums in-place instead.
-        """
 
         # [1,2,3] // [1,3,2]
         for i in range(len(nums)-1, 0, -1):   # 2 // 2 -> 1
@@ -417,11 +386,6 @@ class Solution(object):
 
 class Solution(object):
     def search(self, nums, target):
-        """
-        :type nums: List[int]
-        :type target: int
-        :rtype: int
-        """
 
         n = len(nums)
         left, right = 0, n -1
@@ -553,10 +517,6 @@ class Solution(object):
 
 class Solution(object):
     def maxSubArray(self, nums):
-        """
-        :type nums: List[int]
-        :rtype: int
-        """
 
         # [5,4,-1,7,8]
         max_v = nums[0] # 5
@@ -577,10 +537,6 @@ class Solution(object):
 
 class Solution(object):
     def spiralOrder(self, matrix):
-        """
-        :type matrix: List[List[int]]
-        :rtype: List[int]
-        """
 
         rst = []
 
@@ -616,10 +572,6 @@ class Solution(object):
 
 class Solution(object):
     def canJump(self, nums):
-        """
-        :type nums: List[int]
-        :rtype: bool
-        """
 
         last = len(nums)-1 # 4
 
@@ -813,10 +765,6 @@ class Solution(object):
 
 class Solution(object):
     def subsetsWithDup(self, nums):
-        """
-        :type nums: List[int]
-        :rtype: List[List[int]]
-        """
 
         rst = [[]] # len(rst) = 1
         nums.sort()
@@ -865,10 +813,6 @@ class Solution(object):
 
 class Solution(object):
     def restoreIpAddresses(self, s):
-        """
-        :type s: str
-        :rtype: List[str]
-        """
         
         rst = []
         self.dfs(s, 0, "", rst)
@@ -917,10 +861,6 @@ class Solution(object):
 
 class Solution(object):
     def isValidBST(self, root):
-        """
-        :type root: TreeNode
-        :rtype: bool
-        """
 
         out = []
         self.inOrder(root, out)
@@ -1087,11 +1027,6 @@ class Solution(object):
 
 class Solution(object):
     def wordBreak(self, s, wordDict):
-        """
-        :type s: str
-        :type wordDict: List[str]
-        :rtype: bool
-        """
 
         ok = [True]
         for i in range(1, len(s)+1): # (1,9)
@@ -1470,7 +1405,193 @@ class Solution(object):
             
         return cal
 
+# ======================================================================
+# 253. Meeting Rooms II
+# Topic : Array, heap, heapq, heapreplace, heappush
+# ======================================================================    
 
+class Solution(object):
+    def minMeetingRooms(self, intervals):
+        
+        intervals.sort(key = lambda x: x[0])
+        heap = []
+
+        for arr in intervals:
+            if heap and arr[0] >= heap[0]:
+                heapq.heapreplace(heap, arr[1])
+            else:
+                heapq.heappush(heap, arr[1])
+            # print(heap) # [30], [10, 30], [20, 30]
+        return len(heap)
+
+# ======================================================================
+# 285. Inorder Successor in BST
+# Topic : BST, while
+# ======================================================================    
+
+class Solution(object):
+    def inorderSuccessor(self, root, p):
+
+        suc = None
+        while root:
+            if p.val < root.val:
+                suc = root
+                root = root.left
+            else:
+                root = root.right
+        return suc
+
+# ======================================================================
+# 287. Find the Duplicate Number
+# Topic : dic
+# ======================================================================    
+
+class Solution(object):
+    def findDuplicate(self, nums):
+
+        dic = {}
+        for n in nums:
+            if n not in dic:
+                dic[n] = 0
+            else:
+                return n
+        
+# ======================================================================
+# 300. Longest Increasing Subsequence
+# Topic : while
+# ======================================================================    
+
+class Solution(object):
+    def lengthOfLIS(self, nums):
+
+        tmp = [0 for _ in range(len(nums))]
+        size = 0
+
+        for x in nums:
+            i, j = 0, size
+            while i != j:
+                m = (i + j) // 2
+                if tmp[m] < x:
+                    i = m+1
+                else:
+                    j = m
+            tmp[i] = x
+            size = max(i+1, size)
+
+        # tmp : [10, 0, 0, 0, 0, 0, 0, 0], size : 1
+        # tmp : [9, 0, 0, 0, 0, 0, 0, 0], size : 1
+        # tmp : [2, 0, 0, 0, 0, 0, 0, 0], size : 1
+        # tmp : [2, 5, 0, 0, 0, 0, 0, 0], size : 2
+        # tmp : [2, 3, 0, 0, 0, 0, 0, 0], size : 2
+        # tmp : [2, 3, 7, 0, 0, 0, 0, 0], size : 3
+        # tmp : [2, 3, 7, 101, 0, 0, 0, 0], size : 4
+        # tmp : [2, 3, 7, 18, 0, 0, 0, 0], size : 4
+
+        return size
+
+# ======================================================================
+# 316. Remove Duplicate Letters
+# Topic : while
+# ======================================================================    
+
+class Solution(object):
+    def removeDuplicateLetters(self, s):
+
+        idx = {c: i for i, c in enumerate(s)}
+        rst = ''
+
+        for i, c in enumerate(s):
+            if c not in rst:
+                # rst[-1:] 로 안 하면 out of index 문제 발생 (=rst[-1])
+                while c < rst[-1:] and i < idx[rst[-1]]:
+                    rst = rst[:-1]
+                rst += c
+
+        return rst
+
+# ======================================================================
+# 322. Coin Change
+# Topic : BFS
+# ======================================================================    
+
+class Solution(object):
+    def coinChange(self, coins, amount):
+
+        if amount == 0:
+            return 0
+
+        q = deque()
+        q.append(amount)
+        visited = set()
+        depth = 0
+
+        while q:
+            for i in range(len(q)):
+                amt = q.popleft()
+
+                if amt < 0: continue
+                elif amt == 0: return depth
+
+                if amt not in visited:
+                    visited.add(amt)
+
+                    for c in coins:
+                        q.append(amt - c)
+            
+            depth += 1
+
+        return -1
+
+# ======================================================================
+# 328. Odd Even Linked List
+# Topic : Linked List
+# ======================================================================    
+
+class Solution(object):
+    def oddEvenList(self, head):
+
+        dummy1 = odd = ListNode(0)
+        dummy2 = even = ListNode(0)
+
+        while head:
+            odd.next = head
+            even.next = head.next
+            odd = odd.next
+            even = even.next
+
+            head = head.next.next if even else None
+
+        odd.next = dummy2.next
+        return dummy1.next
+
+# ======================================================================
+# 347. Top K Frequent Elements
+# Topic : dic
+# dic sort with values : sorted(freq.items(), key=lambda x: x[1], reverse=True)
+# ======================================================================   
+
+class Solution(object):
+    def topKFrequent(self, nums, k):
+        """
+        :type nums: List[int]
+        :type k: int
+        :rtype: List[int]
+        """
+        
+        freq = {}
+        for n in nums:
+            if n in freq:
+                freq[n] += 1
+            else:
+                freq[n] = 1
+
+        # (1, 3), (2, 2), (3, 1)
+        freq = sorted(freq.items(), key=lambda x: x[1], reverse=True)
+
+        rst = []
+        for i in range(k):
+            rst.append(freq[i][0])
+        return rst
 
 
 
