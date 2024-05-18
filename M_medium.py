@@ -1,4 +1,12 @@
 
+# @cache : If the function is called again with the same arguments, the cached result is returned instead of recomputing the result.
+
+```
+@cache
+def function():
+    blabla
+```
+
 # ======================================================================
 # 2. Add Two Numbers
 # Topic : ListNode
@@ -1604,6 +1612,174 @@ class Solution(object):
 # Topic : BFS
 # ======================================================================
 
+# ======================================================================
+# 400. Nth Digit
+# Topic : digit
+# ======================================================================
+
+class Solution(object):
+    def findNthDigit(self, n):
+        
+        if n <= 9:
+            return n
+
+        base = 9
+        digits = 1
+
+        while n > base * digits: # 11 > 9 -> 2 > 180
+            n -= base * digits # 11 - 9 = 2
+            base *= 10 # 90
+            digits += 1 # 2
+
+        num = 10 ** (digits-1) + (n-1) // digits # 10 ** (1) + (1 // 2) = 10
+        idx = (n-1) % digits # 1 % 2 = 1
+        # print(num, idx)
+
+        return int(str(num)[idx])
+
+# ======================================================================
+# 402. Remove K Digits
+# Topic : stack
+# ======================================================================
+
+class Solution(object):
+    def removeKdigits(self, num, k):
+
+        if len(num) == k:
+            return "0"
+        
+        stk = []
+        for v in num:
+            while stk and stk[-1] > v and k > 0:
+                stk.pop()
+                k -= 1
+            if v != '0' or stk:
+                stk.append(v)
+        
+        # num = "112", k=1
+        if k > 0:
+            stk = stk[:-k]
+
+        return "".join(stk) or "0"
+
+# ======================================================================
+# 443. String Compression
+# Topic : change the input itself
+# ======================================================================
+
+class Solution(object):
+    def compress(self, chars):
+        
+        rst = 0
+        i = 0
+
+        while i < len(chars):
+            ch = chars[i]
+            cnt = 0
+
+            while i < len(chars) and chars[i] == ch:
+                cnt += 1
+                i += 1
+            
+            chars[rst] = ch
+            rst += 1
+
+            if cnt > 1:
+                for c in str(cnt):
+                    chars[rst] = c
+                    rst += 1
+        return rst
+
+# ======================================================================
+# 450. Delete Node in a BST
+# Topic : BST, successor, predecessor
+# ======================================================================
+
+class Solution(object):
+    def deleteNode(self, root, key):
+
+        if not root:
+            return None
+
+        if key < root.val:
+            root.left = self.deleteNode(root.left, key)
+        elif key > root.val:
+            root.right = self.deleteNode(root.right, key)
+        else: # key == root
+            if not root.left and not root.right:
+                root = None
+            elif root.right:
+                root.val = self.successor(root)
+                root.right = self.deleteNode(root.right, root.val)
+            else:
+                root.val = self.predecessor(root)
+                root.left = self.deleteNode(root.left, root.val)
+
+        return root
+
+    def successor(self, root):
+        root = root.right
+        while root.left:
+            root = root.left # make the smallest number in the right side node as root
+        return root.val
+    
+    def predecessor(self, root):
+        root = root.left
+        while root.right:
+            root = root.right
+        return root.val
+
+# ======================================================================
+# 456. 132 Pattern
+# Topic : stack, i < j < k, lst[i] < lst[k] < lst[j]
+# ======================================================================
+
+class Solution(object):
+    def find132pattern(self, nums):
+        
+        stk = []
+        max_v = float('-inf')
+
+        for n in nums[::-1]:
+            if n < max_v:
+                return True
+            while stk and stk[-1] < n:
+                max_v = stk.pop(-1)
+            stk.append(n)
+        
+        return False
+
+# ======================================================================
+# 473. Matchsticks to Square
+# Topic : recursive
+# ======================================================================
+
+class Solution(object):
+    def makesquare(self, matchsticks):
+
+        val = sum(matchsticks)
+
+        if val % 4 != 0 or val < 4:
+            return False
+
+        edge = val // 4
+        matchsticks.sort(reverse=True)
+
+        def find(l1, l2, l3, l4, i):
+            if l1 == l2 == l3 == l4 == edge:
+                return True
+            if l1 > edge or l2 > edge or l3 > edge or l4 > edge:
+                return False
+            if i > len(matchsticks) - 1:
+                return False
+
+            m = matchsticks[i]
+            return find(l1+m, l2, l3, l4, i+1) or \
+            find(l1, l2+m, l3, l4, i+1) or \
+            find(l1, l2, l3+m, l4, i+1) or \
+            find(l1, l2, l3, l4+m, i+1)
+
+        return find(0,0,0,0,0)
 
 
 
