@@ -418,14 +418,57 @@ Class MyQueue(object):
 
 # ======================================================================
 # 242. Valid Anagram
-# Topic : string
+# Topic : string, zip, setdefault
 # ======================================================================    
 
+class Solution(object):
+    def isAnagram(self, s, t):
 
+        if len(s) != len(t):
+            return False
 
+        dic = {}
+    
+        for sc, tc in zip(s, t):
+            dic[sc] = dic.setdefault(sc, 0) + 1
+            dic[tc] = dic.setdefault(tc, 0) - 1
 
+        # check if there's at least one true value
+        return not any(dic.values())
 
+# ======================================================================
+# 349. Intersection of Two Arrays
+# Topic : Array
+# ======================================================================    
 
+class Solution(object):
+    def intersection(self, nums1, nums2):
+
+        return list(set([i for i in nums1 if i in nums2]))
+        # return set(nums1).intersection(set(nums2))
+
+# ======================================================================
+# 367. Valid Perfect Square
+# Topic : Binary search
+# ======================================================================    
+
+class Solution(object):
+    def isPerfectSquare(self, num):
+
+        if 0 <= num < 2:
+            return True
+
+        left, right = 1, num
+        while left <= right:
+            mid = (left + right) // 2
+            if mid * mid == num:
+                return True
+            elif mid * mid < num:
+                left = mid + 1
+            else:
+                right = mid - 1
+
+        return  False            
 
 
 
