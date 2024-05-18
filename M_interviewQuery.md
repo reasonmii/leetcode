@@ -14,6 +14,33 @@ What could be the cause of the decrease? </br>
 This is becaue the weight in overall approval of individual product has changes. This is **Simpson paradox** as mentioned by other users.
 - Simpson’s Paradox occurs when a trend shows in several groups but either disappears or is reversed when combining the data.
 
+## Overfit Avoidance
+Let’s say that you’re training a classification model. How would you combat overfitting when building tree-based models?
+- Pruning
+  - Decision Trees : limit below things
+    - the depth of the tree (e.g., max_depth)
+    - the minimum samples required to split a node (min_samples_split)
+    - the minimum samples required at a leaf node (min_samples_leaf)
+- Ensemble Methods
+  - Random Forests
+    - Use multiple trees and aggregate their predictions.
+    - Control n_estimators (number of trees), and the depth and minimum samples like in single trees
+  - Gradient Boosting
+    - Control n_estimators, learning rate (learning_rate), and tree-specific parameters
+- Regularization
+  - Random Forests
+    - Use max_features to limit the number of features considered for splitting at each node
+  - Gradient Boosting
+    - Regularize by setting a low learning rate and subsample to use a fraction of the data for each tree
+- Cross-Validation
+  - Use techniques like **k-fold** cross-validation to ensure your model generalizes well to unseen data
+- Feature Engineering
+  - Reduce the number of features, perform feature selection, and use domain knowledge to **eliminate irrelevant or redundant features**
+- Early Stopping
+  - Monitor performance on a validation set and stop training when performance no longer improves
+- Bootstrap Aggregating (Bagging)
+  - Train multiple models on different subsets of the data and aggregate their predictions
+
 ## Same Algorithm Different Success
 Why would the same machine learning algorithm generate different success rates using the same dataset? </br>
 Note: When they ask us an ambiguous question, we need to gather context and restate it in a way that’s clear for us to answer. </br>
@@ -43,6 +70,38 @@ Note: When they ask us an ambiguous question, we need to gather context and rest
   - Differences in how data is preprocessed can lead to different results.
   - Even small changes in preprocessing can impact the performance of the model.
   - ex) scaling, normalization, handling missing values
+
+## Score Based on Review
+Let’s say you’re an ML engineer at Netflix. You have access to reviews of 10K movies. Each review contains multiple sentences along with a score ranging from 1 to 10. </br>
+How would you design an **ML system to predict the movie score based on the review text**?
+
+
+
+## Spanish Scrabble
+Let’s say you have to build scrabble for Spanish users. </br>
+Assuming that you don’t know any Spanish, how would you approach assigning each letter a point value? </br>
+
+- It requires a structured and data-driven approach
+- Frequency Analysis
+  - Collect Spanish Text Data (books, newspapers, websites, and other sources of written Spanish)
+  - Calculate Letter Frequencies : **More frequent** letters should generally have **lower point** values, while **less frequent** letters should have **higher point** values.
+- Existing Spanish Games
+  - Research Spanish Word Games : Analyze the point values assigned in these games.
+  - Compare with English Scrabble : apply a similar rationale
+- Statistical Modeling
+  - Fit a Model : model the relationship between letter frequency and point value.
+  - Assign Point Values: Ensure that the distribution of points creates a balanced game with an appropriate level of difficulty and competition.
+- Iterative Testing
+  - Prototype and Test : Create a prototype of the game with the initial point values and test it with Spanish-speaking players.
+  - Gather Feedback : Collect feedback on the balance and playability of the game.
+  - Refine Point Values: Adjust the point values based on feedback and further analysis.
+- Consult Linguistic Experts
+  - Collaborate with Spanish Linguists : Work with experts in the Spanish language to refine your approach and ensure cultural and linguistic appropriateness.
+
+## Video Game Respawn Model
+How would you build a model or algorithm to generate respawn locations for an online third person shooter game like Halo?
+When designing an algorithm to generate respawn locations in an online game, what aspects must be considered to ensure long-term player engagement?
+
 
 # Statistics
 
@@ -189,7 +248,47 @@ order by e.salary
 limit 3
 ```
 
+## Employee Project Budgets
+- Top five most expensive projects by budget to employee count ratio
+- Exclude projects with 0 employees
+
+```
+select p.title
+     , p.budget / e.cnt budget_per_employee
+from projects p
+inner join (select project_id
+                 , count(*) cnt
+            from employee_projects
+            group by 1
+            ) e on e.project_id = p.id
+order by budget_per_employee desc
+limit 5
+```
+
 # Python
+
+## Precision and Recall
+
+```
+def precision_recall(P):
+    
+    tp = P[0][0]
+    fp = P[1][0]
+    fn = P[0][1]
+
+    pre = tp / (tp + fp)
+    rec = tp / (tp + fn)
+    return (pre, rec)
+```
+
+## Swap Variables
+
+```
+def swap_values(numbers):
+
+  numbers['a'], numbers['b'] = numbers['b'], numbers['a']
+  return numbers
+```
 
 ## Merge Sorted Lists
 
@@ -233,6 +332,50 @@ def target_value_search(rotated_input, target_value):
         if n == target_value:
             return i
     return -1
+```
+
+### Greatest Common Denominator
+
+```
+def gcd(numbers):
+
+    min_v = min([num for num in numbers if num > 0])
+
+    for n in range(min_v,0,-1):
+        if sum([num % n for num in numbers]) == 0:
+            return n
+```
+
+## String Palindromes
+
+```
+def is_palindrome(word):
+    # return word == word[::-1]
+    i, j = 0, len(word)-1
+    while i < j:
+
+        if word[i] != word[j]:
+            return False
+
+        i += 1
+        j -= 1
+
+    return True
+```
+
+## Find Bigrams
+
+```
+def find_bigrams(sentence):
+
+    words = sentence.lower().split()
+    rst = []
+
+    # list(zip(words, words[1:]))
+    for i in range(1, len(words)):
+        rst.append((words[i-1], words[i]))
+
+    return rst
 ```
 
 ## Good Grades and Favorite Color
