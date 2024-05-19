@@ -1,5 +1,13 @@
 # Concept
 
+## P-value to a Layman
+
+How would you explain what a p-value is to someone who is not technical?
+- It's the probability of observing the current data, assuming the null hypothesis is true
+
+In a statistical test, how does a low p-value (less than 0.05) influence our decision about the null hypothesis?
+- It leads us to reject the null hypothesis, because the observed data is extremely unlikely under the null hypothesis
+
 ## Approval Drop
 
 Capital approval rates have gone down for our overall approval rate. </br>
@@ -258,6 +266,7 @@ select p.title
 from projects p
 inner join (select project_id
                  , count(*) cnt
+                 # , count(distinct employee_id) cnt # when there's duplicate
             from employee_projects
             group by 1
             ) e on e.project_id = p.id
@@ -346,6 +355,26 @@ def gcd(numbers):
             return n
 ```
 
+## The Brackets Problem
+
+```
+def is_balanced(string: str) -> bool:
+    
+    rst = []
+    for ch in string:
+        if ch in '([{':
+            rst.append(ch)
+        else:
+            if ch == ')' and rst[-1] != '(' or \
+                ch == ']' and rst[-1] != '[' or \
+                ch == '}' and rst[-1] != '{':
+                return False
+            else:
+                rst.pop()
+
+    return len(rst) == 0
+```
+
 ## String Palindromes
 
 ```
@@ -361,6 +390,31 @@ def is_palindrome(word):
         j -= 1
 
     return True
+```
+
+## Length Of Longest Palindrome
+
+```
+def longest_palindrome(s):
+
+    dic = {}    
+    for ch in s:
+        if ch in dic:
+            dic[ch] += 1
+        else:
+            dic[ch] = 1
+    
+    odd_max = 0
+    cnt = 0
+
+    for k, v in dic.items():
+        if v % 2 == 0:
+            cnt += v
+        else:
+            if odd_max < v:
+                odd_max = v
+
+    return cnt + odd_max
 ```
 
 ## Find Bigrams
