@@ -472,8 +472,165 @@ class Solution(object):
 
 # ======================================================================
 # 496. Next Greater Element I
-# Topic : recursive
+# Topic : stack
 # ======================================================================
+
+class Solution(object):
+    def nextGreaterElement(self, nums1, nums2):
+
+        if not nums2:
+            return None
+
+        dic = {}
+        rst = []
+        stk = [nums2[0]]
+
+        for i in range(1, len(nums2)):
+            while stk and nums2[i] > stk[-1]:  # if stack is not empty, then compare it's last element with nums2[i]
+                dic[stk[-1]] = nums2[i]        # if the new element is greater than stack's top element, then add this to dictionary 
+                stk.pop()                      # since we found a pair for the top element, remove it.
+            stk.append(nums2[i])               # add the element nums2[i] to the stack because we need to find a number greater than this
+
+        for element in stk:                    # if there are elements in the stack for which we didn't find a greater number, map them to -1
+            dic[element] = -1
+
+        for i in range(len(nums1)):
+            rst.append(dic[nums1[i]])
+        return rst
+
+# ======================================================================
+# 605. Can Place Flowers
+# Topic : list
+# ======================================================================
+
+class Solution(object):
+    def canPlaceFlowers(self, flowerbed, n):
+
+        if n == 0:
+            return True
+        
+        for i, p in enumerate(flowerbed):
+            if p == 0 and \
+            (i == 0 or flowerbed[i-1] == 0) and \
+            (i == len(flowerbed)-1 or flowerbed[i+1]== 0):
+                n -= 1
+                flowerbed[i] = 1
+                if n == 0:
+                    return True
+        return False
+
+# ======================================================================
+# 704. Binary Search
+# Topic : binary search
+# ======================================================================
+
+class Solution(object):
+    def search(self, nums, target):
+
+        left, right = 0, len(nums)-1
+
+        while left <= right:
+            mid = (left + right) // 2
+            if nums[mid] == target:
+                return mid
+            elif nums[mid] < target:
+                left = mid+1
+            else:
+                right = mid-1
+        
+        return -1
+
+# ======================================================================
+# 706. Design HashMap
+# Topic : hash map
+# ======================================================================
+
+class MyHashMap(object):
+
+    def __init__(self):
+        self.data = [None] * 1000001   
+
+    def put(self, key, value):
+        self.data[key] = value        
+
+    def get(self, key):
+        val = self.data[key]
+        return val if val != None else -1
+
+    def remove(self, key):
+        self.data[key] = None
+
+# ======================================================================
+# 733. Flood Fill
+# Topic : Array, dfs, same as island (medium) question logic (200, 695)
+# ======================================================================
+
+class Solution(object):
+    def floodFill(self, image, sr, sc, color):
+
+        rows, cols = len(image), len(image[0])
+
+        def dfs(row, col, original):
+            if row < 0 or col < 0 or row >= rows or col >= cols or \
+            image[row][col] != original or image[row][col] == color:
+                return
+
+            image[row][col] = color
+            dfs(row-1, col, original)
+            dfs(row+1, col, original)
+            dfs(row, col-1, original)
+            dfs(row, col+1, original)
+
+        dfs(sr, sc, image[sr][sc])
+        return image
+
+# ======================================================================
+# 859. Buddy Strings
+# Topic : string
+# ======================================================================
+
+class Solution(object):
+    def buddyStrings(self, s, goal):
+
+        if len(s) != len(goal):
+            return False
+        
+        if s == goal and len(s) != len(set(s)):
+            return True
+
+        diff_s, diff_g = [], []
+        for i in range(len(s)):
+            if s[i] != goal[i]:
+                diff_s.append(s[i])
+                diff_g.append(goal[i])
+
+                if len(diff_s) > 2:
+                    return False
+        
+        return len(diff_s) == 2 and sorted(diff_s) == sorted(diff_g)
+
+# ======================================================================
+# 509. Fibonacci Number
+# Topic : fibonacci
+# ======================================================================
+
+class Solution(object):
+    def fib(self, n):
+
+        if n == 0:
+            return 0
+        if n == 1:
+            return 1
+        
+        fib = [0 for _ in range(n+1)]
+        fib[1] = 1
+
+        for i in range(2, n+1):
+            fib[i] = fib[i-1] + fib[i-2]
+
+        return fib[n]
+        
+
 
 
 
