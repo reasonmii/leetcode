@@ -79,11 +79,39 @@ Note: When they ask us an ambiguous question, we need to gather context and rest
   - Even small changes in preprocessing can impact the performance of the model.
   - ex) scaling, normalization, handling missing values
 
+# Case Study
+
+## Analyzing Churn Behavior
+Let’s say that you work for a company like Netflix. Netflix has two pricing plans: $15/month or $100/year. </br>
+Let’s say an executive at the company wants you to analyze the churn behavior of users that subscribe to either plan. </br>
+What kinds of metrics / graphs / models would you build to help give the executive an over-arching view of how the subscriptions are performing? </br>
+
+
+
 ## Score Based on Review
 Let’s say you’re an ML engineer at Netflix. You have access to reviews of 10K movies. Each review contains multiple sentences along with a score ranging from 1 to 10. </br>
 How would you design an **ML system to predict the movie score based on the review text**?
 
 
+## Keyword Bidding
+Let’s say you’re working on keyword bidding optimization. </br>
+You’re given a dataset with two columns. </br>
+One column contains the keywords that are being bid against, and the other column contains the price that’s being paid for those keywords. </br>
+Given this dataset, how would you build a model to bid on a new unseen keyword?
+
+- Data Preprocessing
+  - Text Processing
+    - TF-IDF (Term Frequency-Inverse Document Frequency)
+    - word embeddings (Word2Vec, GloVe, BERT)
+  - Normalization : Normalize the price
+- Feature Engineering
+  - Keyword Features
+  - Additional Features : consider adding features such as keyword length, frequency, or other relevant metrics
+- Split the Dataset into training and test set
+- Model Selection : Linear regression, Decision Trees, Random Forests, Gradient Boosting, Neural Networks
+- Model Training
+- Model Evaluation : Mean Squared Error, Mean Absolute Error, R-squared
+- Prediction for New Keywords
 
 ## Spanish Scrabble
 Let’s say you have to build scrabble for Spanish users. </br>
@@ -109,7 +137,6 @@ Assuming that you don’t know any Spanish, how would you approach assigning eac
 ## Video Game Respawn Model
 How would you build a model or algorithm to generate respawn locations for an online third person shooter game like Halo?
 When designing an algorithm to generate respawn locations in an online game, what aspects must be considered to ensure long-term player engagement?
-
 
 # Statistics
 
@@ -169,6 +196,24 @@ Bonus: Let’s say you see your target distribution is **heavily left** instead.
 - Log Transform : $y = max(y) + 1 - y -> y = log(y)$
 - Box Cox Transform : make $\lambda < 0$
 - Square Root Transform : $y = max(y) + 1 - y -> y = \sqrt{y}$
+
+## Disease Testing Probability
+
+Bob takes a test and **tests positive** for the disease. </br>
+Bob was close to six other friends they all take the same test and end up testing negative. </br>
+The test has a 1% false positive rate and a 15% false negative rate. </br>
+What’s the percent chance that Bob was **actually negative** for the disease? P(No Disease) </br>
+
+**Bayes Theorem**
+- FPR : P(Test Positive | No Disease) = 0.01
+  - P(Test Negative | No Disease) = 1 - 0.01 = 0.99
+- FNR : P(Test Negative | Disease) = 0.15
+  - P(Test Positive | Disease) = 1 - 0.15 = 0.85
+- P(Test Positive) = 0.01 * (1 - P(D)) + 0.85 * P(D) = 0.84 * P(D) + 0.01 = 0.84p + 0.01
+- P(No Disease | Test Positive) = 0.01(1-p) / (0.84p + 0.01)
+- Let's assume that p = 0.05 (5%)
+  - P(Test Positive) = 0.042 + 0.01 = 0.052
+  - P(No Disease | Test Positive) = 0.01 (0.95) / 0.052 = 0.1827
 
 # SQL
 
@@ -343,7 +388,7 @@ def target_value_search(rotated_input, target_value):
     return -1
 ```
 
-### Greatest Common Denominator
+## Greatest Common Denominator
 
 ```
 def gcd(numbers):
@@ -353,6 +398,21 @@ def gcd(numbers):
     for n in range(min_v,0,-1):
         if sum([num % n for num in numbers]) == 0:
             return n
+```
+
+## N N Grid Traversal
+
+```
+def traverse_count(n):
+
+    grid = [[1 for _ in range(n)] for _ in range(n)]
+    
+    for row in range(n):
+        for col in range(n):
+            if row != 0 and col != 0:
+                grid[row][col] = grid[row-1][col] + grid[row][col-1]
+    
+    return grid[n-1][n-1]
 ```
 
 ## The Brackets Problem
@@ -444,6 +504,28 @@ def grades_colors(students_df: pd.DataFrame):
          (students_df.favorite_color == 'red'))
          & (students_df.grade > 90)]
 ```
+
+## Binary Tree Conversion
+
+```
+def convert_to_bst(sorted_list: list) -> TreeNode:
+    
+    if not sorted_list:
+        return None
+
+    mid = len(sorted_list) // 2
+    root = TreeNode(sorted_list[mid])
+
+    root.left = convert_to_bst(sorted_list[:mid])
+    root.right = convert_to_bst(sorted_list[mid+1:])
+
+    return root
+```
+
+
+
+
+
 
 
 
