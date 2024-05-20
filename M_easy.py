@@ -629,23 +629,108 @@ class Solution(object):
             fib[i] = fib[i-1] + fib[i-2]
 
         return fib[n]
+
+# ======================================================================
+# 1047. Remove All Adjacent Duplicates In String
+# Topic : stack
+# ======================================================================
         
+class Solution(object):
+    def removeDuplicates(self, s):
 
+        rst = []
+        for ch in s:
+            if rst and ch == rst[-1]:
+                rst.pop()
+            else:
+                rst.append(ch)
 
+        return ''.join(rst)
 
+# ======================================================================
+# 1189. Maximum Number of Balloons
+# Topic : text.count
+# ======================================================================
 
+class Solution(object):
+    def maxNumberOfBalloons(self, text):
 
+        return min(text.count('b'), text.count('a'), text.count('l') // 2, text.count('o') // 2, text.count('n'))
 
+# ======================================================================
+# 1661. Average Time of Process per Machine
+# Topic : SQL
+# ======================================================================
 
+select a1.machine_id
+     , round(sum(a2.timestamp - a1.timestamp) / count(*), 3) processing_time
+from activity a1
+left join activity a2
+       on a1.machine_id = a2.machine_id
+       and a1.process_id = a2.process_id
+       and a2.activity_type = 'end'
+where a1.activity_type = 'start'
+group by a1.machine_id
 
+# ======================================================================
+# 1757. Recyclable and Low Fat Products
+# Topic : SQL
+# ======================================================================
 
+select product_id
+from products
+where low_fats = 'Y' and recyclable = 'Y'
 
+# ======================================================================
+# 1768. Merge Strings Alternately
+# Topic : index, pop
+# ======================================================================
 
+class Solution(object):
+    def mergeAlternately(self, word1, word2):
 
+        rst = ''
+        idx = 0
+        word1, word2 = list(word1), list(word2)
 
+        while word1 and word2:
+            if idx % 2 == 0 and word1:
+                rst += word1.pop(0)
+            else:
+                rst += word2.pop(0)
+            idx += 1
 
+        return rst + ''.join(word1) if word1 else rst + ''.join(word2)
 
+# ======================================================================
+# 2235. Add Two Integers
+# Topic : add
+# ======================================================================
 
+class Solution(object):
+    def sum(self, num1, num2):
+        return num1 + num2
+
+# ======================================================================
+# 2236. Root Equals Sum of Children
+# Topic : binary tree, add
+# ======================================================================
+
+lass Solution(object):
+    def checkTree(self, root):
+        return root.val == (root.left.val + root.right.val)
+
+# ======================================================================
+# 2706. Buy Two Chocolates
+# Topic : binary tree, add
+# ======================================================================
+
+class Solution(object):
+    def buyChoco(self, prices, money):
+        
+        prices.sort()
+        left = money - sum(prices[:2])
+        return left if left >= 0 else money
 
 
 
