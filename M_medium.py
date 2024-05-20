@@ -1781,15 +1781,464 @@ class Solution(object):
 
         return find(0,0,0,0,0)
 
+# ======================================================================
+# 540. Single Element in a Sorted Array
+# Topic : Array, log(n) = Binary Search
+# ======================================================================
+
+# nums = [1,1,2,3,3,4,4,8,8]
+class Solution(object):
+    def singleNonDuplicate(self, nums):
+        
+        left, right = 0, len(nums)-1
+
+        while left < right:
+            mid = (left + right) // 4 * 2
+            if nums[mid] == nums[mid+1]:
+                left = mid+2
+            else:
+                right = mid
+        return nums[left]
+
+# ======================================================================
+# 560. Subarray Sum Equals K
+# Topic : Array
+# subarray : a contiguous non-empty sequence of elements within an array
+# dic.get(key, 0) : find the 'key', if not exist, return 0
+# ======================================================================
+
+class Solution(object):
+    def subarraySum(self, nums, k):
+
+        cnt = 0
+        sums = 0
+        d = dict()
+        d[0] = 1
+
+        # nums=[1,1,1], d={0:1}, k=2
+        for n in nums:
+            sums += n # 1->2->3
+            cnt += d.get(sums - k, 0) # 0->1->2
+            d[sums] = d.get(sums, 0) + 1
+            # {0:1, 1:1} -> {0:1, 1:1, 2:1} -> {0:1, 1:1, 2:1, 3:1}
+            # {sum : subarray cnt}
+
+        return cnt
+
+# ======================================================================
+# 678. Valid Parenthesis String
+# Topic : string, parenthesis
+# ======================================================================
+
+class Solution(object):
+    def checkValidString(self, s):
+
+        leftMin, leftMax = 0, 0
+
+        for c in s:
+            if c == '(':
+                leftMin += 1
+                leftMax += 1
+            elif c == ')':
+                leftMin -= 1
+                leftMax -= 1
+            else:
+                leftMin -= 1
+                leftMax += 1
+            
+            if leftMax < 0:
+                return False
+            if leftMin < 0: # -1
+                leftMin = 0
+
+        return leftMin == 0
+
+# ======================================================================
+# 695. Max Area of Island
+# Topic : dfs, area
+# ======================================================================
+
+class Solution(object):
+    def maxAreaOfIsland(self, grid):
+
+        rows = len(grid)
+        cols = len(grid[0])
+
+        def dfs(row, col):
+            if row < 0 or col < 0 or row >= rows or col >= cols or grid[row][col] != 1:
+                return 0
+
+            grid[row][col] = '0'
+            return 1 + dfs(row-1, col) + dfs(row+1, col) + dfs(row, col-1) + dfs(row, col+1)
+
+        cnt = 0
+        for row in range(rows):
+            for col in range(cols):
+                if grid[row][col]:
+                    cnt = max(cnt, dfs(row, col))
+        
+        return cnt
+
+# ======================================================================
+# 735. Asteroid Collision
+# Topic : stack, while ~ else
+# ======================================================================
+
+class Solution(object):
+    def asteroidCollision(self, asteroids):
+
+        stk = []
+        for n in asteroids:
+            while stk and stk[-1] > 0 > n:
+                if stk[-1] < abs(n):
+                    stk.pop()
+                    continue
+                elif stk[-1] == abs(n):
+                    stk.pop()
+                break # destroyed
+            else:
+                stk.append(n)
+        return stk
+
+# ======================================================================
+# 739. Daily Temperatures
+# Topic : stack
+# ======================================================================
+
+class Solution(object):
+    def dailyTemperatures(self, temperatures):
+
+        stk = []
+        rst = [0 for _ in range(len(temperatures))]
+
+        for i in range(len(temperatures)-1, -1, -1):
+            while stk and temperatures[stk[-1]] <= temperatures[i]:
+                stk.pop()
+
+            rst[i] = 0 if len(stk) == 0 else stk[-1] - i
+
+            stk.append(i)
+
+        return rst
+        
+# ======================================================================
+# 767. Reorganize String
+# Topic : dict, counter
+# desc sort by values in dic : sorted(dic, key=dic.get, reverse=True)
+# ======================================================================
+
+class Solution(object):
+    def reorganizeString(self, s):
+
+        i, rst, n = 0, [None] * len(s), len(s)
+        s = collections.Counter(s)
+
+        # sort by values in dic
+        for k in sorted(s, key=s.get, reverse=True):
+            if s[k] > n // 2 + (n % 2):
+                return ""
+            for j in range(s[k]):
+                if i >= n:
+                    i = 1
+                rst[i] = k
+                i += 2
+        return "".join(rst)
+
+# ======================================================================
+# 785. Is Graph Bipartite?
+# Topic : graph
+# ======================================================================
 
 
+# ======================================================================
+# 853. Car Fleet
+# Topic : sort, zip, float
+# ======================================================================
+
+class Solution(object):
+    def carFleet(self, target, position, speed):
+
+        prev_t = None
+        n = 0
+
+        for pos, spd in sorted(zip(position, speed))[::-1]:
+            # [(10,2), (8,4), (5,1), (3,3), (0,1)] : pos descending
+
+            t = float(target - pos) / spd # 1.0 -> 1.0 -> 7.0 -> 3.0 -> 12.0
+            # current car takes longer time than the previous fleet
+            if not prev_t or t > prev_t:
+                prev_t = t # new fleet
+                n += 1
+        return n
+
+# ======================================================================
+# 856. Score of Parentheses
+# Topic : power (<<)
+# ======================================================================
+
+class Solution(object):
+    def scoreOfParentheses(self, s):
+
+        power, rst = 0, 0
+
+        # (((()()())))
+        for i in range(1, len(s)):
+            if s[i] == '(':
+                power += 1
+            elif s[i-1] == '(':
+                rst += 1 << power # 1 << 3 = 1000 = 2^3 = 8
+                power -= 1
+            else:
+                power -= 1
+        
+        return rst
+
+# ======================================================================
+# 907. Sum of Subarray Minimums
+# Topic : Array, stack
+# 10**9+7 : commonly used in programming to prevent overflow (manageable range)
+# ======================================================================
+
+class Solution(object):
+    def sumSubarrayMins(self, arr):
+        """
+        :type arr: List[int]
+        :rtype: int
+        """
+
+        arr = [0] + arr # [0, 3, 1, 2, 4]
+        rst = [0] * len(arr)
+        stk = [0]
+
+        for i in range(len(arr)):
+            while arr[stk[-1]] > arr[i]:
+                stk.pop()
+            j = stk[-1]
+            rst[i] = rst[j] + (i-j) * arr[i]
+            stk.append(i)
+            # ('rst : ', [0, 0, 0, 0, 0])
+            # ('stk : ', [0, 0])
+            # ('rst : ', [0, 3, 0, 0, 0]) -> 3 : [3]
+            # ('stk : ', [0, 0, 1])
+            # ('rst : ', [0, 3, 2, 0, 0]) -> 2 : [3,1], [1]
+            # ('stk : ', [0, 0, 2])
+            # ('rst : ', [0, 3, 2, 4, 0]) -> 4 : [3, 1, 2], [1, 2], [2]
+            # ('stk : ', [0, 0, 2, 3])
+            # ('rst : ', [0, 3, 2, 4, 8]) -> 8 : [3, 1, 2, 4], [1, 2, 4], [2, 4], [4]
+            # ('stk : ', [0, 0, 2, 3, 4])
+
+        return sum(rst) % (10**9+7)
+
+# ======================================================================
+# 974. Subarray Sums Divisible by K
+# Topic :
+# ======================================================================
+
+# ======================================================================
+# 979. Distribute Coins in Binary Tree
+# Topic : dfs
+# ======================================================================
+
+class Solution(object):
+    def distributeCoins(self, root):
+
+        self.cnt = 0
+
+        def dfs(cur):
+
+            if cur == None: return 0
+
+            left = dfs(cur.left)
+            right = dfs(cur.right)
+
+            self.cnt += abs(left) + abs(right)
+            return (cur.val - 1) + left + right
+
+        dfs(root)
+
+        return self.cnt
+
+# ======================================================================
+# 994. Rotting Oranges
+# Topic : BFS, but similar to island question (200, 695, 733)
+# from collections import deque
+# ======================================================================
+
+class Solution(object):
+    def orangesRotting(self, grid):
+
+        fresh, rotten = set(), []
+
+        # find all fresh and rotten oranges
+        for i in range(len(grid)):
+            for j in range(len(grid[0])):
+                if grid[i][j] == 1:
+                    fresh.add((i, j))
+                elif grid[i][j] == 2:
+                    rotten.append((i, j))
+
+        rst = 0
+        while fresh and rotten:
+            for _ in range(len(rotten)):
+                i, j = rotten.pop(0) # recent orange
+                for xy in ((i-1, j), (i+1, j), (i, j-1), (i, j+1)):
+                    if xy in fresh:
+                        fresh.remove(xy)
+                        rotten.append(xy)
+
+            rst += 1
+
+        return -1 if fresh else rst
+
+# ======================================================================
+# 1027. Longest Arithmetic Subsequence
+# Topic : dynamic programming
+# ======================================================================
+
+# ======================================================================
+# 1161. Maximum Level Sum of a Binary Tree
+# Topic : binary tree, defaultdict(int)
+# ======================================================================
+
+class Solution(object):
+    def maxLevelSum(self, root):
+
+        lvl = defaultdict(int)
+
+        def cal(root, depth):
+            if root:
+                lvl[depth] += root.val
+                cal(root.left, depth+1)
+                cal(root.right, depth+1)
+
+        cal(root, 1)
+        return max(lvl, key=lvl.get)
+
+# ======================================================================
+# 1209. Remove All Adjacent Duplicates in String II
+# Topic : string, stack
+# ======================================================================
+
+class Solution(object):
+    def removeDuplicates(self, s, k):
+        
+        stk = []
+        for ch in s:
+            if stk and stk[-1][0] == ch:
+                stk[-1][1] += 1
+                if stk[-1][1] == k:
+                    stk.pop()
+            else:
+                stk.append([ch, 1])
+
+        return ''.join(ch * cnt for ch, cnt in stk)
+
+# ======================================================================
+# 1239. Maximum Length of a Concatenated String with Unique Characters
+# Topic : 
+# ======================================================================
+
+# ======================================================================
+# 1376. Time Needed to Inform All Employees
+# Topic : Dijikstra
+# ======================================================================
+
+# ======================================================================
+# 1631. Path With Minimum Effort
+# Topic : 
+# ======================================================================
 
 
+# ======================================================================
+# 1762. Buildings With an Ocean View
+# Topic : list, pop
+# ======================================================================
 
+class Solution(object):
+    def findBuildings(self, heights):
 
+        rst = []
 
+        for i, h in enumerate(heights):
+            while rst and heights[rst[-1]] <= h:
+                rst.pop()
 
+            rst.append(i)
 
+        return rst
+        
+# ======================================================================
+# 2007. Find Original Array From Doubled Array
+# Topic : 
+# ======================================================================
 
+# ======================================================================
+# 2028. Find Missing Observations
+# Topic : math
+# ======================================================================
+
+class Solution(object):
+    def missingRolls(self, rolls, mean, n):
+        
+        tot = len(rolls) + n
+        rem = mean * tot - sum(rolls)
+
+        if rem < n or rem > n * 6:
+            return []
+
+        c = rem // n
+        r = rem % n
+
+        rst = [c] * n
+        idx = 0
+
+        while r:
+            rst[idx] += 1
+            idx += 1
+            r -= 1
+
+        return rst
+
+# ======================================================================
+# 2384. Largest Palindromic Number
+# Topic : Hash Map
+# ======================================================================
+
+class Solution(object):
+    def largestPalindromic(self, num):
+
+        dic = Counter(num)
+        rst = ''.join(dic[i] // 2 * i for i in '9876543210').lstrip('0')
+        mid = max(dic[i] % 2 * i for i in dic)
+        return (rst + mid + rst[::-1]) or '0'
+
+# ======================================================================
+# 2616. Minimize the Maximum Difference of Pairs
+# Topic : binary search
+# ======================================================================
+
+class Solution(object):
+    def minimizeMax(self, nums, p):
+        
+        nums.sort()
+        left, right = 0, nums[-1] - nums[0] # diff range
+
+        while left < right:
+            mid = (left + right) // 2
+            pairs = 0
+            i = 1
+
+            while i < len(nums):
+                if nums[i] - nums[i-1] <= mid:
+                    pairs += 1
+                    i += 1
+                i += 1
+            
+            if pairs >= p:
+                right = mid
+            else:
+                left = mid+1
+
+        return left
 
 
