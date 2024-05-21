@@ -86,12 +86,112 @@ Let’s say that you work for a company like Netflix. Netflix has two pricing pl
 Let’s say an executive at the company wants you to analyze the churn behavior of users that subscribe to either plan. </br>
 What kinds of metrics / graphs / models would you build to help give the executive an over-arching view of how the subscriptions are performing? </br>
 
+Metrics
+- Customer Demographic : age, gender, location
+- Tenure : the length of time a customer has been with the service
+- Revenue
+  - Average Revenue Per User (ARPU) for each plan
+  - Customer Lifetime Value : the projected revenue a customer will generate during their lifetime with the company
+- Past Number of Subscriptions
+- Percentage Revenue Change Year-over-Year : how revenue from the customer has changed compared to the previous year
+- Number of shifts from monthly plan to yearly or vice versa
+- Time since last subscription
+- Churn rate : monthly, annual
+- Retention rate : monthly, annual
+- Customer Acquisition Cost (CAC) : cost associated with acquiring a new customer for each pricing plan
+- Net Promoter Score (NPS) : a measure of customer satisfaction and loyalty
 
+Graphs
+- churn rate over time
+- retention rate over time
+- survival analysis : the probability of subscribers **remaining active** over time for each pricing plan
+- cohort analysis (집단) : heatmaps showing retention rates for cohorts of users who subscribed in the same month/year, segmented by pricing plan
+- Customer Lifetime Value (CLV) Distribution : histograms or box plots showing the distribution of CLV for each pricing plan
+- ARPU over time
+- Seasonality of Loss : identifying any seasonal patterns in when customers are more likely to cancel their subscriptions
+
+Models
+- Churn Prediction Model : Logistic Regression, Random Forest, Gradient Boosting
+- Survival Analysis Model
+- CLV Prediction Model
+
+## Rebalance Probabilities
+Suppose we are training a binary classification algorithm. </br>
+The outcome is imbalanced, with 99.8% of individuals in our sample having an outcome value of 0, and 0.2% having an outcome value of 1. </br>
+To build a model, we down-sample the training data using a random sample of 1% of the individuals who have an outcome of 0 and keeping all individuals with an outcome of 1. </br>
+Now we train the model on the smaller sample and build a binary classifier that predicts the probability of an individual with a value of 1. </br>
+How would we then adjust our output probabilities to use this model on the total, imbalanced population?
+
+We can use techniques like **probability calibration** to adjust the output probabilities to better reflect the true probabilities in the total population.
+- One common method for probability calibration is **Platt scaling** (Platt calibration)
+- It calibrates the output probabilities of a binary classifier
+- Method
+  - Treat the uncalibrated probabilities as the independent variable and the true binary labels as the dependent variable.
+  - Fit a logistic regression model to this data.
+  - The logistic regression model learns to map the uncalibrated probabilities to the true probabilities.
+  - Use the model to alibrate the probabilities produced by your binary classifier.
+
+Or we can use the formula
+- https://www.knime.com/blog/correcting-predicted-class-probabilities-in-imbalanced-datasets
+- $P+ = (P+ \cdot P_0+/P_t+) / (P+ (P_0+/P_t+) + (1-P+) (1-P_0+)/(1-P_t+))$
+- $P_+'$ : the corrected positive class probability
+- $P+$ : positive class probability predicted by the model
+- $P_0+$ : the proportion of the positive class in the original data
+- $P_t+$ : the proportion of the positive class in the training data
 
 ## Score Based on Review
-Let’s say you’re an ML engineer at Netflix. You have access to reviews of 10K movies. Each review contains multiple sentences along with a score ranging from 1 to 10. </br>
+Let’s say you’re an ML engineer at Netflix. </br>
+You have access to reviews of 10K movies. Each review contains multiple sentences along with a score ranging from 1 to 10. </br>
 How would you design an **ML system to predict the movie score based on the review text**?
 
+Goal : Predict the score (ranging from 1 to 10) of a movie based on its review text.
+- Data Cleaning
+  - Remove any duplicate or irrelevant reviews.
+  - Handle missing values, if any.
+  - Normalize the text (e.g., lowercasing, removing punctuation, stop words, etc.).
+- Exploratory Data Analysis (EDA)
+  - Analyze the distribution of review scores.
+  - **Identify common words** and phrases in high vs. low-rated reviews.
+  - Use word clouds, histograms, and other visualizations to understand the text data.
+- Feature Engineering
+  - Text Representation : Convert review text into numerical features.
+    - **Bag of Words** (BoW): Represent text using **word frequency.**
+    - **TF-IDF** (Term Frequency-Inverse Document Frequency): Adjust word frequency by how often they appear in all reviews.
+    - **Word Embeddings :** Use pre-trained embeddings (e.g., Word2Vec, GloVe) or transformer-based models (e.g., BERT) for contextual word representations.
+  - Additional Features
+    - Sentence length.
+    - Sentiment analysis scores.
+    - Named entity recognition (NER) for extracting specific details (e.g., movie names, actors).
+- Model Selection
+  - Baseline Models : Start with simpler models like Linear Regression or Ridge Regression for initial benchmarks.
+  - Advanced Models
+    - Explore more complex models such as Random Forest, Gradient Boosting, or Neural Networks.
+    - Specifically, consider using Recurrent Neural Networks **(RNNs)** or Transformers (e.g., **BERT**) for their ability to **handle sequential text data effectively.**
+- Model Training and Evaluation
+  - Data Splitting : training, validation, and test sets (e.g., 70% train, 15% validation, 15% test).
+  - Training
+    - Train the selected models on the training dataset.
+    - Use cross-validation to tune hyperparameters and avoid overfitting.
+  - Evaluation Metrics
+    - Mean Squared Error (MSE) for regression accuracy.
+    - R-squared (R²) for explained variance.
+    - Consider additional metrics like Mean Absolute Error (MAE) for robustness.
+- Model Interpretation and Explainability
+  - Feature Importance : understand which words or phrases are most influential in predicting the score
+    - SHAP (SHapley Additive exPlanations) values
+    - LIME (Local Interpretable Model-agnostic Explanations)
+  - Model Insights
+    - Generate insights on common characteristics of reviews associated with different scores.
+- Model Deployment
+  - Deploy the model as an API service within the Netflix platform.
+  - Ensure the model integrates seamlessly with existing recommendation systems.
+- Monitoring and Maintenance
+  - Continuously monitor model performance using real-time feedback.
+  - Regularly retrain the model with new review data to maintain accuracy and relevance.
+  - Implement alerting mechanisms for significant performance drops.
+- Ethical Considerations and Bias Mitigation
+  - Bias Detection: Regularly assess the model for biases (e.g., demographic biases) and ensure fair predictions.
+  - Transparency: Maintain transparency with users regarding how their reviews are used and the purpose of the predictions.
 
 ## Keyword Bidding
 Let’s say you’re working on keyword bidding optimization. </br>
@@ -137,6 +237,32 @@ Assuming that you don’t know any Spanish, how would you approach assigning eac
 ## Video Game Respawn Model
 How would you build a model or algorithm to generate respawn locations for an online third person shooter game like Halo?
 When designing an algorithm to generate respawn locations in an online game, what aspects must be considered to ensure long-term player engagement?
+
+## Google Docs Autosave System
+Let’s say that you work with the Google Docs team. </br>
+Currently, Google Docs offers an autosave capability that seamlessly saves user modifications to documents directly to cloud storage in real-time. </br>
+However, the autosave function introduces performance bottlenecks within our data processing pipeline, mainly due to slow disk writes. </br>
+How could we enhance the autosave feature to boost data processing throughput and reduce save latency? </br>
+State any assumptions upfront.
+
+Assumptions
+- High-Frequency Saves: Users frequently modify documents, leading to frequent autosave requests.
+- Network Latency: The system is cloud-based, and network latency may contribute to overall save latency.
+- Disk I/O Bottlenecks: The primary bottleneck is disk I/O during the autosave process.
+- Consistency Requirements: The system requires strong consistency to ensure that user modifications are not lost.
+- Scalability: The solution needs to scale with the number of users and documents
+
+Solutions
+- **Batch** Writes: Collect multiple changes and save them together at intervals.
+  - Instead of saving every single modification in real-time, batch multiple changes and save them periodically.
+- Asynchronous I/O: Use background processes for saving to prevent blocking.
+  - Implement a write-ahead log to quickly record changes to disk before processing them further.
+- Incremental Saving: only write the changes since the last save instead of rewriting the entire document.
+- **Caching**: Use in-memory caching for quick writes before saving to disk.
+  - temporarily store modifications
+- Compression: Compress changes to reduce data size before saving.
+  - Apply compression techniques to reduce the amount of data being written to disk.
+  - particularly useful if the changes being saved are small but frequent.
 
 # Statistics
 
@@ -214,6 +340,47 @@ What’s the percent chance that Bob was **actually negative** for the disease? 
 - Let's assume that p = 0.05 (5%)
   - P(Test Positive) = 0.042 + 0.01 = 0.052
   - P(No Disease | Test Positive) = 0.01 (0.95) / 0.052 = 0.1827
+
+## Tower of Hanoi Algorithm
+The Tower of Hanoi is a mathematical puzzle that consists of three rods and several discs of different sizes that can slide onto any rod. </br>
+The puzzle starts with all the discs stacked on a single rod, the smallest disc at the top, making a cone shape. </br>
+The object of the puzzle is to move the entire stack to another rod, obeying these rules:
+- Only one disc can be moved at a time.
+- Each move consists of taking the upper disc from one of the stacks and placing it on top of another stack or an empty rod.
+- No larger disc may be placed on top of a smaller disc.
+With these rules in mind, how would you approach solving the puzzle if there are three discs on the leftmost rod and your goal is to move them all to the rightmost rod?
+
+Step-by-Step Solution
+- Label the rods: Source rod: A, Auxiliary rod: B. Destination rod: C
+- Move 2 discs from A to B using C as auxiliary
+  - Move disc 1 from A to C.
+  - Move disc 2 from A to B.
+  - Move disc 1 from C to B.
+- Move the 3rd disc from A to C.
+- Move 2 discs from B to C using A as auxiliary
+  - Move disc 1 from B to A.
+  - Move disc 2 from B to C.
+  - Move disc 1 from A to C.
+
+Pseudocode
+```
+Function TowerOfHanoi(n, source, auxiliary, destination):
+    if n == 1:
+        Print "Move disc 1 from " + source + " to " + destination
+        return
+    TowerOfHanoi(n-1, source, destination, auxiliary)
+    Print "Move disc " + n + " from " + source + " to " + destination
+    TowerOfHanoi(n-1, auxiliary, source, destination)
+```
+
+## Google Earth Storage
+Estimate the cost of storing Google Earth photos each year
+- Lets say google earth is taking photos of every 1x1m block on earth.
+- Each photo is 1 MB is a compressed version.
+- Now diameter of earth is 12.742M m. So radius is ~6.3M m.
+- Assuming earth is a perfect sphere, surface area of earth would be : $4/3 \pi r^3$
+- Thus, the total size of pic will be : $4/3 \pi (6300000)^3$
+- Assuming cost of storing 1MB photo is 5 cents, total cost will be : $5 \times 4/3 \pi (6300000)^3$
 
 # SQL
 
