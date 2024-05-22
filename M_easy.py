@@ -474,24 +474,24 @@ class Solution(object):
 class Solution(object):
     def nextGreaterElement(self, nums1, nums2):
 
-        if not nums2:
-            return None
-
         dic = {}
+        stk = []
+
+        for i in range(len(nums2)):
+
+            while i > 0 and stk and stk[-1] < nums2[i]:
+                dic[stk[-1]] = nums2[i]
+                stk.pop()
+            
+            stk.append(nums2[i])
+
         rst = []
-        stk = [nums2[0]]
+        for n in nums1:
+            if n in dic:
+                rst.append(dic[n])
+            else:
+                rst.append(-1)
 
-        for i in range(1, len(nums2)):
-            while stk and nums2[i] > stk[-1]:  # if stack is not empty, then compare it's last element with nums2[i]
-                dic[stk[-1]] = nums2[i]        # if the new element is greater than stack's top element, then add this to dictionary 
-                stk.pop()                      # since we found a pair for the top element, remove it.
-            stk.append(nums2[i])               # add the element nums2[i] to the stack because we need to find a number greater than this
-
-        for element in stk:                    # if there are elements in the stack for which we didn't find a greater number, map them to -1
-            dic[element] = -1
-
-        for i in range(len(nums1)):
-            rst.append(dic[nums1[i]])
         return rst
 
 # ======================================================================
