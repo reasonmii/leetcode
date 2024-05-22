@@ -502,18 +502,16 @@ class Solution(object):
 class Solution(object):
     def fib(self, n):
 
-        if n == 0:
-            return 0
-        if n == 1:
-            return 1
-        
-        fib = [0 for _ in range(n+1)]
-        fib[1] = 1
+        if n <= 1:
+            return n
+
+        dp = [0 for _ in range(n+1)]
+        dp[1] = 1
 
         for i in range(2, n+1):
-            fib[i] = fib[i-1] + fib[i-2]
+            dp[i] = dp[i-2] + dp[i-1]
 
-        return fib[n]
+        return dp[-1]
 
 # ======================================================================
 # 605. Can Place Flowers
