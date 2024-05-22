@@ -379,10 +379,7 @@ class MyStack(object):
         self.queue = deque()
 
     def push(self, x):
-        # [1] -> [2, 1] -> [3, 2, 1]
-        tmp = deque([x])
-        tmp.extend(self.queue) # place x at the front
-        self.queue = tmp
+        self.queue.append(x)
 
     def pop(self):
         return self.queue.popleft()
