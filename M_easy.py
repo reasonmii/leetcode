@@ -500,6 +500,27 @@ class Solution(object):
         return rst
 
 # ======================================================================
+# 509. Fibonacci Number
+# Topic : fibonacci
+# ======================================================================
+
+class Solution(object):
+    def fib(self, n):
+
+        if n == 0:
+            return 0
+        if n == 1:
+            return 1
+        
+        fib = [0 for _ in range(n+1)]
+        fib[1] = 1
+
+        for i in range(2, n+1):
+            fib[i] = fib[i-1] + fib[i-2]
+
+        return fib[n]
+
+# ======================================================================
 # 605. Can Place Flowers
 # Topic : list
 # ======================================================================
@@ -609,27 +630,6 @@ class Solution(object):
                     return False
         
         return len(diff_s) == 2 and sorted(diff_s) == sorted(diff_g)
-
-# ======================================================================
-# 509. Fibonacci Number
-# Topic : fibonacci
-# ======================================================================
-
-class Solution(object):
-    def fib(self, n):
-
-        if n == 0:
-            return 0
-        if n == 1:
-            return 1
-        
-        fib = [0 for _ in range(n+1)]
-        fib[1] = 1
-
-        for i in range(2, n+1):
-            fib[i] = fib[i-1] + fib[i-2]
-
-        return fib[n]
 
 # ======================================================================
 # 1047. Remove All Adjacent Duplicates In String
