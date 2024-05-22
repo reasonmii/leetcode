@@ -376,16 +376,16 @@ from collections import deque
 class MyStack(object):
 
     def __init__(self):
-        self.queue = deque()
+        self.queue = []
 
     def push(self, x):
         self.queue.append(x)
 
     def pop(self):
-        return self.queue.popleft()
+        return self.queue.pop(0)
         
     def top(self):
-        return self.queue[0]        
+        return self.queue[0]    
 
     def empty(self):
         return len(self.queue) == 0
@@ -395,25 +395,23 @@ class MyStack(object):
 # Topic : queue
 # ======================================================================    
 
-Class MyQueue(object):
+class MyQueue(object):
 
     def __init__(self):
-        self.queue = deque()
+        self.q = []
 
     def push(self, x):
-        tmp = deque([x])
-        tmp.extend(self.queue) # place x at the front
-        self.queue = tmp
+        self.q.append(x)        
 
     def pop(self):
-        return self.queue.pop()
+        return self.q.pop(0)
 
     def peek(self):
-        return self.queue[-1]
+        return self.q[0]
 
     def empty(self):
-        return len(self.queue) == 0
-
+        return len(self.q) == 0
+        
 # ======================================================================
 # 242. Valid Anagram
 # Topic : string, zip, setdefault
