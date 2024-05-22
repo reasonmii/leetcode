@@ -609,20 +609,20 @@ class Solution(object):
 
         if len(s) != len(goal):
             return False
-        
-        if s == goal and len(s) != len(set(s)):
+
+        if len(s) != len(set(s)) and s == goal:
             return True
 
-        diff_s, diff_g = [], []
-        for i in range(len(s)):
-            if s[i] != goal[i]:
-                diff_s.append(s[i])
-                diff_g.append(goal[i])
+        sl, gl = [], []
 
-                if len(diff_s) > 2:
+        for sc, gc in zip(s, goal):
+            if sc != gc:
+                sl.append(sc)
+                gl.append(gc)
+                if len(sl) > 2:
                     return False
-        
-        return len(diff_s) == 2 and sorted(diff_s) == sorted(diff_g)
+
+        return len(sl) == 2 and sorted(sl) == sorted(gl)
 
 # ======================================================================
 # 1047. Remove All Adjacent Duplicates In String
