@@ -62,37 +62,19 @@ class Solution(object):
 # Topic : string, dynamic programming
 # ======================================================================
 
-class Solution(object):
-    def longestPalindrome(self, s):        
-        rst = ""
-        dp = [[0]*len(s) for _ in range(len(s))]
+if s == s[::-1]:
+            return s
 
-        for i in range(len(s)):
-            dp[i][i] = True
-            # [[True, 0, 0, 0, 0],
-            # [0, True, 0, 0, 0],
-            # [0, 0, True, 0, 0],
-            # [0, 0, 0, True, 0],
-            # [0, 0, 0, 0, True]]
-            rst = s[i]
-
-        # babad
-        # range(5,5) -> None
-        for i in range(len(s)-1,-1,-1): # 4 -> 3 -> 2 -> 1 -> 0
-            for j in range(i+1, len(s)):  # None -> 4 -> 3~4 -> 2~4 -> 1~4
-                if s[i] == s[j]: # i=1, j=3
-                    if j-i == 1 or dp[i+1][j-1] is True: # dp[2][2]
-                        dp[i][j] = True # dp[1][3]
-                        if len(rst) < len(s[i:j+1]): # len(s[1:4]) = 3
-                            rst = s[i:j+1]
-
-        # [[True, 0, True, 0, 0],
-        # [0, True, 0, True, 0],
-        # [0, 0, True, 0, 0],
-        # [0, 0, 0, True, 0],
-        # [0, 0, 0, 0, True]]
-                
-        return rst
+        start, size = 1, 0
+        for i in range(1, len(s)):
+            left, right = i - size, i + 1
+            s1, s2 = s[left-1:right], s[left:right]
+            if left - 1 >= 0 and s1 == s1[::-1]:
+                start, size = left-1, size+2
+            elif s2 == s2[::-1]:
+                start, size = left, size+1
+        
+        return s[start:start+size]
         
 # ======================================================================
 # 6. Zigzag Conversion
