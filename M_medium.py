@@ -83,29 +83,20 @@ if s == s[::-1]:
 
 class Solution(object):
     def convert(self, s, numRows):
-        if numRows == 1:
+        if numRows ==1:
             return s
 
-        rst = ["" for _ in range(numRows)] # ['', '', '']
+        rst = ['' for x in range(numRows)]
+        idx = 0
+        step = 0
 
-        chk = True
-        k = 0
-
-        for i in range(len(s)):
-
-            if chk:
-                rst[k] += s[i]
-                k += 1
-                if k == numRows:
-                    chk = False
-                    k = -2   # 2nd last one
-            else:
-                rst[k] += s[i]
-                k -= 1
-                if k == -numRows-1:
-                    chk = True
-                    k = 1
-            
+        for ch in s:
+            rst[idx] += ch
+            if idx == 0:
+                step = 1
+            elif idx == numRows-1:
+                step = -1
+            idx += step
         return "".join(rst)
 
         # ['P', '', '', '']
