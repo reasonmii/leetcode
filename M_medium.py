@@ -122,22 +122,18 @@ class Solution(object):
 class Solution(object):
     def reverse(self, x):
 
-        neg = False if x >= 0 else True
+        neg = False if x > 0 else True        
         x = abs(x)
         rst = 0
-
+        
         while x != 0:
-            digit = x % 10 # 3, 2, 1
-            rst = rst * 10 + digit
+            rst = rst * 10 + x % 10
             x //= 10
-
-        if rst >= 2**31 - 1 or rst < -2**31:
+        
+        if rst < -2**31 or rst > 2**31 -1:
             return 0
 
-        if neg:
-            rst *= -1
-
-        return rst
+        return -rst if neg else rst
 
 # ======================================================================
 # 11. Container With Most Water
