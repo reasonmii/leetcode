@@ -1,6 +1,31 @@
 
 # Statistics
 
+## Best Measure
+Say you have a dataset and you are asked to analyze it by looking at some metrics like the mean and median.
+
+When would you use one measure over the other?
+- use the mean for symmetric, normally distributed data
+- the median for skewed or ordinal data
+
+How do you calculate the confidence interval of each measure?
+- Confidence Interval for the Mean
+  - Assuming Normality
+    - standard error of the mean : $\sigma / \sqrt{n}$
+    - 95% confidence interval : z-value is approximately 1.96
+    - $CI = \bar{x} \pm (1.96 \times \sigma / \sqrt{n}$
+  - Without Assuming Normality
+    - If the sample size is small or the distribution is not normal, we can use the **t-distribution**
+    - $CI = \bar{x} \pm (t \times \sigma / \sqrt{n-1}$
+- Confidence Interval for the Median
+  - Bootstrap Method
+    - Resample the dataset with replacement many times, each time calculating the median
+    - Use the distribution of these bootstrap medians to determine the confidence interval
+    - For a 95% confidence interval, take the 2.5th and 97.5th percentiles of the bootstrap medians
+  - Order Statistics (for large samples)
+    - The confidence interval can be approximated using **order statistics**
+    - For a 95% confidence interval, find the ranks corresponding to the 2.5th and 97.5th percentiles of the sorted data.
+
 ## Distribution of 2X - Y
 
 Given that $X$ and $Y$ are independent random variables with normal distributions,
