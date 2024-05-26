@@ -76,3 +76,101 @@ def complete_address(df_addresses: pd.DataFrame, df_cities: pd.DataFrame):
     
     return df[['address']]
 ```
+
+# SQL
+
+Given the employees and departments table, write a query to get the top 3 highest employee salaries by department.
+If the department contains less that 3 employees, the top 2 or the top 1 highest salaries should be listed (assume that each department has at least 1 employee). 
+
+Note: The output should include the full name of the employee in one column, the department name, and the salary.
+The output should be sorted by department name in ascending order and salary in descending order. 
+
+```
+with t as (
+    select concat(e.first_name, ' ', e.last_name) employee_name
+        , d.name department_name
+        , e.salary
+        , rank()over(partition by d.name order by e.salary desc) rk
+    from departments d
+    left join employees e on d.id = e.department_id
+)
+select t.employee_name
+     , t.department_name
+     , t.salary
+from t
+where t.rk <= 3
+order by t.department_name, t.salary desc
+```
+
+# Case Study
+
+## Job Recommendation
+
+Let’s say that you’re working on a job recommendation engine.
+You have access to all user Linkedin profiles, a list of jobs each user applied to, and answers to questions that the user filled in about their job search.
+Using this information, how would you build a job recommendation feed?
+
+Questions
+- How big is our Job Database size? How big is our client size?
+- Are we dealing with millions of jobs in that case we need to understand what kind of ML algo we need to fit the data correctly?
+- How fast do we need our response?
+  - this will determine if we need to use any funneling technique to handle large data
+- Are we looking for diversity, speed, the accuracy of the recommendation product?
+- What is the Service Level Agreement to this app?
+
+PROBLEM Statement
+- Given a User and Context predict the probability of a Job being recommended to a User.
+  - This could be looked at like a **Binary Classification** Problem
+    - 1 : show to user
+    - 0 : do not show it to user
+- The problem can be broken down into two steps
+  - Candidate Selection
+    - Out of the entire DB of jobs in our system, we need to select the subset of jobs based on User profile info which will be relevant to the User
+    - Candidate Ranking : Rank the jobs according to most relevant to Least
+
+Metrics
+- Used to test various Models : Precision, Accuracy, F-1 Score
+- Revenue Generated
+  - Session Time of the user
+  - Click-Through-rate = Clicks/ jobs Recommended
+  - Apply-Rate = jobs Applied/ Jobs Recommended
+  - Company Success through our platform = total Candidates Hired by Our Platform / total job postings made
+- There could be a thumbs up and down button on the UI to ask for User Feedback based on what we are recommending
+- Jobs ignored these will be the jobs which the user was recommended and did not apply to
+  - These will count as Negative Training Data.
+
+Architecture
+- Feature Engineering
+
+Who are the actors in the system?
+- Advertisers/ Companies
+  - • Company Size • Company Ratings • Company Reviews • Locations • Industry (Healthcare, Tech, Fashion etc.)
+- Job Seekers/ Users
+  - a. Age b. Years of Experience c. Current Job Title d. Location e. Language f. Degree g. Certifications h. Skillsets i. Background
+- Job
+  - Job Title (Very important when user queries) b. Job Description c. Min Years of Ex d. Compensation e. Team Size f. Location 
+- User-Application Embedding historical
+- User-Job behavior
+
+Model Training
+- Collaborative Filtering
+- We look at the Users like the current user and recommend jobs that other users have also applied to.
+
+KNearest Neighbors
+- We identify the K Nearest neighbor to the Current user based on their background, skills, years of experience and then recommend jobs to the user which the user has not yet applied to.
+- There can be a matrix of J(jobs) x U(users).
+  - This will be a binary sparse matrix with 1/0/ empty in a cell.
+  - If it is 1 then the user has applied, 0 means not applied or did not like, empty means have not yet seen or applied.
+  - Given the empty cells for a user U we want to predict of that cell value will be 0/1 based on the other users similar to U.
+
+Matrix Factorization
+- The above method can be computationally very cumbersome as it will be very big.
+- Hence, we need to perform Matrix Factorization to allow the dimensions to be reduced to Latent Dimension.
+
+Content Based Filtering
+- This uses the Textual Information in the Job Description along with the User’s information to extract TF-IDF details for understanding similarity between the Job and the User.
+
+- Comprehensive overview of Recommender systems at different top tech companies : https://towardsdatascience.com/recommender-systems-in-practice-cef9033bb23a
+
+### What problem can arise in job recommendation systems with regard to initial recommendations?
+- Initial recommendations may introduce bias based on predetermined algorithms
