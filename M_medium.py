@@ -623,27 +623,58 @@ class Solution(object):
 # ======================================================================
 # 72. Edit Distance
 # Topic : dynamic programming
-# https://leetcode.com/problems/edit-distance/solutions/3230662/clean-codes-full-explanation-dynamic-programming-c-java-python3/
+# Skip
 # ======================================================================
 
 class Solution(object):
     def minDistance(self, word1, word2):
+        """
+        :type word1: str
+        :type word2: str
+        :rtype: int
+        """
 
         prev = list(range(len(word2)+1))
         cur = [0] * (len(word2) + 1)
 
         for i in range(1, len(word1)+1):
-            cur[0] = i
+            cur[0] = i # transforming the first i characters of word1 to an empty string word2 would require i deletions
             for j in range(1, len(word2)+1):
                 if word1[i-1] == word2[j-1]:
+                    # no additional operation is needed beyond the prev subproblem
                     cur[j] = prev[j-1]
                 else:
-                    cur[j] = min(prev[j-1] + 1, prev[j] + 1, cur[j-1] + 1)
-                
+                    cur[j] = min(prev[j-1]+1, prev[j]+1, cur[j-1]+1)
+            
             prev = cur
             cur = [0] * (len(word2) + 1)
         
         return prev[-1]
+
+# word1 = 'horse', word2 = 'ros'
+# prev = [0, 1, 2, 3]
+# cur = [0, 0, 0, 0]
+# i=1)
+# cur = [1, 0, 0, 0]
+# - j = 1: cur = [1, 1, 0, 0]  (replace 'h' with 'r')
+# - j = 2: cur = [1, 1, 2, 0]  (replace 'h' with 'r' and 'o')
+# - j = 3: cur = [1, 1, 2, 3]  (replace 'h' with 'r', 'o', and 's')
+# prev = [1, 1, 2, 3]
+# cur = [0, 0, 0, 0]
+# i=2)
+# cur = [2, 0, 0, 0]
+# - j = 1: cur = [2, 2, 0, 0]  (replace 'o' with 'r')
+# - j = 2: cur = [2, 2, 1, 0]  (keep 'o')
+# - j = 3: cur = [2, 2, 1, 2]  (replace 'o' with 's')
+# prev = [2, 2, 1, 2]
+# cur = [0, 0, 0, 0]
+# i=3)
+# cur = [3, 0, 0, 0]
+# - j = 1: cur = [3, 2, 0, 0]  (keep 'r')
+# - j = 2: cur = [3, 2, 2, 0]  (replace 'r' with 'o')
+# - j = 3: cur = [3, 2, 2, 2]  (replace 'r' with 's')
+# prev = [3, 2, 2, 2]
+# cur = [0, 0, 0, 0]
 
 # ======================================================================
 # 74. Search a 2D Matrix
