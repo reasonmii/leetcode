@@ -195,11 +195,39 @@ class Solution(object):
 # Binary : 5 questions
 # ========================================================
 
-Sum of Two Integers
-Number of 1 Bits
-Counting Bits
-Missing Number
-Reverse Bits
+# 371. Sum of Two Integers (Medium) ##
+
+# 191. Number of 1 Bits (Easy) ##
+
+class Solution(object):
+    def hammingWeight(self, n):
+
+        # n & (n - 1): a bitwise AND operation
+        # 6 : 110
+        # 5 : 101
+        # --------
+        #     100
+
+        cnt = 0
+        while n != 0:
+            n &= (n-1)
+            cnt += 1
+        return cnt
+        
+# 338. Counting Bits
+
+# 268. Missing Number (Easy)
+
+class Solution(object):
+    def missingNumber(self, nums):
+
+        sums = sum(range(len(nums)+1))
+        return sums - sum(nums)
+
+
+
+# Reverse Bits
+
 
 # ========================================================
 # Dynamic Programming : 5 questions
