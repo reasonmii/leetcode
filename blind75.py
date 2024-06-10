@@ -214,7 +214,7 @@ class Solution(object):
             cnt += 1
         return cnt
         
-# 338. Counting Bits
+# 338. Counting Bits ##
 
 # 268. Missing Number (Easy)
 
@@ -224,17 +224,31 @@ class Solution(object):
         sums = sum(range(len(nums)+1))
         return sums - sum(nums)
 
-
-
-# Reverse Bits
-
+# 190. Reverse Bits ##
 
 # ========================================================
 # Dynamic Programming : 5 questions
 # ========================================================
 
-Climbing Stairs
-Coin Change
+# 70. Climbing Stairs (Easy)
+
+class Solution(object):
+    def climbStairs(self, n):
+
+        if n <= 3:
+            return n
+
+        dp = [0,1,2]
+
+        for i in range(3, n+1):
+            dp.append(dp[i-2]+dp[i-1])
+
+        return dp[-1]
+
+# 322. Coin Change (Medium)
+
+
+
 Longest Increasing Subsequence
 Longest Common Subsequence
 Word Break Problem
