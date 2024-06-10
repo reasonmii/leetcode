@@ -56,7 +56,7 @@ class Solution(object):
 
         return rst
 
-# 53. Maximum Subarray
+# 53. Maximum Subarray (Medium)
 
 class Solution(object):
     def maxSubArray(self, nums):
@@ -73,13 +73,108 @@ class Solution(object):
 
         return max_v
 
-# Maximum Product Subarray
+# 152. Maximum Product Subarray (Medium)
+
+class Solution(object):
+    def maxSubArray(self, nums):
+
+        max_v = nums[0]
+        arr = [max_v]
+
+        for i in range(1, len(nums)):
+            cur = max(arr[i-1] + nums[i], nums[i])
+            arr.append(cur)
+
+            if cur > max_v:
+                max_v = cur
+
+        return max_v
+
+# 153. Find Minimum in Rotated Sorted Array (Medium)
+
+class Solution(object):
+    def findMin(self, nums):
+
+        left = 0
+        right = len(nums)-1
+        
+        while left < right:
+            mid = (left + right) // 2
+            if nums[right] < nums[mid]:
+                left = mid + 1
+            else:
+                right = mid
+
+        return nums[left]
+
+# 33. Search in Rotated Sorted Array (Medium)
+
+class Solution(object):
+    def search(self, nums, target):
+        
+        left = 0
+        right = len(nums) - 1
+
+        while left <= right:
+            mid = (left + right) //2
+            if nums[mid] == target:
+                return mid
+            elif nums[left] <= nums[mid]:
+                if nums[left] <= target < nums[mid]:
+                    right = mid -1
+                else:
+                    left = mid +1
+            else:
+                if nums[mid] < target <= nums[right]:
+                    left = mid + 1
+                else:
+                    right = mid - 1
+
+        return -1
+
+# 15. 3Sum (Medium)
+
+class Solution(object):
+    def threeSum(self, nums):
+
+        rst = set()
+
+        n, p, z = [], [], []
+        for num in nums:
+            if num == 0:
+                z.append(num)
+            elif num < 0:
+                n.append(num)
+            else:
+                p.append(num)
+        
+        N, P = set(n), set(p)
+
+        if len(z) >= 3:
+            rst.add((0,0,0))
+
+        if z:
+            for i in P:
+                if -i in N:
+                    rst.add((-i, 0, i))
+        
+        for i in range(len(n)):
+            for j in range(i+1, len(n)):
+                target = - (n[i] + n[j])
+                if target in P:
+                    rst.add(tuple(sorted([n[i], n[j], target])))
+
+        for i in range(len(p)):
+            for j in range(i+1, len(p)):
+                target = - (p[i] + p[j])
+                if target in N:
+                    rst.add(tuple(sorted([target, p[i], p[j]])))
+
+        return list(rst)
+
+# 11. Container With Most Water (Medium)
 
 
-# Find Minimum in Rotated Sorted Array
-# Search in Rotated Sorted Array
-# 3 Sum
-# Container With Most Water
 
 # ========================================================
 # Binary : 5 questions
