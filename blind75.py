@@ -1,23 +1,88 @@
 # https://leetcode.com/discuss/general-discussion/460599/blind-75-leetcode-questions
 
 # ========================================================
-# Array
+# Array : 10 questions
 # ========================================================
 
+# Two Sum (Easy)
 
-Two Sum
-Best Time to Buy and Sell Stock
-Contains Duplicate
-Product of Array Except Self
-Maximum Subarray
-Maximum Product Subarray
-Find Minimum in Rotated Sorted Array
-Search in Rotated Sorted Array
-3 Sum
-Container With Most Water
+class Solution(object):
+    def twoSum(self, nums, target):
+
+        rst = {}
+        for i, n in enumerate(nums):
+            diff = target - n
+            if diff in rst:
+                return [rst[diff], i]
+            rst[n] = i
+
+        return []
+
+# Best Time to Buy and Sell Stock (Easy)
+
+class Solution(object):
+    def maxProfit(self, prices):
+
+        min_pr = prices[0]
+        max_pf = 0
+
+        for p in prices[1:]:
+            max_pf = max(max_pf, p - min_pr)
+            min_pr = min(min_pr, p)
+
+        return max_pf
+
+# Contains Duplicate (Easy)
+
+class Solution(object):
+    def containsDuplicate(self, nums):
+        return len(set(nums)) != len(nums)
+
+# Product of Array Except Self (Medium)
+
+class Solution(object):
+    def productExceptSelf(self, nums):
+
+        n = len(nums)
+        rst = [1] * n
+
+        for i in range(1, n):
+            rst[i] *= nums[i-1] * rst[i-1]
+
+        right = nums[-1]
+        for i in range(n-2, -1, -1):
+            rst[i] *= right
+            right *= nums[i]
+
+        return rst
+
+# 53. Maximum Subarray
+
+class Solution(object):
+    def maxSubArray(self, nums):
+
+        max_v = nums[0]
+        arr = [max_v]
+
+        for i in range(1, len(nums)):
+            cur = max(arr[i-1] + nums[i], nums[i])
+            arr.append(cur)
+
+            if cur > max_v:
+                max_v = cur
+
+        return max_v
+
+# Maximum Product Subarray
+
+
+# Find Minimum in Rotated Sorted Array
+# Search in Rotated Sorted Array
+# 3 Sum
+# Container With Most Water
 
 # ========================================================
-# Binary
+# Binary : 5 questions
 # ========================================================
 
 Sum of Two Integers
