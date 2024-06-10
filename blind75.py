@@ -185,7 +185,11 @@ Number of 1 Bits
 Counting Bits
 Missing Number
 Reverse Bits
-Dynamic Programming
+
+# ========================================================
+# Dynamic Programming : 5 questions
+# ========================================================
+
 Climbing Stairs
 Coin Change
 Longest Increasing Subsequence
@@ -197,7 +201,11 @@ House Robber II
 Decode Ways
 Unique Paths
 Jump Game
-Graph
+
+# ========================================================
+# Graph : 5 questions
+# ========================================================
+
 Clone Graph
 Course Schedule
 Pacific Atlantic Water Flow
