@@ -1,10 +1,11 @@
 # https://leetcode.com/discuss/general-discussion/460599/blind-75-leetcode-questions
+# https://hackernoon.com/14-patterns-to-ace-any-coding-interview-question-c5bb3357f6ed
 
 # ========================================================
 # Array : 10 questions
 # ========================================================
 
-# Two Sum (Easy)
+# 1. Two Sum (Easy)
 
 class Solution(object):
     def twoSum(self, nums, target):
@@ -18,7 +19,7 @@ class Solution(object):
 
         return []
 
-# Best Time to Buy and Sell Stock (Easy)
+# 121. Best Time to Buy and Sell Stock (Easy)
 
 class Solution(object):
     def maxProfit(self, prices):
@@ -32,13 +33,13 @@ class Solution(object):
 
         return max_pf
 
-# Contains Duplicate (Easy)
+# 217. Contains Duplicate (Easy)
 
 class Solution(object):
     def containsDuplicate(self, nums):
         return len(set(nums)) != len(nums)
 
-# Product of Array Except Self (Medium)
+# 238. Product of Array Except Self (Medium)
 
 class Solution(object):
     def productExceptSelf(self, nums):
@@ -174,7 +175,21 @@ class Solution(object):
 
 # 11. Container With Most Water (Medium)
 
+class Solution(object):
+    def maxArea(self, height):
 
+        rst = 0
+        i, j = 0, len(height) - 1
+
+        while i < j:
+            w = j - i
+            if height[i] < height[j]:
+                rst = max(rst, w * height[i])
+                i += 1
+            else:
+                rst = max(rst, w * height[j])
+                j -= 1
+        return rst
 
 # ========================================================
 # Binary : 5 questions
@@ -214,25 +229,45 @@ Longest Consecutive Sequence
 Alien Dictionary (Leetcode Premium)
 Graph Valid Tree (Leetcode Premium)
 Number of Connected Components in an Undirected Graph (Leetcode Premium)
-Interval
+
+
+# ========================================================
+# Interval : 5 questions
+# ========================================================
+
 Insert Interval
 Merge Intervals
 Non-overlapping Intervals
 Meeting Rooms (Leetcode Premium)
 Meeting Rooms II (Leetcode Premium)
-Linked List
+
+
+# ========================================================
+# Linked List : 5 questions
+# ========================================================
+
+
 Reverse a Linked List
 Detect Cycle in a Linked List
 Merge Two Sorted Lists
 Merge K Sorted Lists
 Remove Nth Node From End Of List
 Reorder List
-Matrix
+
+# ========================================================
+# Matrix : 5 questions
+# ========================================================
+
+
 Set Matrix Zeroes
 Spiral Matrix
 Rotate Image
 Word Search
-String
+
+# ========================================================
+# String : 5 questions
+# ========================================================
+
 Longest Substring Without Repeating Characters
 Longest Repeating Character Replacement
 Minimum Window Substring
@@ -243,7 +278,12 @@ Valid Palindrome
 Longest Palindromic Substring
 Palindromic Substrings
 Encode and Decode Strings (Leetcode Premium)
-Tree
+
+
+# ========================================================
+# Tree : 5 questions
+# ========================================================
+
 Maximum Depth of Binary Tree
 Same Tree
 Invert/Flip Binary Tree
@@ -258,7 +298,11 @@ Lowest Common Ancestor of BST
 Implement Trie (Prefix Tree)
 Add and Search Word
 Word Search II
-Heap
+
+# ========================================================
+# Heap : 5 questions
+# ========================================================
+
 Merge K Sorted Lists
 Top K Frequent Elements
 Find Median from Data Stream
