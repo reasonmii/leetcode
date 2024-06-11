@@ -263,15 +263,40 @@ class Solution(object):
         
         return dp[amount] if dp[amount] != max_val else -1
 
-# Longest Increasing Subsequence
-Longest Common Subsequence
-Word Break Problem
-Combination Sum
-House Robber
-House Robber II
-Decode Ways
-Unique Paths
-Jump Game
+# 300. Longest Increasing Subsequence
+
+class Solution(object):
+    def lengthOfLIS(self, nums):
+
+        tmp = [0 for _ in range(len(nums))]
+        size = 0
+
+        for x in nums:
+            i, j = 0, size
+            while i != j:
+                m = (i + j) // 2
+                if tmp[m] < x:
+                    i = m+1
+                else:
+                    j = m
+            tmp[i] = x
+            size = max(size, i+1)
+
+        return size
+
+# Longest Common Subsequence
+
+
+# Word Break Problem
+
+# Combination Sum
+
+# House Robber
+
+# House Robber II
+# Decode Ways
+# Unique Paths
+# Jump Game
 
 # ========================================================
 # Graph : 5 questions
