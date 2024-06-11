@@ -245,11 +245,25 @@ class Solution(object):
 
         return dp[-1]
 
-# 322. Coin Change (Medium)
+# 322. Coin Change (Medium) ##
 
+class Solution(object):
+    def coinChange(self, coins, amount):
 
+        max_val = amount + 1 # greater than max possible number of coins
+        dp = [max_val] * (amount + 1) # dp: min number of coins needed
 
-Longest Increasing Subsequence
+        dp[0] = 0 # no coins are needed to make 0
+
+        for coin in coins:
+            for x in range(coin, amount+1):
+                # min coins needed without considering the current coin
+                # min coins needed for the remaining amount + current coin
+                dp[x] = min(dp[x], dp[x-coin]+1)
+        
+        return dp[amount] if dp[amount] != max_val else -1
+
+# Longest Increasing Subsequence
 Longest Common Subsequence
 Word Break Problem
 Combination Sum
