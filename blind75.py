@@ -263,7 +263,7 @@ class Solution(object):
         
         return dp[amount] if dp[amount] != max_val else -1
 
-# 300. Longest Increasing Subsequence
+# 300. Longest Increasing Subsequence (Medium)
 
 class Solution(object):
     def lengthOfLIS(self, nums):
@@ -271,30 +271,85 @@ class Solution(object):
         dp = [0] * len(nums)
         size = 0
 
-        for x in nums:
+        for n in nums:
             i, j = 0, size
             while i != j:
-                m = (i + j) / 2
-                if dp[m] < x:
+                m = (i+j) / 2
+                if dp[m] < n:
                     i = m+1
                 else:
                     j = m
-            dp[i] = x
+            dp[i] = n
             size = max(size, i+1)
-
+        
         return size
 
-# Longest Common Subsequence
+# 1143. Longest Common Subsequence (Medium) ##
 
+# 139. Word Break (Medium)
 
-# Word Break Problem
+class Solution(object):
+    def wordBreak(self, s, wordDict):
 
-# Combination Sum
+        dp = [True]
+        for i in range(1, len(s)+1):
+            dp += [any(dp[j] and s[j:i] in wordDict for j in range(i))]
+            
+        # [True, False, False, False, True, False, False, False, True]
+        return dp[-1]
 
-# House Robber
+# 39. Combination Sum
 
-# House Robber II
+class Solution(object):
+    def combinationSum(self, candidates, target):
+
+        rst = []
+        candidates.sort()
+
+        def dfs(target, idx, path):
+            if target < 0:
+                return
+            if target == 0:
+                rst.append(path)
+                return
+            
+            for i in range(idx, len(candidates)):
+                dfs(target - candidates[i], i, path+[candidates[i]])
+
+        dfs(target, 0, [])
+        return rst
+
+# 198. House Robber
+
+class Solution(object):
+    def rob(self, nums):
+
+        bf3, bf2, adj = 0, 0, 0
+        for cur in nums:
+            bf3, bf2, adj = bf2, adj, cur + max(bf3, bf2)
+        
+        return max(bf2, adj)
+
+# 213. House Robber II (Medium)
+
+class Solution(object):
+    def rob(self, nums):
+
+        def simple(nums):
+            bf3, bf2, adj = 0, 0, 0
+
+            for cur in nums:
+                bf3, bf2, adj = bf2, adj, max(bf2+cur, adj)
+            return max(bf2, adj)
+
+        if len(nums) <= 1:
+            return sum(nums)
+
+        return max(simple(nums[1:]), simple(nums[:len(nums)-1]))
+
 # Decode Ways
+
+
 # Unique Paths
 # Jump Game
 
