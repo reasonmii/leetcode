@@ -347,8 +347,7 @@ class Solution(object):
 
         return max(simple(nums[1:]), simple(nums[:len(nums)-1]))
 
-# Decode Ways
-
+# 91. Decode Ways ##
 
 # Unique Paths
 # Jump Game
