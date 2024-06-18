@@ -470,9 +470,23 @@ class Solution(object):
 
 # 435. Non-overlapping Intervals (Medium)
 
+class Solution(object):
+    def eraseOverlapIntervals(self, intervals):
 
-# Meeting Rooms (Leetcode Premium)
-# Meeting Rooms II (Leetcode Premium)
+        intervals.sort()
+        cnt = 0
+        prev = float("-inf")
+
+        for lst in intervals:
+            if lst[0] >= prev:
+                prev = lst[1]
+            else:
+                cnt += 1
+                prev = min(prev, lst[1])
+        return cnt        
+
+# Meeting Rooms
+# Meeting Rooms II
 
 # ========================================================
 # Linked List : 6 questions
