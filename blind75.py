@@ -433,11 +433,46 @@ class Solution(object):
 # Interval : 5 questions
 # ========================================================
 
-Insert Interval
-Merge Intervals
-Non-overlapping Intervals
-Meeting Rooms (Leetcode Premium)
-Meeting Rooms II (Leetcode Premium)
+# 57. Insert Interval (Medium)
+
+class Solution(object):
+    def insert(self, intervals, newInterval):
+
+        s, e = newInterval[0], newInterval[1]
+        left, right = [], []
+
+        for lst in intervals:
+            if lst[1] < s:
+                left += lst, ### comma is needed!
+            elif lst[0] > e:
+                right += lst,
+            else:
+                s = min(s, lst[0])
+                e = max(e, lst[1])
+        return left + [[s, e]] + right
+
+# 56. Merge Intervals (Medium)
+
+class Solution(object):
+    def merge(self, intervals):
+
+        intervals.sort(key=lambda x: x[0])
+
+        rst = []
+        for lst in intervals:
+
+            if rst and lst[0] <= rst[-1][1]:
+                rst[-1][1] = max(rst[-1][1], lst[1])
+            else:
+                rst += lst,
+
+        return rst
+
+# 435. Non-overlapping Intervals (Medium)
+
+
+# Meeting Rooms (Leetcode Premium)
+# Meeting Rooms II (Leetcode Premium)
 
 # ========================================================
 # Linked List : 6 questions
