@@ -485,8 +485,36 @@ class Solution(object):
                 prev = min(prev, lst[1])
         return cnt        
 
-# Meeting Rooms
-# Meeting Rooms II
+# 252. Meeting Rooms (Easy)
+
+class Solution(object):
+    def canAttendMeetings(self, intervals):
+
+        intervals.sort()
+        for i, lst in enumerate(intervals):
+            if i != 0 and lst[0] < intervals[i-1][1]:
+                return False
+
+        return True
+
+# 253. Meeting Rooms II (Medium)
+
+class Solution(object):
+    def minMeetingRooms(self, intervals):
+
+        intervals.sort() # [[0,30],[5,10],[15,20]]
+        rst = []
+
+        for lst in intervals:
+            # the start time of the current meeting >= end time of the earliest ending meeting
+            if rst and lst[0] >= rst[0]:
+                heapq.heapreplace(rst, lst[1])
+            # if the current meeting starts before the earliest ending meeting ends
+            else:
+                heapq.heappush(rst, lst[1])
+            # print(rst) : [30] -> [10, 30] -> [20, 30]
+
+        return len(rst)
 
 # ========================================================
 # Linked List : 6 questions
@@ -626,7 +654,7 @@ Rotate Image
 Word Search
 
 # ========================================================
-# String : 5 questions
+# String : 10 questions
 # ========================================================
 
 Longest Substring Without Repeating Characters
@@ -642,7 +670,7 @@ Encode and Decode Strings (Leetcode Premium)
 
 
 # ========================================================
-# Tree : 5 questions
+# Tree : 14 questions
 # ========================================================
 
 Maximum Depth of Binary Tree
@@ -661,7 +689,7 @@ Add and Search Word
 Word Search II
 
 # ========================================================
-# Heap : 5 questions
+# Heap : 3 questions
 # ========================================================
 
 Merge K Sorted Lists
