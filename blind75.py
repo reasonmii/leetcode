@@ -245,7 +245,7 @@ class Solution(object):
 
         return dp[-1]
 
-# 322. Coin Change (Medium) ##
+# 322. Coin Change (Medium)
 
 class Solution(object):
     def coinChange(self, coins, amount):
@@ -284,7 +284,29 @@ class Solution(object):
         
         return size
 
-# 1143. Longest Common Subsequence (Medium) ##
+# 1143. Longest Common Subsequence (Medium)
+
+class Solution(object):
+    def longestCommonSubsequence(self, text1, text2):
+        
+        m = len(text1) + 1
+        n = len(text2) + 1
+        dp = [[0]*n for _ in range(m)]
+
+        # [[0, 0, 0, 0],
+        #  [0, 1, 1, 1], # a -> a,c,e
+        #  [0, 1, 1, 1], # b -> a,c,e
+        #  [0, 1, 2, 2], # c -> a,c,e
+        #  [0, 1, 2, 2], # d -> a,c,e
+        #  [0, 1, 2, 3]] # e -> a,c,e
+
+        for i in range(1, m):
+            for j in range(1, n):
+                if text1[i-1] == text2[j-1]:
+                    dp[i][j] = 1 + dp[i-1][j-1]
+                else:
+                    dp[i][j] = max(dp[i-1][j], dp[i][j-1])
+        return dp[-1][-1]
 
 # 139. Word Break (Medium)
 
@@ -347,24 +369,65 @@ class Solution(object):
 
         return max(simple(nums[1:]), simple(nums[:len(nums)-1]))
 
-# 91. Decode Ways ##
+# 91. Decode Ways
 
-# Unique Paths
-# Jump Game
+class Solution(object):
+    def numDecodings(self, s):
+
+        if not s:
+            return 0
+        
+        dp = [0 for _ in range(len(s)+1)]
+
+        dp[0] = 1
+        dp[1] = 0 if s[0] == '0' else 1
+
+        for i in range(2, len(s)+1):
+            if 0 < int(s[i-1:i]) <= 9:
+                dp[i] += dp[i-1]
+            if 10 <= int(s[i-2:i]) <= 26:
+                dp[i] += dp[i-2]
+        
+        return dp[len(s)]
+
+# 62. Unique Paths
+
+class Solution(object):
+    def uniquePaths(self, m, n):
+        
+        dp = [[1 for _ in range(n)] for _ in range(m)]
+
+        for i in range(1, m):
+            for j in range(1, n):
+                dp[i][j] = dp[i-1][j] + dp[i][j-1]
+
+        return dp[-1][-1]
+
+# 55. Jump Game (Medium)
+
+class Solution(object):
+    def canJump(self, nums):
+        
+        last = len(nums)-1
+
+        for i in range(len(nums)-2, -1, -1):
+            if i + nums[i] >= last:
+                last = i
+        return last == 0
 
 # ========================================================
-# Graph : 5 questions
+# Graph : 8 questions
 # ========================================================
 
-Clone Graph
-Course Schedule
-Pacific Atlantic Water Flow
-Number of Islands
-Longest Consecutive Sequence
-Alien Dictionary (Leetcode Premium)
-Graph Valid Tree (Leetcode Premium)
-Number of Connected Components in an Undirected Graph (Leetcode Premium)
+# 133. Clone Graph (Medium)
 
+# Course Schedule
+# Pacific Atlantic Water Flow
+# Number of Islands
+# Longest Consecutive Sequence
+# Alien Dictionary (Leetcode Premium)
+# Graph Valid Tree (Leetcode Premium)
+# Number of Connected Components in an Undirected Graph (Leetcode Premium)
 
 # ========================================================
 # Interval : 5 questions
@@ -376,23 +439,137 @@ Non-overlapping Intervals
 Meeting Rooms (Leetcode Premium)
 Meeting Rooms II (Leetcode Premium)
 
-
 # ========================================================
-# Linked List : 5 questions
-# ========================================================
-
-
-Reverse a Linked List
-Detect Cycle in a Linked List
-Merge Two Sorted Lists
-Merge K Sorted Lists
-Remove Nth Node From End Of List
-Reorder List
-
-# ========================================================
-# Matrix : 5 questions
+# Linked List : 6 questions
 # ========================================================
 
+# 206. Reverse Linked List (Easy)
+
+class Solution(object):
+    def reverseList(self, head):
+
+        prev = None
+        while head:
+            next_p = head.next
+            head.next = prev
+            prev = head
+            head = next_p
+
+        return prev
+
+# 141. Linked List Cycle (Easy)
+
+class Solution(object):
+    def hasCycle(self, head):
+
+        try:
+            s = head
+            e = head.next
+            while s is not e:
+                s = s.next
+                e = e.next.next
+            return True
+        # If there is no cycle,
+        # the fast pointer will reach the end of the list,
+        # causing an exception
+        except:
+            return False
+
+# 21. Merge Two Sorted Lists (Easy)
+
+class Solution(object):
+    def mergeTwoLists(self, list1, list2):
+        
+        head = dummy = ListNode(-1)
+
+        while list1 and list2:
+            if list1.val <= list2.val:
+                dummy.next = list1
+                list1 = list1.next
+            else:
+                dummy.next = list2
+                list2 = list2.next
+            dummy = dummy.next
+
+        dummy.next = list1 if list1 else list2
+
+        return head.next
+
+# 23. Merge K Sorted Lists (Hard) ##
+
+# 19. Remove Nth Node From End Of List (Medium)
+
+class Solution(object):
+    def removeNthFromEnd(self, head, n):
+
+        fast, slow = head, head
+
+        for _ in range(n):
+            fast = fast.next
+
+        if not fast:
+            return head.next
+        
+        while fast.next:
+            slow = slow.next
+            fast = fast.next
+        
+        slow.next = slow.next.next
+        return head
+
+# 143. Reorder List (Medium)
+
+class Solution(object):
+    def reorderList(self, head):
+
+        if not head or not head.next:
+            return
+
+        half1 = self.midNode(head) # ex1) 2, ex2) 3
+        half2 = half1.next # ex1) 3->4, ex2) 4->5
+        half1.next = None # ex1) 2->None, ex2) 3->None
+
+        half2 = self.reverseNode(half2) # ex1) 4->3, ex2) 5->4
+
+        c1, c2 = head, half2 # 1->2 ... , 4->3
+        f1, f2 = None, None
+
+        while c1 and c2:
+            # Backup
+            f1 = c1.next
+            f2 = c2.next
+
+            # Link
+            c1.next = c2
+            c2.next = f1
+
+            # Move
+            c1 = f1
+            c2 = f2
+
+    def midNode(self, head):
+        fast, slow = head, head
+        while fast.next and fast.next.next:
+            slow = slow.next
+            fast = fast.next.next
+        
+        return slow
+
+    def reverseNode(self, head):
+
+        prev = None
+
+        while head:
+            next_p = head.next
+            head.next = prev
+            prev = head
+            head = next_p
+
+        return prev
+
+# ========================================================
+# Matrix : 4 questions
+# ========================================================
 
 Set Matrix Zeroes
 Spiral Matrix
