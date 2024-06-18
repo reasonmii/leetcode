@@ -214,7 +214,7 @@ class Solution(object):
             cnt += 1
         return cnt
         
-# 338. Counting Bits ##
+# 338. Counting Bits (Easy) ##
 
 # 268. Missing Number (Easy)
 
@@ -224,7 +224,7 @@ class Solution(object):
         sums = sum(range(len(nums)+1))
         return sums - sum(nums)
 
-# 190. Reverse Bits ##
+# 190. Reverse Bits (Easy) ##
 
 # ========================================================
 # Dynamic Programming : 5 questions
@@ -320,7 +320,7 @@ class Solution(object):
         # [True, False, False, False, True, False, False, False, True]
         return dp[-1]
 
-# 39. Combination Sum
+# 39. Combination Sum (Medium)
 
 class Solution(object):
     def combinationSum(self, candidates, target):
@@ -341,7 +341,7 @@ class Solution(object):
         dfs(target, 0, [])
         return rst
 
-# 198. House Robber
+# 198. House Robber (Medium)
 
 class Solution(object):
     def rob(self, nums):
@@ -369,7 +369,7 @@ class Solution(object):
 
         return max(simple(nums[1:]), simple(nums[:len(nums)-1]))
 
-# 91. Decode Ways
+# 91. Decode Ways (Medium)
 
 class Solution(object):
     def numDecodings(self, s):
@@ -390,7 +390,7 @@ class Solution(object):
         
         return dp[len(s)]
 
-# 62. Unique Paths
+# 62. Unique Paths (Medium)
 
 class Solution(object):
     def uniquePaths(self, m, n):
