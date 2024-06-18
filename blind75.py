@@ -525,9 +525,9 @@ class Solution(object):
         if not head or not head.next:
             return
 
-        half1 = self.midNode(head) # ex1) 2, ex2) 3
-        half2 = half1.next # ex1) 3->4, ex2) 4->5
-        half1.next = None # ex1) 2->None, ex2) 3->None
+        mid = self.midNode(head) # ex1) 2, ex2) 3
+        half2 = mid.next # ex1) 3->4, ex2) 4->5
+        mid.next = None # ex1) 2->None, ex2) 3->None
 
         half2 = self.reverseNode(half2) # ex1) 4->3, ex2) 5->4
 
