@@ -648,16 +648,76 @@ class Solution(object):
 # Matrix : 4 questions
 # ========================================================
 
-Set Matrix Zeroes
-Spiral Matrix
-Rotate Image
-Word Search
+# 73. Set Matrix Zeroes (Medium)
+
+class Solution(object):
+    def setZeroes(self, matrix):
+
+        if not matrix:
+            return []
+
+        m, n = len(matrix), len(matrix[0])
+
+        z_rows = [False] * m
+        z_cols = [False] * n
+
+        for i in range(m):
+            for j in range(n):
+                if matrix[i][j] == 0:
+                    z_rows[i] = True
+                    z_cols[j] = True
+
+        for i in range(m):
+            for j in range(n):
+                if z_rows[i] or z_cols[j]:
+                    matrix[i][j] = 0 
+
+# 54. Spiral Matrix (Medium)
+
+class Solution(object):
+    def spiralOrder(self, matrix):
+
+        rst = []
+        while matrix:
+
+            rst += matrix.pop(0)
+
+            if matrix and matrix[0]:
+                for row in matrix:
+                    rst.append(row.pop())
+
+            if matrix:
+                rst += matrix.pop()[::-1]
+            
+            if matrix and matrix[0]:
+                for row in matrix[::-1]:
+                    rst.append(row.pop(0))
+
+        return rst
+
+# 48. Rotate Image
+
+class Solution(object):
+    def rotate(self, matrix):
+
+        matrix.reverse()
+
+        for i in range(len(matrix)):
+            for j in range(i):
+                matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
+
+        return matrix
+
+# 79. Word Search (Medium) ##
 
 # ========================================================
 # String : 10 questions
 # ========================================================
 
-Longest Substring Without Repeating Characters
+# 3. Longest Substring Without Repeating Characters (Medium)
+
+
+
 Longest Repeating Character Replacement
 Minimum Window Substring
 Valid Anagram
