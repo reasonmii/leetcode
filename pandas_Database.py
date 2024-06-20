@@ -154,19 +154,114 @@ def trips_and_users(trips: pd.DataFrame, users: pd.DataFrame) -> pd.DataFrame:
     
     return df[['request_at', 'Cancellation Rate']].rename(columns={'request_at':'Day'})
 
+# ======================================================================
+# 512. Game Play Analysis II
+# ======================================================================
 
+def game_analysis(activity: pd.DataFrame) -> pd.DataFrame:
 
+    activity['first'] = activity.groupby('player_id')['event_date'].transform('min')
+    df = activity[activity['event_date'] == activity['first']]
 
+    return df[['player_id', 'device_id']]
 
+# ======================================================================
+# 534. Game Play Analysis III
+# ======================================================================
 
+def gameplay_analysis(activity: pd.DataFrame) -> pd.DataFrame:
 
+    activity.sort_values(by=['player_id', 'event_date'], inplace=True)
+    activity['games_played_so_far'] = activity.groupby('player_id')['games_played'].cumsum()
 
+    return activity[['player_id', 'event_date', 'games_played_so_far']]
 
+# ======================================================================
+# 550. Game Play Analysis IV
+# ======================================================================
 
+def gameplay_analysis(activity: pd.DataFrame) -> pd.DataFrame:
 
+    activity.sort_values(by=['player_id', 'event_date'], inplace=True)
+    
+    activity['first'] = activity.groupby('player_id')['event_date'].transform('min')
+    activity['diff_dt'] = (activity['event_date'] - activity['first']).dt.days
 
+    pct = activity[activity['diff_dt'] == 1]['player_id'].nunique() / activity['player_id'].nunique()
 
+    return pd.DataFrame({'fraction':[round(pct,2)]})
 
+# ======================================================================
+# 569. Median Employee Salary
+# ======================================================================
+
+def median_employee_salary(employee: pd.DataFrame) -> pd.DataFrame:
+
+    df = employee.sort_values(by=['company', 'salary', 'id'])
+
+    df['med'] = df.groupby('company')['salary'].transform('count')/2
+    df['rk'] = df.groupby('company').cumcount() + 1
+
+    df = df[(df.rk >= df['med']) & (df.rk <= df['med']+1)]
+
+    return df[['id', 'company', 'salary']]
+
+# ======================================================================
+# 570. Managers with at Least 5 Direct Reports
+# ======================================================================
+
+def find_managers(employee: pd.DataFrame) -> pd.DataFrame:
+
+    df = employee.groupby('managerId').size().reset_index(name='cnt')
+    df = employee.merge(df, left_on='id', right_on='managerId', how='inner')
+
+    return df[df.cnt >= 5][['name']]
+
+# ======================================================================
+# 571. Find Median Given Frequency of Numbers
+# ======================================================================
+
+def median_frequency(numbers: pd.DataFrame) -> pd.DataFrame:
+
+    numbers.sort_values(by='num', inplace=True)
+    nums = numbers['num'].repeat(numbers['frequency'])
+    med = round(nums.median(),1)
+    
+    return pd.DataFrame({'median':[med]})
+
+# ======================================================================
+# 574. Winning Candidate
+# ======================================================================
+
+def winning_candidate(candidate: pd.DataFrame, vote: pd.DataFrame) -> pd.DataFrame:
+
+    win = vote.groupby('candidateId').count().idxmax()
+    return candidate[candidate.id.isin(win)][['name']]
+
+# ======================================================================
+# 577. Employee Bonus
+# ======================================================================
+
+def employee_bonus(employee: pd.DataFrame, bonus: pd.DataFrame) -> pd.DataFrame:
+    
+    df = employee.merge(bonus, on='empId', how='left')
+    return df[(df.bonus < 1000) | (df.bonus.isna())][['name', 'bonus']]
+
+# ======================================================================
+# 578. Get Highest Answer Rate Question
+# ======================================================================
+
+def get_the_question(survey_log: pd.DataFrame) -> pd.DataFrame:
+
+    show = survey_log[survey_log.action == 'show'].groupby('question_id').size().reset_index(name='show')
+    ans = survey_log[survey_log.action == 'answer'].groupby('question_id').size().reset_index(name='ans')
+    
+    df = show.merge(ans, on='question_id', how='left').fillna(0)
+    df['rate'] = df['ans'] / df['show']
+
+    df.sort_values(by=['rate', 'question_id'], ascending=[False, True], inplace=True)
+
+    return df.head(1)[['question_id']].rename(columns={'question_id':'survey_log'})
 
 
 
