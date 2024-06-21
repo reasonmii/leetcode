@@ -317,8 +317,17 @@ def find_customer_referee(customer: pd.DataFrame) -> pd.DataFrame:
 def largest_orders(orders: pd.DataFrame) -> pd.DataFrame:
     return orders['customer_number'].mode().to_frame()
     
+# ======================================================================
+# 597. Friend Requests I: Overall Acceptance Rate
+# ======================================================================
 
+def acceptance_rate(friend_request: pd.DataFrame, request_accepted: pd.DataFrame) -> pd.DataFrame:
+    
+    request = len(friend_request[['sender_id','send_to_id']].drop_duplicates())
+    accept = len(request_accepted[['requester_id', 'accepter_id']].drop_duplicates())
+    rate = 0 if request == 0 else accept / request
 
+    return pd.DataFrame({'accept_rate': [rate]}).round(2)
 
 
 
