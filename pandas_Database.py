@@ -329,9 +329,139 @@ def acceptance_rate(friend_request: pd.DataFrame, request_accepted: pd.DataFrame
 
     return pd.DataFrame({'accept_rate': [rate]}).round(2)
 
+# ======================================================================
+# 601. Human Traffic of Stadium ###
+# ======================================================================
 
+def human_traffic(stadium: pd.DataFrame) -> pd.DataFrame:
 
+    stadium = stadium[stadium.people >= 100]
 
+    # diff() : compare the current id and the id of the previous row
+    # diff().shift(1) : compare the previous row id and the id before the previous row
+    stadium['flag'] = ((stadium['id'].diff() == 1) & (stadium['id'].diff().shift(1) == 1)) # null, false, true
 
+    stadium = stadium[(stadium['flag']) | (stadium['flag'].shift(-1)) | (stadium['flag'].shift(-2))]
 
+    # remove the column 'flag'
+    return stadium.drop(columns='flag').sort_values(by='visit_date')
+    
+# ======================================================================
+# 602. Friend Requests II: Who Has the Most Friends ###
+# ======================================================================
+
+def most_friends(request_accepted: pd.DataFrame) -> pd.DataFrame:
+
+    df = pd.concat([request_accepted['requester_id'], request_accepted['accepter_id']]).to_frame('id')
+    df = df.groupby('id').size().reset_index(name='num')
+    df.sort_values(by='num', ascending=False, inplace=True)
+
+    return df.head(1)
+
+# ======================================================================
+# 608. Tree Node
+# ======================================================================
+
+def tree_node(tree: pd.DataFrame) -> pd.DataFrame:
+
+    tree['type'] = np.where(tree['p_id'].isna(), 'Root',
+                   np.where(tree['id'].isin(tree['p_id']), 'Inner', 'Leaf'))
+
+    return tree[['id', 'type']]
+
+# ======================================================================
+# 610. Triangle Judgement ###
+# ======================================================================
+
+def triangle_judgement(triangle: pd.DataFrame) -> pd.DataFrame:
+    
+    triangle['triangle'] = triangle.apply(
+        lambda t: 'Yes' if ((t.x + t.y > t.z) and (t.x + t.z > t.y) and (t.y + t.z > t.x))
+        else 'No', axis=1)
+
+    return triangle
+
+# ======================================================================
+# 612. Shortest Distance in a Plane ###
+# ======================================================================
+
+def shortest_distance(point2_d: pd.DataFrame) -> pd.DataFrame:
+
+    df = point2_d.merge(point2_d, how='cross')
+    df = df[(df.x_x != df.x_y) | (df.y_x != df.y_y)]
+
+    df['dist'] = round(((df['x_x'] - df['x_y'])**2 + (df['y_x'] - df['y_y'])**2)**0.5, 2)
+    return pd.DataFrame({'shortest':[df['dist'].min()]})
+
+# ======================================================================
+# 613. Shortest Distance in a Line
+# ======================================================================
+
+def shortest_distance(point: pd.DataFrame) -> pd.DataFrame:
+
+    point.sort_values('x', inplace=True)
+    short = point.x.diff().min()
+    return pd.DataFrame({'shortest':[short]})
+
+# ======================================================================
+# 615. Average Salary: Departments VS Company
+# ======================================================================
+
+def average_salary(salary: pd.DataFrame, employee: pd.DataFrame) -> pd.DataFrame:
+
+    salary['pay_month'] = salary['pay_date'].dt.strftime("%Y-%m") ###
+    
+    mon = salary.groupby('pay_month').agg({'amount':'mean'}).reset_index()
+
+    dept = salary.merge(employee, on='employee_id', how='left')
+    dept = dept.groupby(['pay_month', 'department_id']).agg({'amount':'mean'}).reset_index()
+    dept = dept.merge(mon, on='pay_month', how='left')
+
+    dept['comparison'] = np.where(dept['amount_x'] == dept['amount_y'], 'same',
+                         np.where(dept['amount_x'] > dept['amount_y'], 'higher', 'lower'))
+
+    return dept[['pay_month', 'department_id', 'comparison']]
+
+# ======================================================================
+# 618. Students Report By Geography
+# ======================================================================
+
+def geography_report(student: pd.DataFrame) -> pd.DataFrame:
+
+    am = student[student['continent'] == 'America'][['name']]
+    am.sort_values(by='name', inplace=True)
+    am = am.rename(columns={'name':'America'}).reset_index(drop=True)
+
+    ai = student[student['continent'] == 'Asia'][['name']]
+    ai.sort_values(by='name', inplace=True)
+    ai = ai.rename(columns={'name':'Asia'}).reset_index(drop=True)
+
+    eu = student[student['continent'] == 'Europe'][['name']]
+    eu.sort_values(by='name', inplace=True)
+    eu = eu.rename(columns={'name':'Europe'}).reset_index(drop=True)
+
+    return pd.concat([am, ai, eu], axis=1)
+
+# ======================================================================
+# 619. Biggest Single Number ###
+# ======================================================================
+
+def biggest_single_number(my_numbers: pd.DataFrame) -> pd.DataFrame:
+
+    # keep=False : all duplicates will be removed,
+    return my_numbers.drop_duplicates(keep=False).max().to_frame(name='num')
+
+# ======================================================================
+# 626. Exchange Seats
+# ======================================================================
+
+def exchange_seats(seat: pd.DataFrame) -> pd.DataFrame:
+
+    id = list(range(1, len(seat)+1))
+
+    for i in range(1, len(seat), 2):
+        id[i], id[i-1] = id[i-1], id[i]
+
+    seat['id'] = id
+    return seat.sort_values('id')
 
