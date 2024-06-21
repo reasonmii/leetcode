@@ -216,6 +216,20 @@ from insurance
 where tiv_2015 in (select tiv_2015 from insurance group by tiv_2015 having count(*) > 1)
 and (lat, lon) in (select lat, lon from insurance group by lat, lon having count(*) = 1)
 
+-- =========================================================
+-- 597. Friend Requests I: Overall Acceptance Rate
+-- =========================================================
+    
+WITH R AS (
+    select count(distinct sender_id, send_to_id) cnt
+    FROM FriendRequest
+), A AS (
+    select count(distinct requester_id, accepter_id) cnt
+    FROM RequestAccepted
+)
+select round(IFNULL(a.cnt / r.cnt, 0), 2) accept_rate
+from r, a
+
 
 
 
