@@ -263,5 +263,66 @@ def get_the_question(survey_log: pd.DataFrame) -> pd.DataFrame:
 
     return df.head(1)[['question_id']].rename(columns={'question_id':'survey_log'})
 
+# ======================================================================
+# 579. Find Cumulative Salary of an Employee
+# ======================================================================
+
+def cumulative_salary(employee: pd.DataFrame) -> pd.DataFrame:
+
+    df = employee.sort_values(by=['id', 'month'])
+
+    df['p1_month'] = df['month'] - df.groupby('id')['month'].shift(1).fillna(0)
+    df['p2_month'] = df['month'] - df.groupby('id')['month'].shift(2).fillna(0)
+
+    df['p1_salary'] = df.groupby('id')['salary'].shift(1).fillna(0)
+    df['p2_salary'] = df.groupby('id')['salary'].shift(2).fillna(0)
+
+    df['Salary'] = np.where(
+        ((df['p1_month'] == 1) & (df['p2_month'] == 2)), df['salary'] + df['p1_salary'] + df['p2_salary'],
+        np.where(df['p1_month'] == 1, df['salary'] + df['p1_salary'],
+        np.where(df['p2_month'] == 2, df['salary'] + df['p2_salary'],  df['salary']
+        )))
+
+    df['max_mon'] = df.groupby('id')['month'].transform('max')
+    df = df[df['month'] != df['max_mon']]
+
+    df.sort_values(by=['id', 'month'], ascending=[True, False], inplace=True)
+    return df[['id', 'month', 'Salary']]
+
+# ======================================================================
+# 580. Count Student Number in Departments
+# ======================================================================
+
+def count_students(student: pd.DataFrame, department: pd.DataFrame) -> pd.DataFrame:
+
+    df = department.merge(student, on='dept_id', how='left')
+    df = df.groupby('dept_name')['student_id'].count().reset_index(name='student_number')
+    df.sort_values(by=['student_number', 'dept_name'], ascending=[False, True], inplace=True)
+
+    return df[['dept_name', 'student_number']]
+
+# ======================================================================
+# 584. Find Customer Referee
+# ======================================================================
+
+def find_customer_referee(customer: pd.DataFrame) -> pd.DataFrame:
+
+    customer['referee_id'] = customer['referee_id'].fillna(0)
+    return customer[customer.referee_id != 2][['name']]
+
+# ======================================================================
+# 586. Customer Placing the Largest Number of Orders
+# ======================================================================
+
+def largest_orders(orders: pd.DataFrame) -> pd.DataFrame:
+    return orders['customer_number'].mode().to_frame()
+    
+
+
+
+
+
+
+
 
 
