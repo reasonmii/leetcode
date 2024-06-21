@@ -77,19 +77,19 @@ class Solution(object):
 # 152. Maximum Product Subarray (Medium)
 
 class Solution(object):
-    def maxSubArray(self, nums):
+    def maxProduct(self, nums):
 
         max_v = nums[0]
-        arr = [max_v]
+        min_v = nums[0]
+        rst = nums[0]
 
-        for i in range(1, len(nums)):
-            cur = max(arr[i-1] + nums[i], nums[i])
-            arr.append(cur)
-
-            if cur > max_v:
-                max_v = cur
-
-        return max_v
+        for n in nums[1:]:
+            max_v *= n
+            min_v *= n
+            max_v, min_v = max(max_v, min_v, n), min(max_v, min_v, n)
+            rst = max(rst, max_v)
+        
+        return rst
 
 # 153. Find Minimum in Rotated Sorted Array (Medium)
 
