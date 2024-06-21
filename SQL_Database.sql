@@ -230,10 +230,115 @@ WITH R AS (
 select round(IFNULL(a.cnt / r.cnt, 0), 2) accept_rate
 from r, a
 
+-- =========================================================
+-- 601. Human Traffic of Stadium
+-- =========================================================
 
+select distinct a.*
+from stadium a, stadium b, stadium c
+where a.people >= 100 and b.people >= 100 and c.people >= 100
+and (
+    (a.id - b.id = 1 and b.id - c.id = 1) or
+    (c.id - b.id = 1 and b.id - a.id = 1) or
+    (b.id - a.id = 1 and a.id - c.id = 1)
+)
+order by visit_date
 
+-- =========================================================
+-- 602. Friend Requests II: Who Has the Most Friends
+-- =========================================================
 
+select id
+     , count(*) num
+from (
+    select requester_id id from RequestAccepted
+    union all
+    select accepter_id id from RequestAccepted
+) t
+group by 1
+order by num desc
+limit 1
 
+-- =========================================================
+-- 608. Tree Node
+-- =========================================================
+    
+select id
+     , case when p_id is null then 'Root'
+            when id in (select distinct p_id from tree) then 'Inner'
+            else 'Leaf' end as type
+FROM Tree
 
+-- =========================================================
+-- 612. Shortest Distance in a Plane
+-- =========================================================
+
+select min(round(sqrt(pow(p1.x - p2.x, 2) + pow(p1.y - p2.y, 2)), 2)) shortest
+from point2d p1, point2d p2
+where p1.x != p2.x or p1.y != p2.y
+
+-- =========================================================
+-- 613. Shortest Distance in a Line
+-- =========================================================
+
+# NULLIF(A, B) : returns NULL if A = B
+
+select min(nullif(abs(p1.x - p2.x),0)) shortest
+from point p1, point p2
+
+-- =========================================================
+-- 615. Average Salary: Departments VS Company
+-- =========================================================
+    
+with c as (
+    select DATE_FORMAT(pay_date, '%Y-%m') pay_month
+         , avg(amount) avg_sal
+    from salary s
+    group by 1
+), t as (
+    select DATE_FORMAT(pay_date, '%Y-%m') pay_month
+         , e.department_id
+         , avg(amount) avg_sal
+    from salary s
+    left join employee e on s.employee_id = e.employee_id
+    group by 1,2
+)
+select t.pay_month
+     , t.department_id
+     , case when c.avg_sal = t.avg_sal then 'same'
+            when c.avg_sal > t.avg_sal then 'lower'
+            else 'higher' end as comparison
+from t
+left join c on t.pay_month = c.pay_month
+
+-- =========================================================
+-- 618. Students Report By Geography ###
+-- =========================================================
+
+select MAX(case when continent = 'America' then name end) as America
+     , MAX(case when continent = 'Asia' then name end) as Asia
+     , MAX(case when continent = 'Europe' then name end) as Europe
+from (select *
+           , row_number()over(partition by continent order by name) rk
+      from student) t
+group by rk
+
+-- =========================================================
+-- 626. Exchange Seats
+-- =========================================================
+
+select case when id = (select max(id) from seat) and id % 2 = 1 then id
+            when id % 2 = 1 then id + 1
+            else id - 1 end as id
+     , student
+from seat
+order by id
+
+-- =========================================================
+-- 627. Swap Salary ###
+-- =========================================================
+
+UPDATE salary
+SET sex = case when sex='m' then 'f' else 'm' end;
 
 
