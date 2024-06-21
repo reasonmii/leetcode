@@ -423,7 +423,7 @@ class Solution(object):
 
 # Course Schedule
 # Pacific Atlantic Water Flow
-# Number of Islands
+# 200. Number of Islands (Medium)
 # Longest Consecutive Sequence
 # Alien Dictionary (Leetcode Premium)
 # Graph Valid Tree (Leetcode Premium)
@@ -695,7 +695,7 @@ class Solution(object):
 
         return rst
 
-# 48. Rotate Image
+# 48. Rotate Image (Medium)
 
 class Solution(object):
     def rotate(self, matrix):
@@ -716,43 +716,296 @@ class Solution(object):
 
 # 3. Longest Substring Without Repeating Characters (Medium)
 
+class Solution(object):
+    def lengthOfLongestSubstring(self, s):
 
+        len_s = 0
+        idx = {}
 
-Longest Repeating Character Replacement
-Minimum Window Substring
-Valid Anagram
-Group Anagrams
-Valid Parentheses
-Valid Palindrome
-Longest Palindromic Substring
-Palindromic Substrings
-Encode and Decode Strings (Leetcode Premium)
+        i = 0
+        for j in range(len(s)):
+            if s[j] in idx:
+                i = max(i, idx[s[j]])
+            len_s = max(len_s, j-i+1)
+            idx[s[j]] = j+1
 
+        return len_s
+
+# 424. Longest Repeating Character Replacement (Medium) ##
+
+# 76. Minimum Window Substring (Hard) ##
+
+# 242. Valid Anagram (Easy)
+
+class Solution(object):
+    def isAnagram(self, s, t):
+
+        if len(s) != len(t):
+            return False
+
+        for char in set(s):
+            if s.count(char) != t.count(char):
+                return False
+        return True
+
+# 49. Group Anagrams (Medium)
+
+class Solution(object):
+    def groupAnagrams(self, strs):
+
+        rst = []
+        dic = {}
+
+        for s in strs:
+            word = ''.join(sorted(s))
+            if word in dic:
+                rst[dic[word]].append(s)
+            else:
+                dic[word] = len(rst)
+                rst.append([s])
+        
+        return rst
+
+# 20. Valid Parentheses (Easy)
+
+class Solution(object):
+    def isValid(self, s):
+
+        stk = []
+        for w in s:
+            if w in '({[':
+                stk.append(w)
+            else:
+                if not stk \
+                or w == ')' and stk[-1] != '(' \
+                or w == ']' and stk[-1] != '[' \
+                or w == '}' and stk[-1] != '{':
+                    return False
+                stk.pop()
+
+        return not stk
+
+# 125. Valid Palindrome (Easy)
+
+class Solution(object):
+    def isPalindrome(self, s):
+
+        # i, j = 0, len(s)-1
+
+        # while i < j:
+        #     while i < j and not s[i].isalnum():
+        #         i += 1
+        #     while i < j and not s[j].isalnum():
+        #         j -= 1
+            
+        #     if s[i].lower() != s[j].lower():
+        #         return False
+            
+        #     i += 1
+        #     j -= 1
+
+        # return True
+
+        s = s.lower()
+        s = re.sub('[^0-9a-z]', "", s)
+        s = s.replace(" ", "")
+        return s == s[::-1]
+
+# 5. Longest Palindromic Substring (Medium)
+
+class Solution(object):
+    def longestPalindrome(self, s):
+
+        if s == s[::-1]:
+            return s
+
+        start, end = 1, 0
+        for i in range(1, len(s)):
+            left, right = i-end, i+1
+            s1, s2 = s[left-1:right], s[left:right]
+            if left-1 >= 0 and s1 == s1[::-1]:
+                start, end = left-1, end+2
+            elif s2 == s2[::-1]:
+                start, end = left, end+1
+        
+        return s[start:start+end]
+
+# 647. Palindromic Substrings (Medium) ##
+
+# 271. Encode and Decode Strings (Medium) ##
 
 # ========================================================
 # Tree : 14 questions
 # ========================================================
 
-Maximum Depth of Binary Tree
-Same Tree
-Invert/Flip Binary Tree
-Binary Tree Maximum Path Sum
-Binary Tree Level Order Traversal
-Serialize and Deserialize Binary Tree
-Subtree of Another Tree
-Construct Binary Tree from Preorder and Inorder Traversal
-Validate Binary Search Tree
-Kth Smallest Element in a BST
-Lowest Common Ancestor of BST
-Implement Trie (Prefix Tree)
-Add and Search Word
-Word Search II
+# 104. Maximum Depth of Binary Tree (Easy)
+
+class Solution(object):
+    def maxDepth(self, root):
+
+        if not root:
+            return 0
+
+        left = self.maxDepth(root.left)
+        right = self.maxDepth(root.right)
+
+        return max(left, right) + 1
+
+# 100. Same Tree (Easy)
+
+class Solution(object):
+    def isSameTree(self, p, q):
+
+        if p and q:
+            return p.val == q.val and \
+            self.isSameTree(p.left, q.left) and \
+            self.isSameTree(p.right, q.right)
+        
+        # Check if Both Nodes are None
+        return p is q
+
+# 226. Invert/Flip Binary Tree (Easy)
+
+class Solution(object):
+    def invertTree(self, root):
+
+        if not root:
+            return
+
+        self.invertTree(root.left)
+        self.invertTree(root.right)
+
+        root.left, root.right = root.right, root.left
+        return root
+
+# 124. Binary Tree Maximum Path Sum (Hard) ##
+
+# 102. Binary Tree Level Order Traversal (Medium) ##
+
+class Solution(object):
+    def levelOrder(self, root):
+
+        ans, level = [], [root]
+        while root and level:
+            ans.append([node.val for node in level])
+            pair = [(node.left, node.right) for node in level]
+            level = [n for node in pair for n in node if n]
+        return ans
+
+# [n for node in pair for n in node if n]
+# for node in pair:   # (9, 20)
+#     for n in node:  # 9 -> 20
+#         if n:
+#             level.append(n)
+
+# 297. Serialize and Deserialize Binary Tree (Hard) ##
+
+# 572. Subtree of Another Tree (Easy)
+
+class Solution(object):
+    def isSubtree(self, root, subRoot):
+
+        if not root:
+            return False
+
+        if self.isSameTree(root, subRoot):
+            return True
+        
+        return self.isSubtree(root.left, subRoot) or self.isSubtree(root.right, subRoot)
+
+    def isSameTree(self, p, q):
+        if p and q:
+            return p.val == q.val and self.isSameTree(p.left, q.left) and self.isSameTree(p.right, q.right)
+        return p is q
+        
+# 105. Construct Binary Tree from Preorder and Inorder Traversal (Medium)
+
+class Solution(object):
+    def buildTree(self, preorder, inorder):
+
+        if inorder:
+            idx = inorder.index(preorder.pop(0))
+            root = TreeNode(inorder[idx])
+            root.left = self.buildTree(preorder, inorder[:idx])
+            root.right = self.buildTree(preorder, inorder[idx+1:])
+
+            return root
+
+# 98. Validate Binary Search Tree (Medium)
+
+class Solution(object):
+    def isValidBST(self, root):
+
+        rst = []
+        self.inOrder(root, rst)
+
+        for i in range(1, len(rst)):
+            if rst[i-1] >= rst[i]:
+                return False
+        return True
+    
+    def inOrder(self, root, rst):
+        if not root:
+            return
+        
+        self.inOrder(root.left, rst)
+        rst.append(root.val)
+        self.inOrder(root.right, rst)
+
+# 230. Kth Smallest Element in a BST (Medium)
+
+class Solution(object):
+    def kthSmallest(self, root, k):
+
+        rst = []
+        self.inOrder(root, rst)
+        return rst[k-1]
+
+    def inOrder(self, root, rst):
+        if not root:
+            return
+
+        self.inOrder(root.left, rst)
+        rst.append(root.val)
+        self.inOrder(root.right, rst)
+        
+# 235. Lowest Common Ancestor of BST (Medium)
+
+class Solution(object):
+    def lowestCommonAncestor(self, root, p, q):
+        
+        while True:
+            if root.val > p.val and root.val > q.val:
+                root = root.left
+            elif root.val < p.val and root.val < q.val:
+                root = root.right
+            else:
+                return root
+
+# 208. Implement Trie (Prefix Tree) (Medium) ##
+
+# 211. Add and Search Word (Medium) ##
+
+# 212. Word Search II (Hard) ##
 
 # ========================================================
 # Heap : 3 questions
 # ========================================================
 
-Merge K Sorted Lists
-Top K Frequent Elements
-Find Median from Data Stream
+# 23. Merge K Sorted Lists (Hard) ##
+
+# 347. Top K Frequent Elements (Medium)
+
+class Solution(object):
+    def topKFrequent(self, nums, k):
+
+        freq = defaultdict(lambda:0) # collections
+        for n in nums:
+            freq[n] += 1
+
+        freq = sorted(freq.items(), key=lambda x: x[1], reverse=True)[:k]
+
+        return [n[0] for n in freq]
+
+# 295. Find Median from Data Stream (Hard) ##
 
