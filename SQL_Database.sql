@@ -341,4 +341,41 @@ order by id
 UPDATE salary
 SET sex = case when sex='m' then 'f' else 'm' end;
 
+-- =========================================================
+-- 1083. Sales Analysis II ###
+-- =========================================================
 
+select s.buyer_id
+from sales s
+left join product p on s.product_id = p.product_id
+group by 1
+having sum(case when product_name = 'S8' then 1 else 0 end) > 0
+and sum(case when product_name = 'iPhone' then 1 else 0 end) = 0
+
+-- =========================================================
+-- 1084. Sales Analysis III
+-- =========================================================
+    
+select distinct s.product_id
+     , p.product_name
+from Sales s
+left join product p on s.product_id = p.product_id
+group by p.product_id
+having min(sale_date)  >= '2019-01-01'
+and max(sale_date) <= '2019-03-31'
+
+-- =========================================================
+-- 1097. Game Play Analysis V ###
+-- =========================================================
+    
+select install_dt
+     , count(distinct player_id) installs
+     , round(
+        sum(event_date = date_add(install_dt, interval 1 day)) / count(distinct player_id), 2
+     ) Day1_retention
+from (
+    select *
+         , min(event_date)over(partition by player_id order by event_date) install_dt
+    from activity
+) t
+group by 1
