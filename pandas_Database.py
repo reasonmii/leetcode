@@ -564,14 +564,180 @@ def unpopular_books(books: pd.DataFrame, orders: pd.DataFrame) -> pd.DataFrame:
 
     return df[~df['book_id'].isin(od)][['book_id', 'name']]
 
+# ======================================================================
+# 1107. New Users Daily Count
+# ======================================================================
 
+def new_users_daily_count(traffic: pd.DataFrame) -> pd.DataFrame:
 
+    traffic.sort_values(['user_id', 'activity_date'], inplace=True)
+    df = traffic[traffic.activity=='login']
+    df = df.groupby('user_id').head(1) ###
+    df = df[df.activity_date >= pd.to_datetime('2019-06-30') - pd.Timedelta(days=90)] ##
+    df = df.groupby('activity_date').size().reset_index(name='user_count')
 
+    return df.rename(columns={'activity_date':'login_date'})
 
+# ======================================================================
+# 1112. Highest Grade For Each Student
+# ======================================================================
 
+def highest_grade(enrollments: pd.DataFrame) -> pd.DataFrame:
 
+    df = enrollments.sort_values(['student_id', 'grade', 'course_id'], ascending=[True, False, True])
+    df['rk'] = df.groupby('student_id')['grade'].rank(method='dense', ascending=False)
+    df = df[df.rk == 1].groupby('student_id').head(1) ###
 
+    return df[['student_id', 'course_id', 'grade']]
 
+# ======================================================================
+# 1127. User Purchase Platform
+# ======================================================================
+
+def user_purchase(spending: pd.DataFrame) -> pd.DataFrame:
+
+    dt = pd.DataFrame({'spend_date': spending['spend_date'].unique()})
+    pl = pd.DataFrame({'platform': ['mobile', 'desktop', 'both']})
+    idx = dt.merge(pl, how='cross')
+
+    mo = spending[spending.platform == 'mobile']
+    de = spending[spending.platform == 'desktop']
+    bo = de.merge(mo, on=['user_id', 'spend_date'], how='inner', suffixes=['_m', '_d'])
+
+    mo2 = mo.merge(de, on=['user_id', 'spend_date'], how='left', suffixes=['', '_d'])
+    mo2 = mo2[mo2['platform_d'].isnull()]
+    mo2 = mo2.groupby(['spend_date']).agg(
+        total_amount=('amount', 'sum'),
+        total_users=('user_id', 'count')
+    ).reset_index()
+    mo2['platform'] = 'mobile'
+
+    de2 = de.merge(mo, on=['user_id', 'spend_date'], how='left', suffixes=['', '_m'])
+    de2 = de2[de2['platform_m'].isnull()]
+    de2 = de2.groupby(['spend_date']).agg(
+        total_amount=('amount', 'sum'),
+        total_users=('user_id', 'count')
+    ).reset_index()
+    de2['platform'] = 'desktop'
+
+    bo['amount'] = bo['amount_m'] + bo['amount_d']
+    bo = bo.groupby(['spend_date']).agg(
+        total_amount=('amount', 'sum'),
+        total_users=('user_id', 'count')
+    ).reset_index()
+    bo['platform'] = 'both'
+
+    df = pd.concat([de2, mo2, bo], axis=0)
+    return idx.merge(df, on=['spend_date', 'platform'], how='left').fillna(0)
+
+# ======================================================================
+# 1132. Reported Posts II
+# ======================================================================
+
+def reported_posts(actions: pd.DataFrame, removals: pd.DataFrame) -> pd.DataFrame:
+
+    df = actions[actions.extra == 'spam'].drop_duplicates(['post_id', 'action_date'])
+    df = df.merge(removals, on='post_id', how='left')
+
+    ###
+    # count : the number of non-null values
+    # size : all values (non-null + null)
+    df = df.groupby('action_date').agg(
+        rem = ('remove_date', 'count'),
+        tot = ('remove_date', 'size')
+    )
+
+    df['average_daily_percent'] = df['rem'] / df['tot'] * 100
+
+    # need [] -> ex) ['mean'] 
+    avg = df.agg({'average_daily_percent':['mean']}).round(2)
+
+    return avg
+
+# ======================================================================
+# 1142. User Activity for the Past 30 Days II
+# ======================================================================
+
+def user_activity(activity: pd.DataFrame) -> pd.DataFrame:
+
+    e_day = '2019-07-27'
+    s_day = '2019-06-28'
+    df = activity[(activity['activity_date'] >= s_day) & (activity['activity_date'] <= e_day)]
+
+    df = df.groupby('user_id')['session_id'].nunique()
+    
+    avg_val = round(df.mean(),2)
+    avg_val = avg_val if not pd.isna(avg_val) else 0.00 ###
+
+    return pd.DataFrame({'average_sessions_per_user':[avg_val]})
+
+# ======================================================================
+# 1159. Market Analysis II
+# ======================================================================
+
+def market_analysis(users: pd.DataFrame, orders: pd.DataFrame, items: pd.DataFrame) -> pd.DataFrame:
+
+    df = orders.merge(users[['user_id', 'favorite_brand']], left_on='seller_id', right_on='user_id', how='left')
+    df = df.merge(items, on='item_id', how='left')
+
+    df['rank'] =  df.groupby('seller_id')['order_date'].rank()
+
+    yes = df[(df.favorite_brand == df.item_brand) & (df['rank'] == 2)]['seller_id'].to_list() ###
+
+    df = users[['user_id']].rename(columns={'user_id':'seller_id'})
+    df['2nd_item_fav_brand'] = df['seller_id'].apply(lambda x: 'yes' if x in yes else 'no') ###
+
+    return df
+
+# ======================================================================
+# 1179. Reformat Department Table ###
+# ======================================================================
+
+def reformat_table(department: pd.DataFrame) -> pd.DataFrame:
+
+    df = department.pivot(index='id', columns='month', values='revenue')
+    df = df.reindex(columns=['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'])
+    df.rename(columns=lambda x: x+'_Revenue', inplace=True)
+    df.reset_index(inplace=True)
+    return df
+
+# ======================================================================
+# 1193. Monthly Transactions I ###
+# ======================================================================
+
+def monthly_transactions(transactions: pd.DataFrame) -> pd.DataFrame:
+
+    transactions['month'] = transactions['trans_date'].dt.strftime('%Y-%m')
+
+    transactions['app'] = np.nan
+    transactions.loc[transactions.state == 'approved', 'app'] = transactions['amount']
+
+    df = transactions.groupby(['month', 'country'], dropna=False).agg(
+        trans_count=('id', 'count'),
+        approved_count=('app', 'count'),
+        trans_total_amount=('amount', 'sum'),
+        approved_total_amount=('app', 'sum')
+    ).reset_index()
+
+    return df    
+
+# ======================================================================
+# 1194. Tournament Winners
+# ======================================================================
+
+def tournament_winners(players: pd.DataFrame, matches: pd.DataFrame) -> pd.DataFrame:
+
+    fi = matches.groupby('first_player')['first_score'].sum() # series
+    se = matches.groupby('second_player')['second_score'].sum() # series
+
+    df = fi.add(se, fill_value=0).reset_index(name='score') ###
+    df = df.merge(players, left_on='index', right_on='player_id', how='left')
+
+    df['max_v'] = df.groupby('group_id')['score'].transform('max')
+    df = df[df['max_v'] == df['score']]
+    df = df.groupby('group_id').agg({'player_id':'min'}).reset_index()
+
+    return df[['group_id', 'player_id']]
 
 
 
