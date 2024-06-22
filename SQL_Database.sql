@@ -379,3 +379,46 @@ from (
     from activity
 ) t
 group by 1
+
+-- =========================================================
+-- 1107. New Users Daily Count
+-- =========================================================
+
+select login_date
+     , count(*) user_count
+from (
+    select user_id
+        , min(activity_date) login_date
+    from traffic
+    where activity = 'login'
+    group by 1
+    ) t
+where login_date >= DATE_ADD('2019-06-30', interval -90 day)
+group by 1
+
+-- =========================================================
+-- 1127. User Purchase Platform
+-- =========================================================
+
+with t as (
+    select distinct spend_date, 'mobile' platform from spending
+    union all
+    select distinct spend_date, 'desktop' platform from spending
+    union all
+    select distinct spend_date, 'both' platform from spending
+), p as (
+    select spend_date
+         , user_id
+         , case when count(distinct platform) = 1 then platform
+                when count(distinct platform) = 2 then 'both' end platform
+         , sum(amount) amt
+    from spending
+    group by 1, 2
+)
+select t.spend_date
+     , t.platform
+     , sum(IFNULL(amt, 0)) total_amount
+     , count(distinct user_id) total_users
+from t
+left join p on t.spend_date = p.spend_date and t.platform = p.platform
+group by 1,2
