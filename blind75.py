@@ -453,13 +453,78 @@ class Solution(object):
 
         return cnt
 
-# Longest Consecutive Sequence
+# 128. Longest Consecutive Sequence (Medium)
 
-# Alien Dictionary
+class Solution(object):
+    def longestConsecutive(self, nums):
 
-# Graph Valid Tree
+        if not nums: return 0
 
-# Number of Connected Components in an Undirected Graph (Leetcode Premium)
+        nums = sorted(set(nums))
+        cnt = 1
+        rst = 1
+
+        for i in range(1, len(nums)):
+            if nums[i-1] == nums[i] -1:
+                cnt += 1
+                rst = max(rst, cnt)
+            else:
+                cnt = 1
+
+        return rst
+
+# 269. Alien Dictionary (Hard) ##
+
+# 261. Graph Valid Tree (Medium)
+
+class Solution(object):
+    def validTree(self, n, edges):
+        # valid tree : no loop, edge = n-1
+
+        if len(edges) != n-1:
+            return False
+
+        # edges = [[0,1],[0,2],[0,3],[1,4]]
+        # neighbors : {0: [], 1: [], 2: [], 3: [], 4: []}
+        neighbors = {i : [] for i in range(n)}
+        for v, w in edges:
+            neighbors[v] += w,
+            neighbors[w] += v,
+            # {0: [1, 2, 3], 1: [0, 4], 2: [0], 3: [0], 4: [1]}
+
+        def visit(v):
+            # remove the visited nodes from the neighbors
+            # if there's no v, return []
+            map(visit, neighbors.pop(v, []))
+
+        visit(0)
+        return not neighbors
+
+# 323. Number of Connected Components in an Undirected Graph (Medium)
+
+class Solution(object):
+    def countComponents(self, n, edges):
+        
+        graph = defaultdict(list)
+        
+        for x, y in edges:
+            graph[x].append(y)
+            graph[y].append(x)
+
+        def dfs(node, seen):
+            seen.add(node)
+            for neighbor in graph[node]:
+                if neighbor not in seen:
+                    dfs(neighbor, seen)
+
+        cnt = 0
+        seen = set()
+        for node in range(n):
+            if node not in seen:
+                dfs(node, seen)
+                cnt += 1
+        
+        return cnt
 
 # ========================================================
 # Interval : 5 questions
