@@ -465,3 +465,113 @@ def exchange_seats(seat: pd.DataFrame) -> pd.DataFrame:
     seat['id'] = id
     return seat.sort_values('id')
 
+# ======================================================================
+# 1069. Product Sales Analysis II
+# ======================================================================
+
+def sales_analysis(sales: pd.DataFrame, product: pd.DataFrame) -> pd.DataFrame:
+    
+    df = sales.merge(product, on='product_id', how='left')
+    df = df.groupby('product_id').agg(total_quantity=('quantity', 'sum')).reset_index()
+    return df
+    
+# ======================================================================
+# 1070. Product Sales Analysis III
+# ======================================================================
+
+def sales_analysis(sales: pd.DataFrame, product: pd.DataFrame) -> pd.DataFrame:
+
+    sales['rk'] = sales.groupby('product_id')['year'].rank(method='dense', ascending=True)
+    sales.rename(columns={'year':'first_year'}, inplace=True)
+    return sales[sales.rk == 1][['product_id', 'first_year', 'quantity', 'price']]
+
+# ======================================================================
+# 1076. Project Employees II
+# ======================================================================
+
+def project_employees_ii(project: pd.DataFrame, employee: pd.DataFrame) -> pd.DataFrame:
+
+    df = project.groupby('project_id').size().reset_index(name='cnt')
+    max_v = df['cnt'].max()
+
+    return df[df['cnt'] == max_v][['project_id']]
+
+# ======================================================================
+# 1083. Sales Analysis II
+# ======================================================================
+
+def sales_analysis(product: pd.DataFrame, sales: pd.DataFrame) -> pd.DataFrame:
+
+    df = sales.merge(product, on='product_id', how='left')
+
+    df = df.groupby('buyer_id').agg(
+        s8 = ('product_name', lambda x:(x == 'S8').sum()),
+        ip = ('product_name', lambda x:(x == 'iPhone').sum())
+    ).reset_index()
+
+    return df[(df.s8 > 0) & (df.ip == 0)][['buyer_id']]
+
+# ======================================================================
+# 1084. Sales Analysis III
+# ======================================================================
+
+def sales_analysis(product: pd.DataFrame, sales: pd.DataFrame) -> pd.DataFrame:
+
+    st = pd.to_datetime('2019-01-01')
+    ed = pd.to_datetime('2019-03-31')
+
+    df = sales.groupby('product_id').filter(
+        lambda x: min(x['sale_date']) >= st and max(x['sale_date']) <= ed
+    )
+
+    df = df.drop_duplicates(subset='product_id')
+    
+    df = df.merge(product, on='product_id', how='left')
+
+    return df[['product_id', 'product_name']]
+
+# ======================================================================
+# 1097. Game Play Analysis V ###
+# ======================================================================
+
+def gameplay_analysis(activity: pd.DataFrame) -> pd.DataFrame:
+
+    activity['install_dt'] = activity.groupby('player_id')['event_date'].transform('min')
+    activity['log'] = activity['install_dt'] + pd.DateOffset(1)
+
+    ins = activity[activity.event_date == activity.install_dt]
+    ins = ins.groupby('event_date').size().reset_index(name='installs')
+
+    log = activity[activity.event_date == activity.log]
+    log = log.groupby('install_dt').size().reset_index(name='log')
+
+    df = ins.merge(log, left_on='event_date', right_on='install_dt', how='left').reset_index().fillna(0)
+    df['Day1_retention'] = (df['log'] / df['installs'] * 100 + 0.5).astype(int) / 100 ###
+
+    return df[['event_date', 'installs', 'Day1_retention']].rename(columns={'event_date':'install_dt'})
+
+# ======================================================================
+# 1098. Unpopular Books
+# ======================================================================
+
+def unpopular_books(books: pd.DataFrame, orders: pd.DataFrame) -> pd.DataFrame:
+
+    df = books[books.available_from < pd.to_datetime('2019-05-23')]
+
+    od = orders[orders.dispatch_date > pd.to_datetime('2018-06-23')] ###
+    od = od.groupby('book_id').agg({'quantity':'sum'}).reset_index()
+    od = od[od.quantity >= 10]['book_id'].unique() ###
+
+    return df[~df['book_id'].isin(od)][['book_id', 'name']]
+
+
+
+
+
+
+
+
+
+
+
+
