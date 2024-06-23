@@ -422,3 +422,186 @@ select t.spend_date
 from t
 left join p on t.spend_date = p.spend_date and t.platform = p.platform
 group by 1,2
+
+-- =========================================================
+-- 1204. Last Person to Fit in the Bus
+-- =========================================================
+
+with t as (
+    select person_name
+         , sum(weight)over(order by turn) tot
+    from queue
+)
+select person_name
+from t
+where t.tot = (select max(tot) from t where t.tot <= 1000)
+
+-- =========================================================
+-- 1212. Team Scores in Football Tournament
+-- ========================================================= 
+    
+select team_id
+     , team_name
+     , sum(case when t.team_id = m.host_team and host_goals > guest_goals then 3
+                when t.team_id = m.guest_team and guest_goals > host_goals then 3
+                when host_goals = guest_goals then 1
+                else 0 end) num_points
+from teams t
+left join matches m on t.team_id = m.host_team or t.team_id = m.guest_team
+group by team_id
+order by num_points desc, team_id
+
+-- =========================================================
+-- 1225. Report Contiguous Dates ###
+-- ========================================================= 
+    
+with t as (
+    select fail_date dt, 'failed' period_state from failed
+    union all
+    select success_date dt, 'succeeded' period_state from succeeded
+)
+select period_state
+     , min(dt) start_date
+     , max(dt) end_date
+from (
+    select *
+         , rank()over(partition by period_state order by dt) rk
+    from t
+    where year(t.dt) = 2019
+) t
+group by period_state, date_sub(dt, interval rk day)
+order by dt
+
+-- =========================================================
+-- 1285. Find the Start and End Number of Continuous Ranges
+-- ========================================================= 
+
+select min(log_id) start_id
+     , max(log_id) end_id
+from (
+    select *
+         , row_number()over(order by log_id) rk
+    from logs
+) t
+group by log_id - rk
+
+-- =========================================================
+-- 1308. Running Total for Different Genders
+-- ========================================================= 
+
+select gender
+     , day
+     , sum(score_points)over(partition by gender order by day) total
+from scores
+group by 1,2
+
+-- =========================================================
+-- 1321. Restaurant Growth 
+-- =========================================================
+    
+select visited_on
+     , amount
+     , round(amount / 7, 2) average_amount
+from (
+    select visited_on
+        , sum(amount)over(order by visited_on rows between 6 preceding and current row) amount ###
+    from (select visited_on, sum(amount) amount from customer group by 1) t
+    group by 1
+) t
+where visited_on >= (select DATE_ADD(min(visited_on), interval 6 day) from customer)
+
+# ROWS BETWEEN 6 PRECEDING AND CURRENT ROW 
+# - the window frame, including the current row and the 6 preceding rows
+
+-- =========================================================
+-- 1322. Ads Performance
+-- ========================================================= 
+
+select ad_id
+     , round(IFNULL(
+         sum(action = 'Clicked') / (sum(action = 'Clicked') + sum(action = 'Viewed')) * 100, 0
+         ), 2) ctr
+from Ads
+group by ad_id
+order by ctr desc, ad_id
+
+-- =========================================================
+-- 1336. Number of Transactions per Visit ###
+-- =========================================================     
+
+-- the RECURSIVE keyword should be placed immediately after WITH
+with RECURSIVE cte as (
+    select v.user_id
+         , v.visit_date
+         , count(t.user_id) cnt
+    from visits v
+    left join transactions t on v.user_id = t.user_id and v.visit_date = t.transaction_date
+    group by 1,2
+), n as (
+    select 0 as num
+    union all
+    select num + 1 from n where num < (select max(cnt) from CTE)
+)
+select n.num transactions_count
+     , count(cte.user_id) visits_count
+from n
+left join cte on n.num = cte.cnt
+group by 1
+
+-- =========================================================
+-- 1369. Get the Second Most Recent Activity
+-- =========================================================     
+
+select username
+     , activity
+     , startDate
+     , endDate
+from (
+    select *
+         , dense_rank()over(partition by username order by endDate desc) rk
+         , count(*)over(partition by username) cnt
+    from useractivity
+) t
+where t.rk = 2 or t.cnt = 1
+
+-- =========================================================
+-- 1384. Total Sales Amount by Year
+-- =========================================================     
+
+with RECURSIVE T AS (
+    select min(period_start) days
+    from sales
+    union all 
+    select DATE_ADD(days, interval 1 day)
+    from t
+    where days <= (select max(period_end) from sales)
+)
+select s.product_id
+     , p.product_name
+     , LEFT(t.days,4) report_year
+     , sum(s.average_daily_sales) total_amount
+from sales s
+left join product p on s.product_id = p.product_id
+left join t on t.days between s.period_start and s.period_end
+group by 1,2,3
+order by 1,3
+
+-- =========================================================
+-- 1393. Capital Gain/Loss
+-- =========================================================     
+
+select stock_name
+     , sum(case when operation = 'Buy' then -price else price end) capital_gain_loss
+from stocks
+group by 1
+
+-- =========================================================
+-- 
+-- =========================================================     
+
+
+
+
+
+
+
