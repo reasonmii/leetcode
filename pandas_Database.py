@@ -1,5 +1,10 @@
 import pandas as pd
 
+# size() returns a Series with a MultiIndex composed of the levels student_id and subject_name, and the values are the counts. 
+# By default, these counts don't have a column name,
+# so reset_index not only turns the index back into regular columns
+# but also allows you to name the column of counts using the name parameter. 
+
 # ======================================================================
 # 176. Second Highest Salary
 # ======================================================================
@@ -738,6 +743,200 @@ def tournament_winners(players: pd.DataFrame, matches: pd.DataFrame) -> pd.DataF
     df = df.groupby('group_id').agg({'player_id':'min'}).reset_index()
 
     return df[['group_id', 'player_id']]
+
+# ======================================================================
+# 1204. Last Person to Fit in the Bus
+# ======================================================================
+
+def last_passenger(queue: pd.DataFrame) -> pd.DataFrame:
+
+    queue.sort_values(by='turn', inplace=True)
+    queue['tot'] = queue.weight.cumsum()
+    name = queue[queue['tot'] <= 1000].tail(1)
+
+    return name[['person_name']]
+
+# ======================================================================
+# 1225. Report Contiguous Dates
+# ======================================================================
+
+def report_contiguous_dates(failed: pd.DataFrame, succeeded: pd.DataFrame) -> pd.DataFrame:
+
+    failed.rename(columns={'fail_date':'date'}, inplace=True)
+    failed['period_state'] = 'failed'
+
+    succeeded.rename(columns={'success_date':'date'}, inplace=True)
+    succeeded['period_state'] = 'succeeded'
+
+    df = pd.concat([failed, succeeded], axis=0).sort_values('date')
+    df = df[df.date.dt.year == 2019]
+
+    df['bf'] = df['period_state'].shift(1)
+    df['id'] = (df.period_state != df.bf).cumsum() ###
+
+    df = df.groupby('id').agg(
+        period_state = ('period_state', lambda x: x.iloc[0]), # 1st value
+        start_date = ('date', min),
+        end_date = ('date', max)
+    ).reset_index().sort_values('id')
+
+    return df[['period_state', 'start_date', 'end_date']]
+
+# ======================================================================
+# 1270. All People Report to the Given Manager
+# ======================================================================
+
+def find_reporting_people(employees: pd.DataFrame) -> pd.DataFrame:
+
+    em = employees
+
+    df = em[em.manager_id == 1]['employee_id'].unique() # [1, 2, 77] array : real boss
+    df = em[em.manager_id.isin(df)]['employee_id'].unique() # [1, 2, 4, 77] : 1 manager
+    df = em[em.manager_id.isin(df)]['employee_id'].unique() # 2 managers
+    df = em[em.manager_id.isin(df)]['employee_id'].unique() # [1, 2, 4, 7, 77] : 3 managers
+    df = df[df != 1]
+
+    return pd.DataFrame({'employee_id':df})
+
+# ======================================================================
+# 1285. Find the Start and End Number of Continuous Ranges
+# ======================================================================
+
+def find_continuous_ranges(logs: pd.DataFrame) -> pd.DataFrame:
+
+    logs['diff1'] = logs.log_id.diff().fillna(0)
+    logs['diff2'] = logs.log_id.diff(-1).fillna(0)
+
+    start = logs[logs.diff1 != 1][['log_id']].reset_index(drop=True).rename(columns={'log_id':'start_id'})
+    end   = logs[logs.diff2 != -1][['log_id']].reset_index(drop=True).rename(columns={'log_id':'end_id'})
+
+    return pd.concat([start, end], axis=1)
+
+# ======================================================================
+# 1303. Find the Team Size
+# ======================================================================
+
+def team_size(employee: pd.DataFrame) -> pd.DataFrame:
+
+    team = employee['team_id'].value_counts() # series
+    # This uses the pandas map function to map each team_id
+    # to a corresponding value in the teams dictionary or series
+    employee['team_size'] = employee['team_id'].map(team)
+    return employee[['employee_id', 'team_size']]
+
+# ======================================================================
+# 1308. Running Total for Different Genders
+# ======================================================================
+
+def running_total(scores: pd.DataFrame) -> pd.DataFrame:
+
+    df = scores.sort_values(by=['gender', 'day'])
+    df['total'] = df.groupby('gender')['score_points'].cumsum()
+    return df[['gender', 'day', 'total']]
+
+# ======================================================================
+# 1321. Restaurant Growth
+# ======================================================================
+
+def restaurant_growth(customer: pd.DataFrame) -> pd.DataFrame:
+    
+    df = customer.groupby('visited_on')['amount'].sum() # no reset)index()
+    df = df.rolling(7).agg(['sum', 'mean']).round(2).reset_index().dropna()
+    return df.rename(columns={'sum':'amount', 'mean':'average_amount'})
+
+# ======================================================================
+# 1322. Ads Performance
+# ======================================================================
+
+def ads_performance(ads: pd.DataFrame) -> pd.DataFrame:
+
+    ctr = ads.groupby('ad_id')['action'].apply(
+        lambda x: round(
+            sum(x == 'Clicked') / (sum(x == 'Clicked') + sum(x == 'Viewed')) * 100
+            if (sum(x == 'Clicked') + sum(x == 'Viewed')) > 0 else 0.00
+            , 2
+        )
+    ).reset_index()
+
+    ctr.columns = ['ad_id', 'ctr']
+    ctr.sort_values(by=['ctr', 'ad_id'], ascending=[False, True], inplace=True)
+
+    return ctr
+
+# ======================================================================
+# 1336. Number of Transactions per Visit
+# ======================================================================
+
+def draw_chart(visits: pd.DataFrame, transactions: pd.DataFrame) -> pd.DataFrame:
+
+    df = transactions.groupby(['user_id', 'transaction_date']).size().reset_index(name='transactions_count')
+    df = visits.merge(df, left_on=['user_id', 'visit_date'], right_on=['user_id', 'transaction_date'], how='left').fillna(0)
+    df = df.groupby('transactions_count', as_index=False).agg(visits_count=('user_id', 'count'))
+    idx = pd.DataFrame({'transactions_count':range(int(max(df.transactions_count))+1)})
+    return idx.merge(df, on='transactions_count', how='left').fillna(0)
+
+# ======================================================================
+# 1355. Activity Participants
+# ======================================================================
+
+def activity_participants(friends: pd.DataFrame, activities: pd.DataFrame) -> pd.DataFrame:
+
+    df = friends.groupby('activity').size().reset_index(name='cnt')
+    df = df[(df['cnt'] != df['cnt'].max()) & (df['cnt'] != df['cnt'].min())]
+    return df[['activity']]
+
+# ======================================================================
+# 1369. Get the Second Most Recent Activity
+# ======================================================================
+
+def second_most_recent(user_activity: pd.DataFrame) -> pd.DataFrame:
+
+    df = user_activity.sort_values('endDate')
+    df = df.groupby('username').tail(2)
+
+    return df.groupby('username').head(1)
+
+# ======================================================================
+# 1384. Total Sales Amount by Year
+# ======================================================================
+
+from datetime import datetime
+
+def total_sales(product: pd.DataFrame, sales: pd.DataFrame) -> pd.DataFrame:
+
+    df = pd.DataFrame({
+        'report_year': ['2018', '2019', '2020'],
+        's_year' : [datetime(2018,1,1), datetime(2019,1,1), datetime(2020,1,1)],
+        'e_year' : [datetime(2018,12,31), datetime(2019,12,31), datetime(2020,12,31)]
+    })
+
+    df = sales.merge(df, how='cross')
+    df['stt'] = df[['s_year', 'period_start']].max(axis=1) # get the larger one
+    df['end'] = df[['e_year', 'period_end']].min(axis=1) # get the smaller one
+
+    df['days'] = (df['end'] - df['stt']).dt.days + 1
+    df['total_amount'] = df['average_daily_sales'] * df['days']
+
+    df = df[df['days'] > 0]
+    df = df.merge(product, on='product_id', how='left')
+
+    return df[['product_id', 'product_name', 'report_year', 'total_amount']]
+
+# ======================================================================
+# 
+# ======================================================================
+
+
+
+# ======================================================================
+# 
+# ======================================================================
+
+
+
+# ======================================================================
+# 
+# ======================================================================
 
 
 
