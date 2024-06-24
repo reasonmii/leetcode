@@ -596,12 +596,93 @@ from stocks
 group by 1
 
 -- =========================================================
--- 
+-- 1479. Sales by Day of the Week
 -- =========================================================     
 
+select i.item_category category
+     , sum(case when weekday(order_date) = 0 then quantity else 0 end) Monday
+     , sum(case when weekday(order_date) = 1 then quantity else 0 end) Tuesday
+     , sum(case when weekday(order_date) = 2 then quantity else 0 end) Wednesday
+     , sum(case when weekday(order_date) = 3 then quantity else 0 end) Thursday
+     , sum(case when weekday(order_date) = 4 then quantity else 0 end) Friday
+     , sum(case when weekday(order_date) = 5 then quantity else 0 end) Saturday
+     , sum(case when weekday(order_date) = 6 then quantity else 0 end) Sunday
+from items i
+left join orders o on o.item_id = i.item_id
+group by item_category
+order by item_category
+
+-- =========================================================
+-- 1484. Group Sold Products By The Date ###
+-- ========================================================= 
+
+select sell_date
+     , count(distinct product) num_sold
+     , group_concat(distinct product order by product separator ',') products
+from activities
+group by 1
+order by 1
+
+-- =========================================================
+-- 1484. Group Sold Products By The Date ###
+-- ========================================================= 
+
+select sell_date
+     , count(distinct product) num_sold
+     , group_concat(distinct product order by product separator ',') products
+from activities
+group by 1
+order by 1
+
+-- =========================================================
+-- 1511. Customer Order Frequency
+-- ========================================================= 
+
+select c.customer_id
+     , c.name
+from orders o
+join customers c on c.customer_id = o.customer_id
+join product p on p.product_id = o.product_id
+where YEAR(o.order_date) = 2020
+group by customer_id
+having (
+    sum(IF(MONTH(o.order_date) = 6, quantity, 0) * price) >= 100
+    AND
+    sum(IF(MONTH(o.order_date) = 7, quantity, 0) * price) >= 100
+)
+
+-- =========================================================
+-- 1517. Find Users With Valid E-Mails
+-- ========================================================= 
+
+select *
+from users
+where mail REGEXP "^[a-zA-Z][a-zA-Z0-9._-]*\\@leetcode\\.com$"
+
+-- =========================================================
+-- 
+-- ========================================================= 
+
+
+-- =========================================================
+-- 
+-- ========================================================= 
 
 
 
+-- =========================================================
+-- 
+-- ========================================================= 
+
+
+-- =========================================================
+-- 
+-- ========================================================= 
+
+
+-- =========================================================
+-- 
+-- ========================================================= 
 
 
 
