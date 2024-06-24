@@ -923,20 +923,114 @@ def total_sales(product: pd.DataFrame, sales: pd.DataFrame) -> pd.DataFrame:
     return df[['product_id', 'product_name', 'report_year', 'total_amount']]
 
 # ======================================================================
+# 1435. Create a Session Bar Chart
+# ======================================================================
+
+def create_bar_chart(sessions: pd.DataFrame) -> pd.DataFrame:
+
+    labels = ['[0-5>','[5-10>','[10-15>','15 or more']
+    bins = [0, 5*60, 10*60, 15*60, float('inf')]
+
+    df = pd.cut(sessions.duration, labels=labels, bins=bins) ###
+    df = df.value_counts().reset_index(name='total')
+
+    return df.rename(columns={'duration':'bin'})
+
+# ======================================================================
+# 1440. Evaluate Boolean Expression ###
+# ======================================================================
+
+def eval_expression(variables: pd.DataFrame, expressions: pd.DataFrame) -> pd.DataFrame:
+    
+    df = expressions.merge(variables, left_on='left_operand', right_on='name', how='left')
+    df = df.merge(variables, left_on='right_operand', right_on='name', how='left')
+
+    df = df.assign(
+        value = np.where(df.operator == '<', df.value_x < df.value_y,
+                np.where(df.operator == '>', df.value_x > df.value_y, df.value_x == df.value_y))
+    )
+
+    df['value'] = df['value'].astype(str).replace({'True':'true', 'False':'false'})
+
+    return df[['left_operand', 'operator', 'right_operand', 'value']]
+
+# ======================================================================
+# 1479. Sales by Day of the Week ###
+# ======================================================================
+
+def sales_by_day(orders: pd.DataFrame, items: pd.DataFrame) -> pd.DataFrame:
+
+    df = items.merge(orders, on='item_id', how='left').rename(columns={'item_category':'category'})
+    week = pd.CategoricalDtype(
+        categories=['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'],
+        ordered=True # treat it as ordered
+    )
+
+    df['dow'] = df['order_date'].dt.day_name().str.capitalize().astype(week)
+    df = df.pivot_table(index='category', columns='dow', values='quantity', aggfunc=sum).reset_index()
+    return df
+
+# ======================================================================
+# 1484. Group Sold Products By The Date
+# ======================================================================
+
+def categorize_products(activities: pd.DataFrame) -> pd.DataFrame:
+
+    df = activities.groupby('sell_date').agg(
+        num_sold = ('product', 'nunique'),
+        products = ('product', lambda x: ','.join(sorted(set(x)))) ###
+    ).reset_index()
+
+    df.sort_values(by='sell_date', inplace=True)
+    return df
+    
+# ======================================================================
+# 1517. Find Users With Valid E-Mails ###
+# ======================================================================
+
+def valid_emails(users: pd.DataFrame) -> pd.DataFrame:
+
+    # * : those can be zero or more
+    # $ : ending
+
+    valid = r"[a-zA-Z][a-zA-Z0-9._-]*\@leetcode\.com$"
+    return users[users.mail.str.match(valid)]
+
+# ======================================================================
+# 1527. Patients With a Condition ###
+# ======================================================================
+
+def find_patients(patients: pd.DataFrame) -> pd.DataFrame:
+
+    # "DIAB1" is matched only when it's not part of a larger word 
+    return patients[patients['conditions'].str.contains(r'\bDIAB1')]
+
+# ======================================================================
+# 1543. Fix Product Name Format
+# ======================================================================
+
+def fix_name_format(sales: pd.DataFrame) -> pd.DataFrame:
+
+    sales['product_name'] = sales['product_name'].str.lower().str.strip() ###
+    sales['sale_date'] = sales['sale_date'].dt.strftime('%Y-%m')
+
+    return sales.groupby(['product_name', 'sale_date']).size().reset_index(name='total')
+
+# ======================================================================
 # 
 # ======================================================================
 
 
-
 # ======================================================================
 # 
 # ======================================================================
 
 
-
 # ======================================================================
 # 
 # ======================================================================
 
-
+# ======================================================================
+# 
+# ======================================================================
 
