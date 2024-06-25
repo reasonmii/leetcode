@@ -1017,20 +1017,151 @@ def fix_name_format(sales: pd.DataFrame) -> pd.DataFrame:
     return sales.groupby(['product_name', 'sale_date']).size().reset_index(name='total')
 
 # ======================================================================
+# 1613. Find the Missing IDs
+# ======================================================================
+
+def find_missing_ids(customers: pd.DataFrame) -> pd.DataFrame:
+
+    ids = list(range(1, max(customers['customer_id']+1)))
+    df = pd.DataFrame({'ids':ids})
+
+    return df[~df.ids.isin(customers.customer_id)]
+
+# ======================================================================
+# 1635. Hopper Company Queries I
+# ======================================================================
+
+def hopper_company(drivers: pd.DataFrame, rides: pd.DataFrame, accepted_rides: pd.DataFrame) -> pd.DataFrame:
+    
+    dr = drivers[drivers.join_date.dt.year <= 2020]
+    dr['month'] = dr['join_date'].dt.month
+    dr.loc[dr['join_date'].dt.year < 2020, 'month'] = 1
+    dr = dr['month'].value_counts().reset_index()
+
+    df = pd.DataFrame({'month':np.arange(1,13)})
+    df = df.merge(dr, on='month', how='left').fillna(0)
+    df['active_drivers'] = df['count'].cumsum()
+
+    ar = accepted_rides.merge(rides, how='left', on='ride_id')
+    ar = ar[ar['requested_at'].dt.year == 2020]
+    ar['month'] = ar['requested_at'].dt.month
+    ar = ar['month'].value_counts().reset_index()
+    ar.rename(columns={'count':'accepted_rides'}, inplace=True)
+
+    df = df.merge(ar, on='month', how='left').fillna(0)
+    return df[['month', 'active_drivers', 'accepted_rides']]
+
+# ======================================================================
+# 1667. Fix Names in a Table
+# ======================================================================
+
+def fix_names(users: pd.DataFrame) -> pd.DataFrame:
+
+    users['name'] = users['name'].str.lower().str.capitalize()
+    return users.sort_values('user_id')
+
+# ======================================================================
+# 1683. Invalid Tweets
+# ======================================================================
+
+def invalid_tweets(tweets: pd.DataFrame) -> pd.DataFrame:
+    return tweets[tweets['content'].str.len() > 15][['tweet_id']]
+
+# ======================================================================
+# 1699. Number of Calls Between Two Persons
+# ======================================================================
+
+def number_of_calls(calls: pd.DataFrame) -> pd.DataFrame:
+
+    df1 = calls.rename(columns={'from_id':'person1', 'to_id':'person2'})
+    df2 = calls.rename(columns={'from_id':'person2', 'to_id':'person1'})
+
+    df = pd.concat([df1, df2], axis=0)
+    df = df[df['person1'] < df['person2']]
+
+    df = df.groupby(['person1', 'person2']).agg(
+        call_count=('duration', 'count'),
+        total_duration=('duration', 'sum')
+    ).reset_index()
+
+    return df
+
+# ======================================================================
+# 1767. Find the Subtasks That Did Not Execute
+# ======================================================================
+
+def find_subtasks(tasks: pd.DataFrame, executed: pd.DataFrame) -> pd.DataFrame:
+
+    df = tasks['task_id'].repeat(tasks['subtasks_count']).to_frame('task_id')
+    df['subtask_id'] = df.groupby('task_id').cumcount() + 1
+    df = pd.concat([df, executed])
+
+    return df.drop_duplicates(keep=False)
+
+# ======================================================================
+# 1777. Product's Price for Each Store
+# ======================================================================
+
+def products_price(products: pd.DataFrame) -> pd.DataFrame:
+    
+    df = products.pivot(index='product_id', columns='store', values='price').reset_index()
+    return df
+
+# ======================================================================
+# 1783. Grand Slam Titles ###
+# ======================================================================
+
+def grand_slam_titles(players: pd.DataFrame, championships: pd.DataFrame) -> pd.DataFrame:
+
+    # https://pandas.pydata.org/docs/reference/api/pandas.melt.html
+    # var_name
+    # - Name to use for the ‘variable’ column. If None it uses frame.columns.name or ‘variable’.
+    # value_name
+    # - Name to use for the ‘value’ column, can’t be an existing column label.
+    
+    df = pd.melt(championships, id_vars='year', var_name='game', value_name='player_id')
+    df = df.groupby('player_id').size().reset_index(name='grand_slams_count')
+    df = df.merge(players, on='player_id', how='left')
+    return df[['player_id', 'player_name', 'grand_slams_count']]
+    
+# ======================================================================
+# 1795. Rearrange Products Table ###
+# ======================================================================
+
+def rearrange_products_table(products: pd.DataFrame) -> pd.DataFrame:
+
+    df = pd.melt(products, id_vars='product_id', value_vars=['store1', 'store2', 'store3'],
+                 var_name='store', value_name='price')
+    
+    return df.dropna()
+
+# ======================================================================
+# 
+# ======================================================================
+
+# ======================================================================
+# 
+# ======================================================================
+
+# ======================================================================
+# 
+# ======================================================================
+
+# ======================================================================
 # 
 # ======================================================================
 
 
-# ======================================================================
-# 
-# ======================================================================
 
 
-# ======================================================================
-# 
-# ======================================================================
 
-# ======================================================================
-# 
-# ======================================================================
+
+
+
+
+
+
+
+
+
 
