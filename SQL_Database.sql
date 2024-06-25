@@ -660,6 +660,151 @@ from users
 where mail REGEXP "^[a-zA-Z][a-zA-Z0-9._-]*\\@leetcode\\.com$"
 
 -- =========================================================
+-- 1613. Find the Missing IDs
+-- ========================================================= 
+
+WITH RECURSIVE num as (
+    select 1 ids
+    union all
+    select ids+1 from num where ids < (select max(customer_id) from customers)
+)
+select ids
+from num
+where ids not in (select customer_id from customers)
+
+-- =========================================================
+-- 1635. Hopper Company Queries I
+-- ========================================================= 
+
+with RECURSIVE m as (
+    select 1 mon
+    union all
+    select mon+1 from m where mon < 12
+), d as (
+    select driver_id
+        , CASE WHEN DATE_FORMAT(join_date, '%Y-%m') <= '2020-01' then '1'
+                else MONTH(join_date) end as mon
+    from drivers
+    where join_date <= '2020-12-31'
+), ad as (
+    select m.mon
+         , count(d.driver_id) d_cnt
+    from m
+    left join d on d.mon <= m.mon
+    group by m.mon
+), ac as (
+    select ride_id
+         , requested_at
+         , MONTH(requested_at) mon
+    from rides
+    join acceptedrides using(ride_id)
+    having year(requested_at) = 2020
+)
+select m.mon month
+     , d_cnt active_drivers
+     , count(ac.ride_id) accepted_rides
+from m
+left join ad on m.mon = ad.mon
+left join ac on ad.mon = ac.mon
+group by ad.mon
+order by ad.mon
+
+-- =========================================================
+-- 1667. Fix Names in a Table
+-- ========================================================= 
+
+select user_id
+     , concat(upper(left(name, 1)), lower(substring(name, 2))) name
+from users
+order by user_id
+
+-- =========================================================
+-- 1683. Invalid Tweets
+-- ========================================================= 
+
+select tweet_id
+from tweets
+where CHAR_LENGTH(content) > 15
+
+-- =========================================================
+-- 1699. Number of Calls Between Two Persons
+-- ========================================================= 
+
+select LEAST(from_id, to_id) person1
+     , GREATEST(from_id, to_id) person2
+     , count(*) call_count
+     , sum(duration) total_duration
+from calls
+group by 1,2
+
+-- =========================================================
+-- 1709. Biggest Window Between Visits
+-- ========================================================= 
+
+select user_id
+     , max(diff) biggest_window
+from (
+    select user_id
+         , DATEDIFF(lead(visit_date, 1, '2021-1-1')over(partition by user_id order by visit_date), visit_date) diff
+    from uservisits
+) t
+group by 1
+
+-- =========================================================
+-- 1767. Find the Subtasks That Did Not Execute
+-- ========================================================= 
+
+with recursive t as (
+    select task_id
+         , subtasks_count
+    from tasks
+    union all
+    select task_id
+         , subtasks_count - 1
+    from t
+    where subtasks_count > 1
+)
+select task_id
+     , subtasks_count subtask_id
+from t
+where (task_id, subtasks_count) not in (select * from executed)
+
+-- =========================================================
+-- 
+-- ========================================================= 
+
+
+-- =========================================================
+-- 
+-- ========================================================= 
+
+
+-- =========================================================
+-- 
+-- ========================================================= 
+
+
+-- =========================================================
+-- 
+-- ========================================================= 
+
+
+-- =========================================================
+-- 
+-- ========================================================= 
+
+
+-- =========================================================
+-- 
+-- ========================================================= 
+
+
+-- =========================================================
+-- 
+-- ========================================================= 
+
+
+-- =========================================================
 -- 
 -- ========================================================= 
 
@@ -670,19 +815,10 @@ where mail REGEXP "^[a-zA-Z][a-zA-Z0-9._-]*\\@leetcode\\.com$"
 
 
 
--- =========================================================
--- 
--- ========================================================= 
 
 
--- =========================================================
--- 
--- ========================================================= 
 
 
--- =========================================================
--- 
--- ========================================================= 
 
 
 
