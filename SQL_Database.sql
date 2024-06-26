@@ -770,29 +770,133 @@ from t
 where (task_id, subtasks_count) not in (select * from executed)
 
 -- =========================================================
--- 
+-- 1831. Maximum Transaction Each Day
 -- ========================================================= 
 
+select transaction_id
+from transactions
+where (DATE(day), amount) in (
+    select DATE(day)
+        , max(amount) amt
+    from transactions
+    group by 1
+)
+order by transaction_id
 
 -- =========================================================
--- 
+-- 1853. Convert Date Format
 -- ========================================================= 
 
+select DATE_FORMAT(day, '%W, %M %e, %Y') day -- Tuesday, April 12, 2022
+from days
 
 -- =========================================================
--- 
+-- 1917. Leetcodify Friends Recommendations
 -- ========================================================= 
 
+WITH T AS (
+    select l1.user_id user1_id
+         , l2.user_id user2_id
+         , l1.day
+    from listens l1
+    join listens l2 on l1.song_id = l2.song_id and l1.day = l2.day and l1.user_id < l2.user_id
+    group by 1,2,3
+    having count(distinct l1.song_id) >= 3
+), T2 as (
+    select t.*
+    from t
+    left join friendship f on t.user1_id = f.user1_id and t.user2_id = f.user2_id
+    where f.user1_id is null
+)
+select user1_id user_id
+     , user2_id recommended_id
+from t2
+union
+select user2_id user_id
+     , user1_id recommended_id
+from t2
 
 -- =========================================================
--- 
+-- 1939. Users That Actively Request Confirmation Messages
 -- ========================================================= 
 
+select distinct user_id
+from (
+    select *
+         , TIMESTAMPDIFF(SECOND, lag(time_stamp)over(partition by user_id order by time_stamp), time_stamp)/3600 diff
+    from confirmations
+) t
+where t.diff <= 24
 
 -- =========================================================
--- 
+-- 1951. All the Pairs With the Maximum Number of Common Followers
 -- ========================================================= 
 
+with t as (
+    select r1.user_id user1_id
+         , r2.user_id user2_id
+         , count(*) cnt
+    from relations r1
+    join relations r2 on r1.follower_id = r2.follower_id and r1.user_id < r2.user_id
+    group by 1,2
+)
+select user1_id
+     , user2_id
+from t
+where t.cnt = (select max(cnt) from t)
+
+-- =========================================================
+-- 1972. First and Last Call On the Same Day
+-- ========================================================= 
+
+with t as (
+    select caller_id as id1
+        , recipient_id as id2
+        , call_time
+    from calls
+    union 
+    select recipient_id as id1
+        , caller_id as id2
+        , call_time
+    from calls
+), t2 as (
+    select distinct id1
+         , first_value(id2)over(partition by id1, date(call_time) order by call_time) fst
+         , first_value(id2)over(partition by id1, date(call_time) order by call_time desc) lst
+    from t
+)
+select distinct id1 user_id
+from t2
+where fst = lst
+
+-- =========================================================
+-- 1990. Count the Number of Experiments
+-- ========================================================= 
+
+with pl as (
+    select 'IOS' as platform
+    union all
+    select 'Android' as platform
+    union all
+    select 'Web' as platform
+), ex as (
+    select 'Programming' as experiment_name
+    union all
+    select 'Reading' as experiment_name
+    union all
+    select 'Sports' as experiment_name
+), co as (
+    select *
+    from pl
+    cross join ex
+)
+select co.platform
+     , co.experiment_name
+     , count(e.experiment_id) num_experiments
+from co
+left join experiments e on co.platform = e.platform and co.experiment_name = e.experiment_name
+group by 1, 2
+order by 1, 2
 
 -- =========================================================
 -- 
