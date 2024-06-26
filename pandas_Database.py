@@ -1136,12 +1136,156 @@ def rearrange_products_table(products: pd.DataFrame) -> pd.DataFrame:
     return df.dropna()
 
 # ======================================================================
+# 1831. Maximum Transaction Each Day
+# ======================================================================
+
+def find_maximum_transaction(transactions: pd.DataFrame) -> pd.DataFrame:
+
+    transactions['dt'] = transactions['day'].dt.strftime('%Y-%m-%d')
+    transactions['max'] = transactions.groupby('dt')['amount'].transform('max')
+
+    df = transactions[transactions['max'] == transactions['amount']]
+
+    return df[['transaction_id']].sort_values('transaction_id')
+
+# ======================================================================
+# 1843. Suspicious Bank Accounts
+# ======================================================================
+
+def suspicious_bank_accounts(accounts: pd.DataFrame, transactions: pd.DataFrame) -> pd.DataFrame:
+
+    df = transactions[transactions['type'] == 'Creditor']
+    df['mon'] = df['day'].dt.strftime('%Y-%m')
+
+    df = df.groupby(['account_id', 'mon']).agg({'amount':'sum'}).reset_index()
+    df = df.merge(accounts, on='account_id', how='left')
+
+    df.sort_values(['account_id', 'mon'], inplace=True)
+
+    df['b_mon'] = (pd.to_datetime(df['mon']) - pd.DateOffset(months=1)).dt.to_period("M") # previous month
+    df['prev'] = df.groupby('account_id')['mon'].shift(1)
+
+    df['ex1'] = df['amount'] > df['max_income']
+    df['ex2'] = df.groupby('account_id')['ex1'].shift(1)
+
+    df = df[df['ex1'] & df['ex2'] & (df['prev'] == df['b_mon'])]
+
+    return df[['account_id']].drop_duplicates()
+
+# ======================================================================
+# 1853. Convert Date Format
+# ======================================================================
+
+def convert_date_format(days: pd.DataFrame) -> pd.DataFrame:
+
+    # %d : 09
+    # %-d : 9
+    days['day'] = days.day.dt.strftime('%A, %B %-d, %Y') # Tuesday, April 12, 2022
+    return days
+
+# ======================================================================
+# 1873. Calculate Special Bonus
+# ======================================================================
+
+def calculate_special_bonus(employees: pd.DataFrame) -> pd.DataFrame:
+
+    df = employees.sort_values('employee_id')
+    df['bonus'] = np.where((df['employee_id'] % 2 == 1) & (~df['name'].str.startswith('M')), df['salary'], 0)
+    
+    return df[['employee_id', 'bonus']]    
+
+# ======================================================================
+# 1907. Count Salary Categories
+# ======================================================================
+
+def count_salary_categories(accounts: pd.DataFrame) -> pd.DataFrame:
+
+    low = len(accounts[accounts.income < 20000])
+    avg = len(accounts[(accounts.income >= 20000) & (accounts.income <= 50000)])
+    hig = len(accounts[accounts.income > 50000])
+
+    return pd.DataFrame({
+        'category' : ['Low Salary', 'Average Salary', 'High Salary'],
+        'accounts_count' : [low, avg, hig]
+    })
+
+# ======================================================================
+# 1917. Leetcodify Friends Recommendations
+# ======================================================================
+
+def recommend_friends(listens: pd.DataFrame, friendship: pd.DataFrame) -> pd.DataFrame:
+    
+    df = listens.merge(listens, on =['song_id', 'day'], how='left').rename(columns={'user_id_x':'user1_id', 'user_id_y':'user2_id'})
+    df = df[df['user1_id'] != df['user2_id']]
+    df = df.groupby(['user1_id', 'user2_id', 'day']).agg(cnt=('song_id','nunique')).reset_index()
+    df = df[df.cnt >= 3][['user1_id', 'user2_id']]
+
+    df = df.groupby(['user1_id', 'user2_id']).first().reset_index()
+
+    fr = pd.concat([friendship, friendship.rename(columns={'user1_id':'user2_id','user2_id':'user1_id'})], axis=0)
+    fr['fr'] = 'friend'
+    df = df.merge(fr, how='left', on=['user1_id', 'user2_id']).rename(columns={'user1_id':'user_id', 'user2_id':'recommended_id'})
+    return df[df.fr.isna()][['user_id', 'recommended_id']]
+    
+# ======================================================================
+# 1939. Users That Actively Request Confirmation Messages
+# ======================================================================
+
+def find_requesting_users(signups: pd.DataFrame, confirmations: pd.DataFrame) -> pd.DataFrame:
+
+    df = confirmations.sort_values(['user_id', 'time_stamp'])
+    df['prev'] = df.groupby('user_id')['time_stamp'].shift(1)
+    df['diff'] = (df['time_stamp'] - df['prev']) / pd.Timedelta(hours=1)
+
+    return df[df['diff'] <= 24][['user_id']].drop_duplicates()
+
+# ======================================================================
+# 1972. First and Last Call On the Same Day
+# ======================================================================
+
+def same_day_calls(calls: pd.DataFrame) -> pd.DataFrame:
+
+    df = pd.concat([calls, calls.rename(columns={'caller_id':'recipient_id', 'recipient_id':'caller_id'})], axis=0)
+    df['day'] = df['call_time'].dt.strftime('%Y-%m-%d')
+
+    df['max_t'] = df.groupby(['day', 'caller_id'])['call_time'].transform('max')
+    df['min_t'] = df.groupby(['day', 'caller_id'])['call_time'].transform('min')
+
+    max_d = df[df['call_time'] == df['max_t']][['caller_id', 'recipient_id', 'day']]
+    min_d = df[df['call_time'] == df['min_t']][['caller_id', 'recipient_id', 'day']]
+
+    df = max_d.merge(min_d, on=['caller_id', 'recipient_id', 'day'], how='inner')
+    return df.rename(columns={'caller_id':'user_id'})[['user_id']].drop_duplicates()
+
+# ======================================================================
+# 1990. Count the Number of Experiments
+# ======================================================================
+
+def count_experiments(experiments: pd.DataFrame) -> pd.DataFrame:
+
+    df = experiments.groupby(['platform', 'experiment_name']).size().reset_index(name='num_experiments')
+
+    pl = pd.DataFrame(['Android', 'IOS', 'Web'], columns=['platform'])
+    ex = pd.DataFrame(['Reading', 'Sports', 'Programming'], columns=['experiment_name'])
+    co = pl.merge(ex, how='cross')
+
+    df = co.merge(df, on=['platform', 'experiment_name'], how='left').fillna(0)
+
+    return df
+
+# ======================================================================
 # 
 # ======================================================================
 
 # ======================================================================
 # 
 # ======================================================================
+
+
+# ======================================================================
+# 
+# ======================================================================
+
 
 # ======================================================================
 # 
