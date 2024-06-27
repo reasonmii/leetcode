@@ -945,7 +945,7 @@ group by 1,2
 order by account_id, day
 
 -- =========================================================
--- 2173. Longest Winning Streak
+-- 2173. Longest Winning Streak ###
 -- ========================================================= 
 
 WITH T1 as (
