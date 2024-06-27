@@ -899,19 +899,88 @@ group by 1, 2
 order by 1, 2
 
 -- =========================================================
--- 
+-- 2004. The Number of Seniors and Juniors to Join the Company
 -- ========================================================= 
 
+with t1 as (
+    select experience  
+         , salary
+         , sum(salary)over(partition by experience order by salary) cum
+    from candidates
+    order by experience, salary
+), t2 as (
+    select 'Senior' experience
+        , IFNULL(count(*), 0) accepted_candidates
+        , IFNULL(max(cum), 0) cum
+    from t1
+    where experience = 'Senior' and cum <= 70000
+), t3 as (
+    select 'Junior' experience
+         , IFNULL(count(*), 0) accepted_candidates
+         , IFNULL(max(cum), 0) cum
+    from t1
+    where experience = 'Junior' and cum <= (select 70000 - cum from t2)
+)
+select experience
+     , accepted_candidates
+from t2
+union all
+select experience
+     , accepted_candidates
+from t3
 
 -- =========================================================
--- 
+-- 2066. Account Balance
 -- ========================================================= 
 
+select account_id
+     , day
+     , sum(balance)over(partition by account_id order by day) balance
+from (
+    select *
+         , case when type= 'Deposit' then amount else -amount end balance
+    from transactions
+) t
+group by 1,2
+order by account_id, day
 
 -- =========================================================
--- 
+-- 2173. Longest Winning Streak
 -- ========================================================= 
 
+WITH T1 as (
+    select *
+        , rank()over(partition by player_id order by match_day) rk1
+        , rank()over(partition by player_id, result order by match_day) rk2
+    from matches
+    order by player_id, match_day
+), T2 as (
+    select player_id
+        , (rk1 - rk2) rk
+        , count(*) cnt
+    from T1
+    where result = 'Win'
+    group by 1,2
+), T3 as (
+    select player_id
+         , max(cnt) cnt
+    from T2
+    group by 1
+)
+select distinct m.player_id
+     , IFNULL(t3.cnt, 0) longest_streak
+from matches m 
+left join t3 on m.player_id = t3.player_id
+
+-- =========================================================
+-- 2199. Finding the Topic of Each Post ###
+-- ========================================================= 
+
+select p.post_id
+     , IFNULL(GROUP_CONCAT(DISTINCT k.topic_id order by k.topic_id), 'Ambiguous!') topic
+from posts p
+left join keywords k on CONCAT(' ', LOWER(p.content), ' ') like CONCAT('% ', LOWER(k.word), ' %')
+group by p.post_id
 
 -- =========================================================
 -- 
