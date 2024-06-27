@@ -981,6 +981,24 @@ group by 1,2
 order by account_id, day
 
 -- =========================================================
+-- 2118. Build the Equation ###
+-- ========================================================= 
+    
+WITH T AS (
+    select factor
+        , power
+        , IF(factor > 0, '+', '') assign
+        , case when power = 0 then ''
+                when power = 1 then 'X'
+                else CONCAT('X^', power) end power2
+    FROM TERMS
+)
+select CONCAT(GROUP_CONCAT(
+    CONCAT(assign, factor, power2) ORDER BY power desc separator ""),
+    '=0') equation
+from t
+    
+-- =========================================================
 -- 2173. Longest Winning Streak ###
 -- ========================================================= 
 
