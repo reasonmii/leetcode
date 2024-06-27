@@ -690,7 +690,7 @@ with RECURSIVE m as (
     select m.mon
          , count(d.driver_id) d_cnt
     from m
-    left join d on d.mon <= m.mon
+    left join d on d.mon <= m.mon ### cumsum
     group by m.mon
 ), ac as (
     select ride_id
@@ -708,6 +708,42 @@ left join ad on m.mon = ad.mon
 left join ac on ad.mon = ac.mon
 group by ad.mon
 order by ad.mon
+
+-- =========================================================
+-- 1645. Hopper Company Queries II
+-- ========================================================= 
+
+WITH RECURSIVE m as (
+    select 1 month
+    union all
+    select month +1 from m where month < 12
+), d as (
+    select *
+         , case when YEAR(join_date) = 2020 then MONTH(join_date)
+                else 1 end month
+    from drivers
+    where YEAR(join_date) < 2021
+), ad as (
+    select m.month
+         , count(d.driver_id) cnt
+    from m
+    left join d on d.month <= m.month ### cumsum
+    group by 1
+), ac as (
+    select distinct a.driver_id
+         , month(r.requested_at) month
+    from acceptedrides a
+    left join rides r on r.ride_id = a.ride_id
+    where YEAR(r.requested_at) = 2020
+)
+select ad.month
+     , case when ad.cnt = 0 then 0.00
+            else round(count(ac.driver_id) / ad.cnt * 100, 2)
+            end as working_percentage
+from ad
+left join ac on ad.month = ac.month
+group by ad.month
+order by ad.month
 
 -- =========================================================
 -- 1667. Fix Names in a Table
