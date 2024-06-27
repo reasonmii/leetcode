@@ -1052,6 +1052,33 @@ def hopper_company(drivers: pd.DataFrame, rides: pd.DataFrame, accepted_rides: p
     return df[['month', 'active_drivers', 'accepted_rides']]
 
 # ======================================================================
+# 1645. Hopper Company Queries II
+# ======================================================================
+
+def hopper_company_queries(drivers: pd.DataFrame, rides: pd.DataFrame, accepted_rides: pd.DataFrame) -> pd.DataFrame:
+
+    dr = drivers[drivers.join_date.dt.year <= 2020]
+    dr['month'] = np.where(dr.join_date.dt.year == 2020, dr.join_date.dt.month, 1)
+    dr = dr['month'].value_counts().reset_index()
+
+    df = pd.DataFrame({'month':np.arange(1,13)})
+    df = df.merge(dr, on='month', how='left').fillna(0)
+    df['active_drivers'] = df[['count']].cumsum()
+
+    ar = accepted_rides.merge(rides, on='ride_id', how='inner')
+    ar = ar[ar['requested_at'].dt.year == 2020]
+    ar['month'] = ar['requested_at'].dt.month
+    ar = ar.groupby('month').agg({'driver_id':'nunique'}).reset_index()
+    ar.rename(columns={'driver_id':'accepted_rides'}, inplace=True)
+
+    df = df.merge(ar, on='month', how='left').fillna(0)
+    df['working_percentage'] = np.where(
+        df['active_drivers'] == 0, 0.00, df['accepted_rides']/df['active_drivers'] * 100
+    ).round(2)
+
+    return df[['month', 'working_percentage']].sort_values(by='month')
+
+# ======================================================================
 # 1667. Fix Names in a Table
 # ======================================================================
 
@@ -1274,26 +1301,120 @@ def count_experiments(experiments: pd.DataFrame) -> pd.DataFrame:
     return df
 
 # ======================================================================
-# 
+# 2004. The Number of Seniors and Juniors to Join the Company
 # ======================================================================
 
+def count_seniors_and_juniors(candidates: pd.DataFrame) -> pd.DataFrame:
+
+    df = candidates.sort_values(['experience', 'salary'], ascending=[False, True])
+    df['cum'] = df.groupby('experience')['salary'].cumsum()
+
+    df = df[((df['experience'] == 'Senior') & (df['cum'] <= 70000)) |
+            (df['experience'] == 'Junior')]
+    
+    remain = 70000 - df[df['experience'] == 'Senior']['salary'].sum()
+
+    df = df[(df['experience'] == 'Senior') |
+            ((df['experience'] == 'Junior') & (df['cum'] <= remain))]
+
+    df = df.groupby('experience').size().reset_index(name='accepted_candidates')
+
+    frame = pd.DataFrame({'experience' : ['Senior', 'Junior']})
+
+    return frame.merge(df, on='experience', how='left').fillna(0)
+
 # ======================================================================
-# 
+# 2066. Account Balance
 # ======================================================================
 
+def account_balance(transactions: pd.DataFrame) -> pd.DataFrame:
+
+    df = transactions.sort_values(['account_id', 'day'])
+
+    df['balance'] = np.where(df['type'] == 'Deposit', df['amount'], -df['amount']).astype(int)
+    df['balance'] = df.groupby('account_id')['balance'].cumsum()
+
+    return df[['account_id', 'day', 'balance']]    
 
 # ======================================================================
-# 
+# 2118. Build the Equation ###
 # ======================================================================
 
+def build_the_equation(terms: pd.DataFrame) -> pd.DataFrame:
+
+    terms.sort_values(by='power', ascending=False, inplace=True)
+    ans = ''
+
+    for p, f in zip(terms.power, terms.factor):
+        
+        ans += '+' + str(f) if f > 0 else str(f)
+        ans += '' if p == 0 else 'X'
+        ans += '^' + str(p) if p > 1 else ''
+
+    return pd.DataFrame({'equation':[ans + '=0']})
 
 # ======================================================================
-# 
+# 2142. The Number of Passengers in Each Bus I ###
 # ======================================================================
 
+def count_passengers_in_bus(buses: pd.DataFrame, passengers: pd.DataFrame) -> pd.DataFrame:
+
+    df = pd.merge_ordered(buses, passengers, on='arrival_time') # how='outer' (default)
+    df['bus_id'] = df['bus_id'].bfill() # backward fill
+
+    return df.groupby('bus_id').agg(passengers_cnt=('passenger_id', 'count')).reset_index()
+
 # ======================================================================
-# 
+# 2173. Longest Winning Streak
 # ======================================================================
+
+def longest_winning_streak(matches: pd.DataFrame) -> pd.DataFrame:
+
+    ids = matches.player_id.unique()
+    ids = pd.DataFrame({'player_id':ids})
+
+    matches['rk1'] = matches.groupby('player_id')['match_day'].rank(method='dense')
+    matches['rk2'] = matches.groupby(['player_id', 'result'])['match_day'].rank(method='dense')
+    matches['rk'] = matches['rk1'] - matches['rk2']
+
+    df = matches[matches.result == 'Win']
+    df = df.groupby(['player_id', 'rk']).size().reset_index(name='longest_streak')
+    df = df.groupby('player_id')['longest_streak'].max().reset_index()
+    
+    df = ids.merge(df, on='player_id', how='left').fillna(0)
+
+    return df
+
+# ======================================================================
+# 2199. Finding the Topic of Each Post ###
+# ======================================================================
+
+def find_topic(keywords: pd.DataFrame, posts: pd.DataFrame) -> pd.DataFrame:
+
+    keywords['word'] = keywords['word'].str.lower()
+    posts['content'] = posts['content'].str.lower()
+
+    df = keywords.groupby('word')['topic_id'].apply(list)
+    # football    [1]
+    # handball    [1]
+    # vaccine     [2]
+    # war         [3]
+
+    # df.index : ['football', 'handball', 'vaccine', 'war']
+    topics = posts['content'].apply(
+        lambda content: sum([df[k] for k in list(df.index) if k in content.split()], [])
+    )
+    # 0       [1]
+    # 1    [1, 1]
+    # 2    [1, 3]
+    # 3        []
+
+    posts['topic'] = topics.apply(
+        lambda x: ','.join(map(str, sorted(list(set(x))))) if x else 'Ambiguous!'
+    )
+    
+    return posts[['post_id', 'topic']]
+
 
 
 
