@@ -987,14 +987,14 @@ order by account_id, day
 WITH T AS (
     select factor
         , power
-        , IF(factor > 0, '+', '') assign
+        , IF(factor > 0, '+', '') sign
         , case when power = 0 then ''
                 when power = 1 then 'X'
                 else CONCAT('X^', power) end power2
     FROM TERMS
 )
 select CONCAT(GROUP_CONCAT(
-    CONCAT(assign, factor, power2) ORDER BY power desc separator ""),
+    CONCAT(sign, factor, power2) ORDER BY power desc separator ""),
     '=0') equation
 from t
     
@@ -1037,10 +1037,118 @@ left join keywords k on CONCAT(' ', LOWER(p.content), ' ') like CONCAT('% ', LOW
 group by p.post_id
 
 -- =========================================================
+-- 2298. Tasks Count in the Weekend
+-- ========================================================= 
+
+# weekday : 0 Mon
+select sum(weekday(submit_date) < 5) weekend_cnt
+     , sum(weekday(submit_date) >= 5) working_cnt
+from tasks
+
+-- =========================================================
+-- 2388. Change Null Values in a Table to the Previous Value
+-- ========================================================= 
+
+with t1 as (
+    select *
+         , row_number()over() rk
+    from coffeeshop
+), t2 as (
+    select *
+         , SUM(IF(drink is not null, 1, 0)) over(order by rk) rk2
+    from t1
+)
+select id
+     , first_value(drink) over(partition by rk2 order by rk) drink
+from t2
+
+-- | id | drink             | rk | rk2 |
+-- | -- | ----------------- | -- | --- |
+-- | 9  | Rum and Coke      | 1  | 1   |
+-- | 6  | null              | 2  | 1   |
+-- | 7  | null              | 3  | 1   |
+-- | 3  | St Germain Spritz | 4  | 2   |
+-- | 1  | Orange Margarita  | 5  | 3   |
+-- | 2  | null              | 6  | 3   |
+
+-- =========================================================
+-- 2394. Employees With Deductions
+-- ========================================================= 
+
+select e.employee_id
+from employees e
+left join (select employee_id
+                , SUM(CEILING(TIMESTAMPDIFF(SECOND, in_time, out_time)/60)) diff
+           from logs
+           group by 1
+           ) l on e.employee_id = l.employee_id
+where e.needed_hours * 60 > IFNULL(l.diff, 0)
+
+-- =========================================================
+-- 2474. Customers With Strictly Increasing Purchases
+-- ========================================================= 
+
+with t1 as (
+    select customer_id
+         , year(order_date) yr
+         , sum(price) price
+    from orders
+    group by 1,2
+), t2 as (
+    select *
+        , lead(yr, 1, 0)over(partition by customer_id order by yr) yr2
+        , lead(price, 1, 0)over(partition by customer_id order by yr) price2
+    from t1
+    order by customer_id, yr
+)
+select distinct customer_id
+from orders 
+where customer_id not in (
+    select customer_id
+    from t2
+    where yr2 != 0
+    and (yr2 - yr > 1 or price2 - price <= 0)
+)
+
+-- =========================================================
+-- 2494. Merge Overlapping Events in the Same Hall
+-- ========================================================= 
+
+WITH t1 as (
+    select *
+         , max(end_day)over(partition by hall_id order by start_day) as max_end
+    from hallevents
+), t2 as (
+    select *
+         , lag(max_end, 1)over(partition by hall_id order by start_day) as max_end_prev
+    from t1
+), t3 as (
+    select hall_id
+         , start_day
+         , end_day
+         , sum(IF(start_day <= max_end_prev, 0, 1))over(
+            partition by hall_id order by start_day
+         ) overlap
+    from t2
+)
+select hall_id
+     , min(start_day) start_day
+     , max(end_day) end_day
+from t3
+group by hall_id, overlap
+order by hall_id, overlap
+
+-- =========================================================
 -- 
 -- ========================================================= 
 
+-- =========================================================
+-- 
+-- ========================================================= 
 
+-- =========================================================
+-- 
+-- ========================================================= 
 
 
 
