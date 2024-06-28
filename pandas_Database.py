@@ -1415,9 +1415,114 @@ def find_topic(keywords: pd.DataFrame, posts: pd.DataFrame) -> pd.DataFrame:
     
     return posts[['post_id', 'topic']]
 
+# ======================================================================
+# 2253. Dynamic Unpivoting of a Table
+# ======================================================================
+
+def find_valid_users(products: pd.DataFrame) -> pd.DataFrame:
+
+    df = products.melt(id_vars='product_id', var_name='store', value_name='price')
+    return df.dropna()
+    
+# ======================================================================
+# 2298. Tasks Count in the Weekend
+# ======================================================================
+
+def count_tasks(tasks: pd.DataFrame) -> pd.DataFrame:
+
+    # weekday : 0 Mon
+    tasks['week'] = tasks['submit_date'].dt.weekday
+
+    return pd.DataFrame({
+        'weekend_cnt': [len(tasks[tasks.week >= 5])],
+        'working_cnt': [len(tasks[tasks.week < 5])]
+    })
+
+# ======================================================================
+# 2308. Arrange Table by Gender
+# ======================================================================
+
+def arrange_table(genders: pd.DataFrame) -> pd.DataFrame:
+
+    df = genders.sort_values('user_id')
+
+    genders.iloc[::3] = df[df.gender == 'female']
+    genders.iloc[1::3] = df[df.gender == 'other']
+    genders.iloc[2::3] = df[df.gender == 'male']
+
+    return genders
+
+# ======================================================================
+# 2339. All the Matches of the League
+# ======================================================================
+
+def find_all_matches(teams: pd.DataFrame) -> pd.DataFrame:
+
+    df = teams.merge(teams, how='cross').rename(columns={'team_name_x':'home_team', 'team_name_y':'away_team'})
+    return df[df.home_team != df.away_team]
+
+# ======================================================================
+# 2388. Change Null Values in a Table to the Previous Value
+# ======================================================================
+
+def change_null_values(coffee_shop: pd.DataFrame) -> pd.DataFrame:
+    return coffee_shop.ffill()
+    
+# ======================================================================
+# 2394. Employees With Deductions
+# ======================================================================
+
+def employees_with_deductions(employees: pd.DataFrame, logs: pd.DataFrame) -> pd.DataFrame:
+
+    # .dt.ceil('1min') : rounds the time difference to the nearest minute correctly
+    # we should use .dt.total_seconds(), not .dt.seconds
+    # .dt.seconds : only returns the seconds part of the timedelta, not the total duration in seconds
+    # ex) if the timedelta is 1 hour, .dt.seconds would return 0, not 3600
+
+    logs['diff'] = (logs.out_time - logs.in_time).dt.ceil('1min').dt.total_seconds()
+    df = logs.groupby('employee_id').agg({'diff':'sum'}).reset_index()
+
+    df = employees.merge(df, on='employee_id', how='left').fillna(0)
+    return df[df.needed_hours * 60 * 60 > df['diff']][['employee_id']]
+
+# ======================================================================
+# 2494. Merge Overlapping Events in the Same Hall ###
+# ======================================================================
 
 
+def merge_events(hall_events: pd.DataFrame) -> pd.DataFrame:
 
+    df = hall_events.sort_values(by=['hall_id', 'start_day', 'end_day'])
+    df['prev_end'] = df.groupby('hall_id')['end_day'].shift(1)
+    df['max_end'] = df.groupby('hall_id')['prev_end'].cummax() ###
+    df['is_new'] = (df['start_day'] > df['max_end']) | (df['max_end'].isna())
+    df['id'] = df.groupby('hall_id')['is_new'].cumsum()
+
+    df = df.groupby(['hall_id', 'id']).agg(
+        start_day=('start_day', 'min'),
+        end_day=('end_day', 'max')
+    ).reset_index()
+
+    return df[['hall_id', 'start_day', 'end_day']]
+    
+# ======================================================================
+# 2504. Concatenate the Name and the Profession
+# ======================================================================
+
+def concatenate_info(person: pd.DataFrame) -> pd.DataFrame:
+
+    person['name'] = person.apply(
+        lambda x: x['name'] + '(' + x['profession'][0] + ')', axis=1
+    )
+    return person[['person_id', 'name']].sort_values('person_id', ascending=False)
+
+# ======================================================================
+# 
+# ======================================================================
+
+# ======================================================================
+# 
+# ======================================================================
 
 
 
