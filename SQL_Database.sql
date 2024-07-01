@@ -1139,6 +1139,130 @@ group by hall_id, overlap
 order by hall_id, overlap
 
 -- =========================================================
+-- 2701. Consecutive Transactions with Increasing Amounts
+-- ========================================================= 
+
+with t1 as (
+    select t1.customer_id
+        , t1.transaction_id
+        , t1.transaction_date dt1
+        , t2.transaction_date dt2
+        , rank()over(partition by t1.customer_id order by t1.transaction_date) rk
+    from transactions t1, transactions t2
+    where t1.customer_id = t2.customer_id
+    and DATEDIFF(t2.transaction_date, t1.transaction_date) = 1
+    and t1.amount < t2.amount
+), t2 as (
+    select *
+        , DATE_SUB(dt1, interval rk day) as diff
+    from t1
+)
+select customer_id
+     , min(dt1) consecutive_start
+     , max(dt2) consecutive_end
+from t2
+group by 1, diff
+having count(*) >= 2
+order by 1
+
+-- =========================================================
+-- 2752. Customers with Maximum Number of Transactions on Consecutive Days
+-- ========================================================= 
+
+WITH T1 as (
+    select *
+         , rank()over(partition by customer_id order by transaction_date) rk
+    from transactions
+), t2 as (
+    select *
+         , DATE_SUB(transaction_date, interval rk day) diff
+    from t1
+), t3 as (
+    select customer_id
+         , count(distinct transaction_id) cnt
+    from t2
+    group by customer_id, diff
+), t4 as (
+    select *
+         , dense_rank()over(order by cnt desc) as rk2
+    from t3
+)
+select customer_id
+from t4
+where rk2 = 1
+order by 1
+
+-- =========================================================
+-- 2820. Election Results
+-- ========================================================= 
+
+with t as (
+    select v1.candidate 
+        , sum(v2.cnt) cnt
+    from votes v1
+    left join (
+        select voter
+            , 1 / count(*) cnt
+        from votes
+        group by 1
+    ) v2 on v1.voter = v2.voter
+    group by 1    
+)
+select candidate
+from t
+where t.cnt = (select max(cnt) from t)
+order by t.candidate
+
+-- =========================================================
+-- 2854. Rolling Average Steps
+-- ========================================================= 
+
+with t as (
+    select *
+        , lag(steps_date, 2) over (partition by user_id order by steps_date) as prev
+        , avg(steps_count) over (partition by user_id order by steps_date
+                                 rows between 2 preceding and current row) as s_avg
+    from steps
+)
+select user_id
+     , steps_date
+     , round(s_avg, 2) rolling_average
+from t
+where DATEDIFF(steps_date, prev) = 2
+order by user_id, steps_date
+
+-- =========================================================
+-- 2893. Calculate Orders Within Each Interval
+-- ========================================================= 
+
+select interval_no
+     , sum(order_count) total_orders
+from (
+    select *
+        , case when minute % 6 != 0 then minute div 6 + 1
+                else minute div 6 end interval_no
+    from orders
+) t
+group by 1
+order by 1
+
+-- =========================================================
+-- 
+-- ========================================================= 
+
+-- =========================================================
+-- 
+-- ========================================================= 
+
+-- =========================================================
+-- 
+-- ========================================================= 
+
+-- =========================================================
+-- 
+-- ========================================================= 
+
+-- =========================================================
 -- 
 -- ========================================================= 
 
