@@ -1517,6 +1517,111 @@ def concatenate_info(person: pd.DataFrame) -> pd.DataFrame:
     return person[['person_id', 'name']].sort_values('person_id', ascending=False)
 
 # ======================================================================
+# 2668. Find Latest Salaries
+# ======================================================================
+
+def find_latest_salaries(salary: pd.DataFrame) -> pd.DataFrame:
+
+    df = salary.sort_values(['emp_id', 'salary'], ascending=[True, False])
+    return df.drop_duplicates(['emp_id'], keep='first')
+
+# ======================================================================
+# 2688. Find Active Users
+# ======================================================================
+
+def find_active_users(users: pd.DataFrame) -> pd.DataFrame:
+
+    df = users.sort_values(['user_id', 'created_at'])
+    df['prev'] = df.groupby('user_id')['created_at'].shift(1)
+    df['diff'] = (df['created_at'] - df['prev']).dt.days
+    return df[df['diff'] <= 7][['user_id']].drop_duplicates()
+
+# ======================================================================
+# 2701. Consecutive Transactions with Increasing Amounts
+# ======================================================================
+
+def consecutive_increasing_transactions(transactions: pd.DataFrame) -> pd.DataFrame:
+    
+    df = transactions.merge(transactions, on='customer_id', how='left', suffixes=['', '2'])
+    df = df[(df.amount < df.amount2) & ((df.transaction_date2 - df.transaction_date).dt.days == 1)]
+    df['rk'] = df.groupby('customer_id')['transaction_date'].rank(method='dense')
+    df['rk'] = df['transaction_date'] - pd.to_timedelta(df['rk'], unit='d')
+    df = df.groupby(['customer_id', 'rk']).agg(
+        consecutive_start=('transaction_date', 'min'),
+        consecutive_end=('transaction_date2', 'max'),
+        cnt=('customer_id', 'count')
+    ).reset_index()
+
+    return df[df.cnt >= 2][['customer_id', 'consecutive_start', 'consecutive_end']]
+
+# ======================================================================
+# 2738. Count Occurrences in Text
+# ======================================================================
+
+def count_occurrences(files: pd.DataFrame) -> pd.DataFrame:
+
+    # s+ : 1+ whitespace characters
+    # case=False : bull, Bull, BULL, etc.
+    bull = files['content'].str.contains(r"(\s+bull\s+)", regex=True, case=False).sum()
+    bear = files['content'].str.contains(r"\s+bear\s+", regex=True, case=False).sum()
+
+    return pd.DataFrame({
+        'word' : ['bull', 'bear'],
+        'count' : [bull, bear]
+    })
+
+# ======================================================================
+# 2752. Customers with Maximum Number of Transactions on Consecutive Days
+# ======================================================================
+
+def find_customers(transactions: pd.DataFrame) -> pd.DataFrame:
+
+    transactions['rk'] = transactions.groupby('customer_id')['transaction_date'].rank(method='dense')
+    transactions['rk'] = transactions['transaction_date'] - pd.to_timedelta(transactions['rk'], unit='D')
+
+    df = transactions.groupby(['customer_id','rk']).size().reset_index(name='cnt')
+    df = df[df.cnt == df['cnt'].max()][['customer_id']]
+
+    return df.sort_values(by='customer_id')
+
+# ======================================================================
+# 2820. Election Results
+# ======================================================================
+
+def get_election_results(votes: pd.DataFrame) -> pd.DataFrame:
+
+    votes['score'] = 1 / votes.groupby('voter')['voter'].transform('count')
+    df = votes.groupby('candidate').agg({'score':'sum'}).reset_index()
+    return df[df['score'] == df['score'].max()][['candidate']]    
+
+# ======================================================================
+# 2854. Rolling Average Steps
+# ======================================================================
+
+def rolling_average(steps: pd.DataFrame) -> pd.DataFrame:
+
+    df = steps.sort_values(['user_id','steps_date'])
+    df['prev'] = df.groupby('user_id')['steps_date'].shift(2)
+    df['diff'] = (df['steps_date'] - df['prev']).dt.days
+    df['rolling_average'] = df['steps_count'].rolling(window=3).mean().round(2)
+
+    df = df[df['diff'] == 2]
+
+    return df[['user_id', 'steps_date', 'rolling_average']]
+
+# ======================================================================
+# 
+# ======================================================================
+
+# ======================================================================
+# 
+# ======================================================================
+
+# ======================================================================
+# 
+# ======================================================================
+
+# ======================================================================
 # 
 # ======================================================================
 
