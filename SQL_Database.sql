@@ -1247,20 +1247,76 @@ group by 1
 order by 1
 
 -- =========================================================
--- 
+-- 2978. Symmetric Coordinates
 -- ========================================================= 
 
--- =========================================================
--- 
--- ========================================================= 
+WITH T AS (
+    select *
+         , row_number()over() as rk
+    from coordinates
+)
+
+select distinct c1.X
+     , c1.Y
+from t c1, t c2
+where (c1.X = c2.Y and c1.Y = c2.X)
+and c1.X <= c1.Y
+and c1.rk <> c2.rk
+group by 1,2
+order by c1.X, c1.Y
 
 -- =========================================================
--- 
+-- 2991. Top Three Wineries
 -- ========================================================= 
 
+WITH T AS (
+    select country
+          , concat(winery, ' (', sum(points), ')') points
+          , rank()over(partition by country order by sum(points) desc, winery asc) rk
+    from wineries
+    group by country, winery
+)
+select country
+     , max(case when rk=1 then points end) top_winery
+     , IFNULL(max(case when rk=2 then points end), 'No second winery') second_winery
+     , IFNULL(max(case when rk=3 then points end), 'No third winery') third_winery
+from t
+group by country
+order by country
+
 -- =========================================================
--- 
+-- 2993. Friday Purchases I
 -- ========================================================= 
+
+select ceil(day(purchase_date) / 7) as week_of_month
+     , purchase_date
+     , sum(amount_spend) total_amount
+from purchases
+where year(purchase_date) = 2023
+and month(purchase_date) = 11
+and DAYOFWEEK(purchase_date) = 6 # sun = 0
+group by 1
+order by 1
+
+-- =========================================================
+-- 2994. Friday Purchases II ###
+-- ========================================================= 
+
+WITH RECURSIVE T AS (
+    select '2023-11-01' purchase_date
+    union all
+    select DATE_ADD(purchase_date, interval 1 day) purchase_date
+    from t
+    where purchase_date < '2023-11-30'
+)
+select floor(dayofmonth(t.purchase_date)/7)+1 week_of_month
+     , t.purchase_date
+     , IFNULL(sum(p.amount_spend), 0) total_amount
+from t
+left join purchases p on t.purchase_date = p.purchase_date
+where dayname(t.purchase_date) = 'Friday'
+group by 1,2
+order by 1
 
 -- =========================================================
 -- 
