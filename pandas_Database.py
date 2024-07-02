@@ -1610,6 +1610,111 @@ def rolling_average(steps: pd.DataFrame) -> pd.DataFrame:
     return df[['user_id', 'steps_date', 'rolling_average']]
 
 # ======================================================================
+# 2978. Symmetric Coordinates
+# ======================================================================
+
+def symmetric_pairs(coordinates: pd.DataFrame) -> pd.DataFrame:
+
+    coordinates['rk'] = range(1, len(coordinates)+1)
+
+    df = coordinates.merge(coordinates, how='cross', suffixes=['', '2'])
+    df = df[(df.X == df.Y2) & (df.Y == df.X2) & (df.X <= df.Y) & (df.rk != df.rk2)]
+    df = df[['X', 'Y']].drop_duplicates()
+
+    return df.sort_values(by=['X', 'Y'])
+
+# ======================================================================
+# 2986. Find Third Transaction
+# ======================================================================
+
+def find_third_transaction(transactions: pd.DataFrame) -> pd.DataFrame:
+
+    df = transactions.sort_values(['user_id', 'transaction_date'])
+    df = df.groupby('user_id').head(3)
+
+    df['spend1'] = df['spend'].shift(2) # bbf
+    df['spend2'] = df['spend'].shift(1) # bf
+
+    df['id1'] = df['user_id'].shift(2)
+    df['id2'] = df['user_id'].shift(1)
+
+    df = df[(df.spend1 < df.spend) & (df.spend2 < df.spend) &
+            (df.id1 == df.user_id) & (df.id2 == df.user_id)]
+
+    return df[['user_id', 'spend', 'transaction_date']].rename(columns={
+        'spend':'third_transaction_spend',
+        'transaction_date':'third_transaction_date'
+    }).sort_values('user_id')
+
+# ======================================================================
+# 2991. Top Three Wineries
+# ======================================================================
+
+def top_three_wineries(wineries: pd.DataFrame) -> pd.DataFrame:
+
+    wineries = wineries.groupby(['country', 'winery']).agg({'points':'sum'}).reset_index()
+    wineries['val'] = wineries.winery + ' (' + wineries.points.astype(str) + ')'
+    wineries['rk'] = wineries.groupby('country')['points'].rank(method='first', ascending=False)
+    wineries = wineries[wineries.rk <= 3]
+    wineries['rk'] = np.where(wineries.rk == 1, 'top_winery',
+                     np.where(wineries.rk == 2, 'second_winery', 'third_winery'))
+    
+    df = wineries.pivot(index='country', columns='rk', values='val').reset_index()
+
+    if 'top_winery' not in df.columns:
+        df['top_winery'] = 'No top winery'
+    if 'second_winery' not in df.columns:
+        df['second_winery'] = 'No second winery'
+    if 'third_winery' not in df.columns:
+        df['third_winery'] = 'No third winery'
+
+    df['second_winery'] = df['second_winery'].fillna('No second winery')
+    df['third_winery'] = df['third_winery'].fillna('No third winery')
+
+    return df[['country', 'top_winery', 'second_winery', 'third_winery']]
+
+# ======================================================================
+# 2993. Friday Purchases I
+# ======================================================================
+
+def friday_purchases(purchases: pd.DataFrame) -> pd.DataFrame:
+
+    df = purchases[(purchases.purchase_date.dt.year == 2023) &
+                   (purchases.purchase_date.dt.month == 11)  &
+                   (purchases.purchase_date.dt.weekday == 4)] # Fri
+    
+    df = df.groupby('purchase_date').agg(total_amount=('amount_spend', 'sum')).reset_index()
+    df['week_of_month'] = round(df['purchase_date'].dt.day / 7 + 1).astype(int)
+    df.sort_values('purchase_date', inplace=True)
+
+    return df[['week_of_month', 'purchase_date', 'total_amount']]
+
+# ======================================================================
+# 2994. Friday Purchases II ###
+# ======================================================================
+
+def friday_purchases(purchases: pd.DataFrame) -> pd.DataFrame:
+
+    df = pd.DataFrame({
+        'purchase_date': pd.date_range(
+            pd.to_datetime('2023-11-01'), pd.to_datetime('2023-11-30'), freq='d'
+    )})
+
+    df = df[df.purchase_date.dt.weekday == 4] # Fri
+    df = df.merge(purchases, how='left', on='purchase_date').fillna(0)
+    df = df.groupby(['purchase_date']).agg(total_amount=('amount_spend', 'sum')).reset_index()
+    df['week_of_month'] = (df['purchase_date'].dt.day) // 7 + 1
+    return df[['week_of_month', 'purchase_date', 'total_amount']]
+
+# ======================================================================
+# 
+# ======================================================================
+
+# ======================================================================
+# 
+# ======================================================================
+
+# ======================================================================
 # 
 # ======================================================================
 
