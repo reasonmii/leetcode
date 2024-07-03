@@ -15,10 +15,10 @@ def function():
 class Solution(object):
     def addTwoNumbers(self, l1, l2):
 
-        carry = 0
-        root = n = ListNode(0)
+        ten = 0
+        head = cur = ListNode(-1)
 
-        while l1 or l2 or carry:
+        while l1 or l2 or ten:
             v1 = v2 = 0
             if l1:
                 v1 = l1.val
@@ -26,16 +26,15 @@ class Solution(object):
             if l2:
                 v2 = l2.val
                 l2 = l2.next
-
+                
             # divmod(numerator, denominator)
             # divmod(7, 10) = 0, 7
             # divmod(10, 10) = 1, 0
-            # divmod(8, 10) = 0, 8
-            carry, val = divmod(v1+v2+carry, 10)
-            n.next = ListNode(val)
-            n = n.next
-
-        return root.next
+            # divmod(8, 10) = 0, 8            
+            ten, val = divmod(v1+v2+ten, 10)
+            cur.next = ListNode(val)
+            cur = cur.next
+        return head.next
 
 # ======================================================================
 # 3. Longest Substring Without Repeating Characters
@@ -62,19 +61,21 @@ class Solution(object):
 # Topic : string, dynamic programming
 # ======================================================================
 
-if s == s[::-1]:
-            return s
+class Solution(object):
 
-        start, size = 1, 0
-        for i in range(1, len(s)):
-            left, right = i - size, i + 1
-            s1, s2 = s[left-1:right], s[left:right]
-            if left - 1 >= 0 and s1 == s1[::-1]:
-                start, size = left-1, size+2
-            elif s2 == s2[::-1]:
-                start, size = left, size+1
+        if s == s[::-1]:
+            return s
         
-        return s[start:start+size]
+        stt, size = 1, 0
+        for i in range(1, len(s)):
+            left, right = i - size, i+1
+            s1, s2 = s[left-1:right], s[left:right]
+            if 0 <= left - 1 and s1 == s1[::-1]:
+                stt, size = left-1, size+2
+            elif s2 == s2[::-1]:
+                stt, size = left, size+1
+            
+        return s[stt:stt+size]
         
 # ======================================================================
 # 6. Zigzag Conversion
@@ -134,6 +135,59 @@ class Solution(object):
             return 0
 
         return -rst if neg else rst
+
+# ======================================================================
+# 8. String to Integer (atoi)
+# Topic : string
+# ======================================================================
+
+class Solution(object):
+    def myAtoi(self, s):
+
+        # value : number
+        # state : " " = 0, +/- = 1, number = 2
+        # pos : position of words
+        # sign : + / -
+
+        value, state, pos, sign = 0, 0, 0, 1
+
+        if len(s) == 0:
+            return 0
+
+        while pos < len(s):
+            word = s[pos]
+            if state == 0:
+                if word == " ":
+                    state = 0
+                elif word == "+" or word == "-":
+                    state = 1
+                    sign = 1 if word == "+" else -1
+                elif word.isdigit():
+                    state = 2
+                    value = value * 10 + int(word)
+                else:
+                    return 0
+            elif state == 1:
+                if word.isdigit():
+                    state = 2
+                    value = value * 10 + int(word)
+                else:
+                    return 0
+            elif state == 2:
+                if word.isdigit():
+                    state = 2
+                    value = value * 10 + int(word)
+                else:
+                    break
+            else:
+                return 0
+            pos += 1
+
+        value = sign * value
+        value = min(value, 2**31 - 1)
+        value = max(-(2**31), value)
+
+        return value
 
 # ======================================================================
 # 11. Container With Most Water
@@ -211,7 +265,7 @@ class Solution(object):
         for i in range(len(n)):
             for j in range(i+1, len(n)):
                 target = -1 * (n[i] + n[j])
-                if target in P:       ### p 이 아니라 P
+                if target in P:       ### p 가 아니라 P
                     rst.add(tuple(sorted([n[i], n[j], target])))
                     # [-1, -2, 3] == [-2, -1, 3]
 
@@ -223,6 +277,37 @@ class Solution(object):
                     rst.add(tuple(sorted([p[i], p[j], target])))
 
         return rst
+
+# ======================================================================
+# 16. 3Sum Closest	
+# Topic : array
+# ======================================================================
+
+class Solution(object):
+    def threeSumClosest(self, nums, target):
+
+        n = len(nums)
+        nums = sorted(nums)
+        cur = sum(nums[:3])
+
+        for i in range(n-2):
+            if i > 0 and nums[i] == nums[i-1]:
+                continue
+            
+            l, r = i+1, n-1
+            while l < r:
+                val = nums[i] + nums[l] + nums[r]
+                if abs(target - val) < abs(target - cur):
+                    cur = val
+                
+                if val == target:
+                    return target
+                elif val < target:
+                    l += 1
+                else:
+                    r -= 1
+        
+        return cur
 
 # ======================================================================
 # 17. Letter Combinations of a Phone Number
@@ -333,6 +418,38 @@ class Solution(object):
         rst = []
         dfs(0, 0, '')
         return rst
+
+# ======================================================================
+# 24. Swap Nodes in Pairs
+# Topic : LinkedList
+# ======================================================================
+
+class Solution(object):
+    def swapPairs(self, head):
+
+        if not head or not head.next:
+            return head
+
+        rst, tmp = [], []
+        cur = head
+
+        while cur:
+            tmp.append(cur.val)
+            cur = cur.next
+            if len(tmp) == 2:
+                rst += tmp[::-1]
+                tmp = []
+            if not cur:
+                rst += tmp
+        
+        out = node = ListNode(-1)
+        
+        while rst:
+            n = rst.pop(0)
+            node.next = ListNode(n)
+            node = node.next
+
+        return out.next
 
 # ======================================================================
 # 31. Next Permutation
@@ -453,14 +570,57 @@ class Solution(object):
         return encode(rst)
         
 # ======================================================================
+# 45. Jump Game II
+# Topic : Array, DP, Greedy
+# ======================================================================
+
+class Solution(object):
+    def jump(self, nums):
+
+        n = len(nums)
+        stt, end, step = 0, 0, 0
+        while end < n-1:
+            step += 1
+            maxend = end + 1
+            for i in range(stt, maxend):
+                if i + nums[i] >= n-1:
+                    return step
+                maxend = max(maxend, i + nums[i])
+            stt, end = end+1, maxend
+        return step
+
+# ======================================================================
+# 47. Permutations II
+# Topic : DFS
+# ======================================================================
+
+class Solution(object):
+    def permuteUnique(self, nums):
+
+        rst = []
+        nums.sort()
+        self.dfs(nums, [], rst)
+        return rst
+
+    def dfs(self, nums, path, rst):
+        if not nums:
+            rst.append(path)
+            return
+
+        for i in range(len(nums)):
+            if i > 0 and nums[i] == nums[i-1]:
+                continue
+            self.dfs(nums[:i]+nums[i+1:], path+[nums[i]], rst)
+
+# ======================================================================
 # 48. Rotate Image
 # Topic : Array, rotate
 # ======================================================================
 
 class Solution(object):
     def rotate(self, matrix):
-        matrix.reverse()
 
+        matrix.reverse()
         for i in range(len(matrix)):
             for j in range(i):
                 matrix[i][j], matrix[j][i] = matrix[j][i], matrix[i][j]
