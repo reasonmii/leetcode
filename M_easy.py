@@ -51,8 +51,29 @@ class Solution(object):
         for ch in s:
             rst += dic[ch]        
 
-        return rst        
+        return rst
 
+# ======================================================================
+# 14. Longest Common Prefix
+# Topic : string, Trie
+# ======================================================================
+
+class Solution(object):
+    def longestCommonPrefix(self, strs):
+
+        if not strs: return None
+        
+        rst = strs[0]
+        for word in strs[1:]:
+            i = 0
+            while i < len(rst) and i < len(word):
+                if rst[i] != word[i]:
+                    break
+                i += 1
+            rst = rst[:i]
+
+        return rst
+        
 # ======================================================================
 # 20. Valid Parentheses
 # Topic : string, brackets, stack
@@ -100,17 +121,48 @@ class Solution(object):
         return dummy.next
 
 # ======================================================================
+# 26. Remove Duplicates from Sorted Array
+# Topic : Array, two pointers
+# ======================================================================
+
+class Solution(object):
+    def removeDuplicates(self, nums):
+
+        k = 0
+        for n in nums:
+            if nums[k] != n:
+                k += 1
+                nums[k] = n
+        return k+1
+
+# ======================================================================
+# 27. Remove Element
+# Topic : Array, two pointers
+# ======================================================================
+
+class Solution(object):
+    def removeElement(self, nums, val):
+
+        k, i = 0, 0
+        while i < len(nums):
+            if nums[i] != val:
+                nums[k] = nums[i]
+                k += 1
+            i += 1
+        return k
+
+# ======================================================================
 # 28. Find the Index of the First Occurrence in a String
 # Topic : string, index
 # ======================================================================
 
 class Solution(object):
     def strStr(self, haystack, needle):
-        
-        end = len(needle)
-        for start in range(len(haystack)):
-            if haystack[start:start+end] == needle:
-                return start
+
+        n = len(needle)
+        for i, ch in enumerate(haystack):
+            if haystack[i:i+n] == needle:
+                return i
         return -1
 
 # ======================================================================
