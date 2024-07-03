@@ -1707,12 +1707,47 @@ def friday_purchases(purchases: pd.DataFrame) -> pd.DataFrame:
     return df[['week_of_month', 'purchase_date', 'total_amount']]
 
 # ======================================================================
-# 
+# 3052. Maximize Items
 # ======================================================================
 
+def maximize_items(inventory: pd.DataFrame) -> pd.DataFrame:
+
+    df = inventory.groupby('item_type').agg(
+        sq = ('square_footage','sum'),
+        cnt = ('item_id', 'count')
+        ).reset_index()    
+
+    pe_cnt = df[df.item_type == 'prime_eligible']['cnt'].values[0] ###
+    pe_sq = df[df.item_type == 'prime_eligible']['sq'].values[0]
+    pe_comb = 500000 // pe_sq
+
+    np_cnt = df[df.item_type == 'not_prime']['cnt'].values[0]
+    np_sq = df[df.item_type == 'not_prime']['sq'].values[0]
+    np_comb = (500000 - pe_sq * pe_comb) // np_sq
+    
+    df = pd.DataFrame({
+            'item_type' : ['prime_eligible', 'not_prime'],
+            'item_count' : [pe_cnt * pe_comb, np_cnt * np_comb]
+        })
+
+    return df.fillna(0)
+    
 # ======================================================================
-# 
+# 3059. Find All Unique Email Domains ###
 # ======================================================================
+
+def find_unique_email_domains(emails: pd.DataFrame) -> pd.DataFrame:
+
+    # @(.+\.com$)
+    # matches @ symbol literally
+    # () : capturing group
+    # .+ : one or more characters before the .com
+    # \.com : a literal .com string
+    # $ : end
+    emails['email_domain'] = emails['email'].str.extract("@(.+\.com$)")
+    df = emails.groupby('email_domain').size().reset_index(name='count')
+
+    return df.sort_values('email_domain')
 
 # ======================================================================
 # 
