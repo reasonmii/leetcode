@@ -1750,8 +1750,18 @@ def find_unique_email_domains(emails: pd.DataFrame) -> pd.DataFrame:
     return df.sort_values('email_domain')
 
 # ======================================================================
-# 
+# 3060. User Activities within Time Bounds
 # ======================================================================
+
+def user_activities(sessions: pd.DataFrame) -> pd.DataFrame:
+
+    df = sessions.merge(sessions, on=['user_id', 'session_type'], how='inner', suffixes=['1','2'])
+
+    df = df[(df.session_start1 < df.session_start2) &
+            ((df.session_start2 - df.session_end1).dt.total_seconds() / 3600 <= 12)]
+        
+    df.sort_values(by='user_id', inplace=True)
+    return df[['user_id']].drop_duplicates()
 
 # ======================================================================
 # 
