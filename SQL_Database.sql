@@ -1359,9 +1359,17 @@ group by 1
 order by 1
 
 -- =========================================================
--- 
+-- 3060. User Activities within Time Bounds
 -- ========================================================= 
 
+select distinct s1.user_id
+from sessions s1
+inner join sessions s2
+    on s1.user_id = s2.user_id
+    and s1.session_type = s2.session_type
+    and s1.session_start < s2.session_start
+    and TIMESTAMPDIFF(HOUR, s1.session_end, s2.session_start) <= 12
+order by user_id
 
 -- =========================================================
 -- 
