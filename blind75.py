@@ -348,7 +348,7 @@ class Solution(object):
 
         bf3, bf2, adj = 0, 0, 0
         for cur in nums:
-            bf3, bf2, adj = bf2, adj, cur + max(bf3, bf2)
+            bf3, bf2, adj = bf2, adj, max(bf2 + n, adj)
         
         return max(bf2, adj)
 
