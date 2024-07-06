@@ -1372,8 +1372,166 @@ inner join sessions s2
 order by user_id
 
 -- =========================================================
+-- 3061. Calculate Trapping Rain Water ###
+-- ========================================================= 
+
+WITH T AS (
+    SELECT *
+         , MAX(height) OVER(ORDER BY id) m1
+         , MAX(height) OVER(ORDER BY id DESC) m2
+    FROM heights
+)
+SELECT SUM(LEAST(m1, m2) - height) total_trapped_water
+FROM T
+order by id
+
+-- =========================================================
+-- 3087. Find Trending Hashtags ###
+-- ========================================================= 
+
+select REGEXP_SUBSTR(tweet, '\#[a-zA-Z]+') hashtag
+     , count(*) hashtag_count
+from tweets
+where year(tweet_date) = '2024'
+and month(tweet_date) = '2'
+group by 1
+order by hashtag_count desc, hashtag desc
+limit 3
+    
+-- =========================================================
+-- 3089. Find Bursty Behavior ###
+-- ========================================================= 
+
+WITH T AS (
+    select *
+         , count(post_id)over(partition by user_id order by post_date range between interval 6 day preceding and current row) cnt7
+         , count(post_id)over(partition by user_id) / 4 as avg_posts
+    from posts
+    where post_date between '2024-02-01' and '2024-02-28'
+)
+SELECT user_id
+     , max(cnt7) max_7day_posts
+     , max(avg_posts) avg_weekly_posts
+FROM T
+where cnt7 >= 2 * avg_posts
+group by user_id
+order by user_id
+
+-- =========================================================
+-- 3103. Find Trending Hashtags II ###
+-- ========================================================= 
+
+WITH RECURSIVE T AS (
+    select SUBSTRING_INDEX(SUBSTRING_INDEX(tweet, '#', -1), " ", 1) tag
+        --  , LOCATE('#', REVERSE(tweet)) -- last '#' index
+         , SUBSTRING(tweet, 1, LENGTH(tweet) - LOCATE('#', REVERSE(tweet))) as rem 
+    from Tweets
+    UNION ALL
+    select SUBSTRING_INDEX(SUBSTRING_INDEX(rem, '#', -1), " ", 1) tag
+         , SUBSTRING(rem, 1, LENGTH(rem) - LOCATE('#', REVERSE(rem))) as rem  
+    from t 
+    where LOCATE ('#', rem) > 0
+)
+select CONCAT('#', tag) hashtag
+     , count(*) count
+from t
+group by 1
+order by 2 desc, 1 desc
+limit 3
+
+-- =========================================================
+-- 3118. Friday Purchase III 
+-- ========================================================= 
+
+SELECT ROUND(DAY(p.purchase_date)/7) week_of_month
+     , u.membership
+     , IFNULL(SUM(amount_spend), 0) as total_amount
+From users u 
+LEFT JOIN purchases p on p.user_id = u.user_id
+where YEAR(p.purchase_date) = 2023
+and MONTH(p.purchase_date) = 11
+and WEEKDAY(p.purchase_date) = 4
+group by 1, 2
+order by 1, 2
+
+-- =========================================================
+-- 3124. Find Longest Calls ###
+-- ========================================================= 
+
+WITH T AS (
+    select t.first_name
+         , c.type
+         , CONCAT(
+            LPAD(FLOOR(c.duration / 3600), 2, '0'), ':',
+            LPAD(FLOOR((c.duration % 3600) / 60), 2, '0'), ':',
+            LPAD(FLOOR(c.duration % 60), 2, '0')
+         ) duration_formatted
+         , rank()over(partition by type order by duration desc) rk
+    from contacts t
+    left join calls c on t.id = c.contact_id
+)
+select first_name
+     , type
+     , duration_formatted
+from t
+where t.rk <= 3
+order by type, duration_formatted desc, first_name
+
+-- =========================================================
+-- 3126. Server Utilization Time ###
+-- ========================================================= 
+
+WITH T AS (
+    select *
+         , lead(status_time, 1)over(partition by server_id order by status_time, session_status) after
+    from servers
+), T2 AS (
+    select TIMESTAMPDIFF(SECOND, status_time, after) diff
+    FROM t
+    where session_status='start'
+)
+select FLOOR(sum(diff) / (24 * 60 * 60)) total_uptime_Days
+from t2
+
+-- =========================================================
+-- 3140. Consecutive Available Seats II ###
+-- ========================================================= 
+
+WITH T1 AS (
+    select *
+        , seat_id - row_number()over(order by seat_id) diff
+    from cinema
+    where free = 1
+), T2 AS (
+    select min(seat_id) first_seat_id   
+         , max(seat_id) last_seat_id
+         , count(*) consecutive_seats_len
+         , rank()over(order by count(*) desc) rk
+    from t1
+    group by diff
+)
+select first_seat_id
+     , last_seat_id
+     , consecutive_seats_len
+from t2
+where rk = 1
+order by 1
+
+-- =========================================================
+-- 3150. Invalid Tweets II ###
+-- ========================================================= 
+
+select tweet_id
+from tweets
+where length(content) > 140
+or LENGTH(content) - length(replace(content, '#', '')) > 3
+or length(content) - length(replace(content, '@', '')) > 3
+
+-- =========================================================
 -- 
 -- ========================================================= 
+
+
 
 
 -- =========================================================
@@ -1386,9 +1544,6 @@ order by user_id
 -- ========================================================= 
 
 
--- =========================================================
--- 
--- ========================================================= 
 
 
 -- =========================================================
@@ -1399,6 +1554,21 @@ order by user_id
 -- =========================================================
 -- 
 -- ========================================================= 
+
+
+
+
+-- =========================================================
+-- 
+-- ========================================================= 
+
+
+-- =========================================================
+-- 
+-- ========================================================= 
+
+
+
 
 
 
