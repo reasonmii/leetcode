@@ -182,6 +182,25 @@ class Solution(object):
         return [1] + digits
 
 # ======================================================================
+# 69. Sqrt(x)
+# Topic : Binary Search
+# ======================================================================
+
+class Solution(object):
+    def mySqrt(self, x):
+
+        l, r = 0, x
+
+        while l <= r:
+            m = (l+r) // 2
+            if m * m <= x < (m+1) * (m+1):
+                return m
+            elif m * m < x:
+                l = m+1
+            else:
+                r = m-1
+
+# ======================================================================
 # 70. Climbing Stairs
 # Topic : Dynamic Programming
 # ======================================================================
@@ -223,6 +242,32 @@ class Solution(object):
         return nums1
 
 # ======================================================================
+# 94. Binary Tree Inorder Traversal
+# Topic : Tree
+# ======================================================================
+
+class Solution(object):
+    def inorderTraversal(self, root):
+        """
+        :type root: TreeNode
+        :rtype: List[int]
+        """
+
+        rst = []
+        self.inOrder(root, rst)
+        return rst
+
+    def inOrder(self, root, rst):
+        if not root:
+            return
+
+        self.inOrder(root.left, rst)
+        rst.append(root.val)
+        self.inOrder(root.right, rst)
+
+        return rst
+
+# ======================================================================
 # 101. Symmetric Tree
 # Topic : Tree
 # ======================================================================
@@ -261,6 +306,32 @@ class Solution(object):
             self.sortedArrayToBST(nums[:med]),
             self.sortedArrayToBST(nums[med+1:])
         )
+
+# ======================================================================
+# 110. Balanced Binary Tree
+# Topic : Binary Tree
+# ======================================================================
+
+class Solution(object):
+    def isBalanced(self, root):
+        """
+        :type root: TreeNode
+        :rtype: bool
+        """
+
+        return self.balance(root) != -1
+
+    def balance(self, root):
+        if not root:
+            return 0
+
+        left = self.balance(root.left)
+        right = self.balance(root.right)
+
+        if left == -1 or right == -1 or abs(left - right) > 1:
+            return -1
+        
+        return 1 + max(left, right)
 
 # ======================================================================
 # 112. Path Sum
@@ -331,6 +402,28 @@ class Solution(object):
         # sub(A, B, C) : if C is not in A, substitute it to B
         s = re.sub("[^a-z0-9]", "", s.lower()).replace(" ", "")
         return s == s[::-1]
+
+# ======================================================================
+# 136. Single Number
+# Topic : Array, bit
+# ======================================================================
+
+class Solution(object):
+    def singleNumber(self, nums):
+
+        # linear runtime
+        # use only constant extra space
+
+        # ^= : XOR (exclusive OR)
+        # commonly used for finding the single non-repeating element in an array
+        # when all other elements occur in pairs
+
+        for i in range(1, len(nums)): # [4, 1, 2, 1, 2]
+            # any number XOR with itself is 0
+            # so each duplicate number will cancel out itself
+            nums[0] ^= nums[i] # 4 -> 5 -> 7 -> 6 -> 4
+
+        return nums[0]
 
 # ======================================================================
 # 160. Intersection of Two Linked Lists
