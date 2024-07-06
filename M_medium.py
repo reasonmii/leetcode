@@ -741,6 +741,69 @@ class Solution(object):
         return rst
 
 # ======================================================================
+# 57. Insert Interval
+# Topic : Array
+# ======================================================================
+
+class Solution(object):
+    def insert(self, intervals, newInterval):
+
+        s, e = newInterval[0], newInterval[1]
+        left, right = [], []
+
+        for lst in intervals:
+            if lst[1] < s:
+                left += lst, ### comma is needed!
+            elif lst[0] > e:
+                right += lst,
+            else:
+                s = min(s, lst[0])
+                e = max(e, lst[1])
+        return left + [[s, e]] + right
+
+# ======================================================================
+# 59. Spiral Matrix II
+# Topic : Array, Matrix
+# ======================================================================
+
+
+# ======================================================================
+# 61. Rotate List
+# Topic : Linked List
+# ======================================================================
+
+class Solution(object):
+    def rotateRight(self, head, k):
+
+        if not head:
+            return None
+
+        lastElement = head                 # Node(1)
+        length = 1
+
+        while lastElement.next:            # 2 -> 3 -> 4 -> 5
+            lastElement = lastElement.next # Node(5)
+            length += 1                    # length = 5
+
+        # if k is equal to the length of the list then k = 0
+        # if k is greater than the length of the list then k = k % length
+        k = k % length
+
+        # The list is now a "circular" linked list
+        # 1 -> 2 -> 3 -> 4 -> 5 -> 1 -> 2 -> 3 -> 4 -> 5 -> 1 -> ...
+        lastElement.next = head
+
+        tempNode = head
+        for _ in range(length-k-1): # 5-2-1 = 2
+            tempNode = tempNode.next # tempNonde = Node(3) : 3 -> 4 -> 5 -> 1 -> 2 -> ...
+
+        answer = tempNode.next # answer = Node(4) : 4 -> 5 -> 1 -> 2 -> 3 -> ...
+        tempNode.next = None # Node(3).next : cut the linked list from here
+
+        # 4 -> 5 -> 1 -> 2 -> 3
+        return answer
+
+# ======================================================================
 # 62. Unique Paths
 # Topic : dynamic programming
 # ======================================================================
@@ -755,6 +818,35 @@ class Solution(object):
 
         return dp[-1][-1]
 
+# ======================================================================
+# 63. Unique Paths II
+# Topic : dynamic programming
+# ======================================================================
+
+class Solution(object):
+    def uniquePathsWithObstacles(self, obstacleGrid):
+        """
+        :type obstacleGrid: List[List[int]]
+        :rtype: int
+        """
+
+        m, n = len(obstacleGrid), len(obstacleGrid[0])
+        dp = [[0] * n for _ in range(m)]
+
+        dp[0][0] = 1 if obstacleGrid[0][0] == 0 else 0
+
+        for i in range(m):
+            for j in range(n):
+                if obstacleGrid[i][j] == 1:
+                    dp[i][j] = 0
+                else:
+                    if i > 0:
+                        dp[i][j] += dp[i-1][j]
+                    if j > 0:
+                        dp[i][j] += dp[i][j-1]
+
+        return dp[-1][-1]
+        
 # ======================================================================
 # 64. Minimum Path Sum
 # Topic : dynamic programming
@@ -779,6 +871,27 @@ class Solution(object):
                 grid[i][j] += min(grid[i-1][j], grid[i][j-1])
 
         return grid[-1][-1]
+
+# ======================================================================
+# 71. Simplify Path
+# Topic : string
+# ======================================================================
+
+class Solution(object):
+    def simplifyPath(self, path):
+
+        words = path.split("/")
+        rst = []
+
+        for word in words:
+            if word == '..':
+                if rst:
+                    rst.pop()
+                continue
+            if word != '' and word != '.':
+                rst.append(word)
+        
+        return '/' + '/'.join(rst)
 
 # ======================================================================
 # 72. Edit Distance
@@ -890,11 +1003,6 @@ class Solution(object):
 
 class Solution(object):
     def combine(self, n, k):
-        """
-        :type n: int
-        :type k: int
-        :rtype: List[List[int]]
-        """
 
         combs = [[]]
 
@@ -919,7 +1027,109 @@ class Solution(object):
 # Topic : dfs, backtrack
 # ======================================================================
 
+class Solution(object):
+    def exist(self, board, word):
 
+        for i in range(len(board)):
+            for j in range(len(board[0])):
+                if self.dfs(board, word, i, j, 0):
+                    return True
+        return False
+
+    def dfs(self, board, word, i, j, k):
+        if i < 0 or i == len(board) or j < 0 or j == len(board[0]):
+            return False
+        if board[i][j] != word[k] or board[i][j] == '*':
+            return False
+        if k == len(word) - 1:
+            return True
+        
+        cache = board[i][j]
+        board[i][j] = '*'
+        rst = self.dfs(board, word, i+1, j, k+1) or \
+              self.dfs(board, word, i-1, j, k+1) or \
+              self.dfs(board, word, i, j+1, k+1) or \
+              self.dfs(board, word, i, j-1, k+1)
+        board[i][j] = cache
+        return rst
+
+# ======================================================================
+# 81. Search in Rotated Sorted Array II
+# Topic : Binary Search
+# ======================================================================
+
+class Solution(object):
+    def search(self, nums, target):
+
+        l, r = 0, len(nums)-1
+
+        while l <= r:
+            m = (l+r) // 2
+            if nums[m] == target:
+                return True
+
+            if nums[m] == nums[l] == nums[r]:
+                l += 1
+                r -= 1
+            elif nums[l] <= nums[m]:
+                if nums[m] < target or target < nums[l]:
+                    l = m + 1
+                else:
+                    r = m - 1
+            else:
+                if target < nums[m] or nums[r] < target:
+                    r = m - 1
+                else:
+                    l = m + 1
+        return False
+
+# ======================================================================
+# 82. Remove Duplicates from Sorted List II
+# Topic : Linked List
+# ======================================================================
+
+class Solution(object):
+    def deleteDuplicates(self, head):
+
+        dummy = ListNode(-1)
+        dummy.next = head
+        prev = dummy
+
+        while head:
+            if head.next and head.val == head.next.val:
+                while head.next and head.val == head.next.val:
+                    head = head.next
+                prev.next = head.next
+            else:
+                prev = head
+            head = head.next
+        return dummy.next
+
+# ======================================================================
+# 86. Partition List
+# Topic : Linked List
+# ======================================================================
+
+class Solution(object):
+    def partition(self, head, x):
+        
+        h1 = l1 = ListNode(-1)
+        h2 = l2 = ListNode(-1)
+
+        while head:
+            if head.val < x:
+                l1.next = head
+                l1 = l1.next
+            else:
+                l2.next = head
+                l2 = l2.next
+            head = head.next
+
+        l2.next = None
+        l1.next = h2.next
+
+        return h1.next
+        
 # ======================================================================
 # 88. Word Search
 # Topic : dfs, backtrack
@@ -948,6 +1158,26 @@ class Solution(object):
                 rst.append(rst[j] + [nums[i]])
         return rst
 
+# ======================================================================
+# 91. Decode Ways
+# Topic : dynamic programming
+# ======================================================================
+
+class Solution(object):
+    def numDecodings(self, s):
+
+        dp = [0] * (len(s) + 1)
+        dp[0] = 1
+        dp[1] = 1 if s[0] != '0' else 0
+
+        for i in range(2, len(s)+1):
+            if 0 < int(s[i-1:i]) <= 9:
+                dp[i] += dp[i-1]
+            if 10 <= int(s[i-2:i]) <= 26:
+                dp[i] += dp[i-2]
+
+        return dp[-1]
+        
 # ======================================================================
 # 92. Reverse Linked List II
 # Topic : LinkedList
@@ -1001,26 +1231,63 @@ class Solution(object):
                 self.dfs(s[i:], idx+1, path+s[:i]+".", rst)
 
 # ======================================================================
+# 96. Unique Binary Search Trees
+# Topic : Tree
+# ======================================================================
+
+class Solution(object):
+    def numTrees(self, n):
+
+        # Put [1..........N] numbers as root
+        # NumTrees or G[3] = F[1,3] + F[2,3] + F[3,3]
+        # where F is a function F(i=currentRoot, N=TotalNodes)
+
+        # n = 4
+        # res[1] = res[0] * res[0]
+        # res[2] = res[0] * res[1] + res[1] * res[0]
+        # res[3] = res[0] * res[2] + res[1] * res[1] + res[2] * res[0]
+        # res[4] = res[0] * res[3] + res[1] * res[2] + res[2] * res[1] + res[3] * res[0]
+
+        # i : total number of nodes in the BST
+        # i-1 : total number of nodes 'without root' in the BST
+        # j : total number of nodes in the left subtree
+        #     the root iterates over all possible values of 'j' from 0 to 'i-1'
+        # i-1-j : total number of nodes in the right subtree
+
+        # res[j] : # of unique BSTs for the left subtree
+        # res[i-1-j] : # of unique BSTs for the right subtree
+
+        rst = [0] * (n+1)
+        rst[0] = 1
+
+        for i in range(1, n+1):
+            for j in range(i):
+                rst[i] += rst[j] * rst[i-1-j]
+        return rst[n]
+
+# ======================================================================
 # 97. Interleaving String
 # Topic : dynamic programming
 # ======================================================================
 
 class Solution(object):
     def isInterleave(self, s1, s2, s3):
-        m = len(s1)
-        n = len(s2)
 
-        if m+n != len(s3): return False   
+        m = len(s1) + 1
+        n = len(s2) + 1
 
-        dp = [[False for j in range(n+1)] for i in range(m+1)]
-        dp[0][0] = True           
-        
-        for i in range(0, m+1):
-            for j in range(0, n+1):
-                if (i>0 and dp[i-1][j] and s1[i-1] == s3[i+j-1]) or \
-                (j> 0 and dp[i][j-1] and s2[j-1] == s3[i+j-1]):
+        if m + n - 2 != len(s3):
+            return False
+
+        dp = [[False] * n for _ in range(m)]
+        dp[0][0] = True
+
+        for i in range(m):
+            for j in range(n):
+                if (i > 0 and dp[i-1][j] and s1[i-1] == s3[i+j-1]) or \
+                (j > 0 and dp[i][j-1] and s2[j-1] == s3[i+j-1]):
                     dp[i][j] = True
-
+                
         return dp[-1][-1]
 
 # ======================================================================
