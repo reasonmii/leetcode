@@ -1764,29 +1764,180 @@ def user_activities(sessions: pd.DataFrame) -> pd.DataFrame:
     return df[['user_id']].drop_duplicates()
 
 # ======================================================================
-# 
+# 3061. Calculate Trapping Rain Water ###
+# ======================================================================
+
+def calculate_trapped_rain_water(heights: pd.DataFrame) -> pd.DataFrame:
+    
+    heights['max_v'] = np.minimum(heights.height.cummax(), heights.height[::-1].cummax())
+    heights['h'] = np.maximum(heights.max_v - heights.height, 0)
+    
+    return pd.DataFrame({'total_trapped_water':[heights.h.sum()]})
+
+# ======================================================================
+# 3087. Find Trending Hashtags ###
+# ======================================================================
+
+def find_trending_hashtags(tweets: pd.DataFrame) -> pd.DataFrame:
+
+    df = tweets[(tweets.tweet_date.dt.year == 2024) & (tweets.tweet_date.dt.month == 2)]
+
+    df['hashtag'] = '#' + df['tweet'].str.split('#').str[-1]
+    df['hashtag'] = df['hashtag'].str.split().str[0]
+
+    df = df.groupby('hashtag').size().reset_index(name='hashtag_count')
+    df.sort_values(['hashtag_count', 'hashtag'], ascending=[False, False], inplace=True)
+
+    return df.head(3)
+
+# ======================================================================
+# 3089. Find Bursty Behavior ###
+# ======================================================================
+
+def find_bursty_behavior(posts: pd.DataFrame) -> pd.DataFrame:
+
+    posts = posts[posts['post_date'].astype(str) <= '2024-02-28']
+
+    # set the idx to the date in order to use .rolling() method
+    # idx must be sorted in order
+    posts = posts.set_index('post_date').sort_index()
+
+    df = posts.groupby('user_id')['post_id'].rolling('7D').count().reset_index()
+    df.rename(columns={'post_id':'posts'}, inplace=True)
+
+    df['max_7day_posts'] = df.groupby('user_id')['posts'].transform('max')
+
+    avg_posts = posts.groupby('user_id')['post_id'].count().reset_index()
+    avg_posts['avg_weekly_posts'] = avg_posts['post_id'] / 4
+
+    df = df.merge(avg_posts, on='user_id')
+    df = df[df['max_7day_posts'] >= df['avg_weekly_posts'] * 2]
+
+    return df[['user_id', 'max_7day_posts', 'avg_weekly_posts']].drop_duplicates()
+
+# ======================================================================
+# 3103. Find Trending Hashtags II ###
+# ======================================================================
+
+def find_trending_hashtags(tweets: pd.DataFrame) -> pd.DataFrame:
+
+    tweets['hashtag'] = tweets.tweet.str.split()
+
+    df = tweets.hashtag.explode().reset_index() ###
+    df = df[df['hashtag'].str.startswith('#')]
+    df = df.groupby('hashtag').size().reset_index(name='count')
+
+    return df.sort_values(by=['count', 'hashtag'], ascending=[False, False]).head(3)
+
+# ======================================================================
+# 3118. Friday Purchase III ###
+# ======================================================================
+
+def friday_purchases(purchases: pd.DataFrame, users: pd.DataFrame) -> pd.DataFrame:
+
+    wom = pd.DataFrame({'week_of_month' : [1,2,3,4]})
+    mem = pd.DataFrame({'membership': ['Premium', 'VIP']})
+    frame = wom.merge(mem, how='cross')
+
+    df = purchases[(purchases.purchase_date.dt.year == 2023) &
+                   (purchases.purchase_date.dt.month == 11) &
+                   (purchases.purchase_date.dt.weekday == 4)] # Friday
+    
+    df = df.merge(users, on='user_id', how='left')
+    df['week_of_month'] = (df.purchase_date.dt.day // 7) + 1
+    df = df.groupby(['week_of_month', 'membership']).agg(total_amount=('amount_spend', 'sum')).reset_index()
+
+    df = frame.merge(df, on=['week_of_month', 'membership'], how='left').fillna(0)
+
+    return df.sort_values(by=['week_of_month', 'membership'])
+  
+# ======================================================================
+# 3124. Find Longest Calls
+# ======================================================================
+
+def find_longest_calls(contacts: pd.DataFrame, calls: pd.DataFrame) -> pd.DataFrame:
+
+    df = contacts.merge(calls, left_on='id', right_on='contact_id', how='left')
+    df['rk'] = df.groupby('type')['duration'].rank(method='dense', ascending=False)
+    df = df[df.rk <= 3]
+
+    df.sort_values(by=['type', 'duration', 'first_name'], ascending=[True, False, True], inplace=True)
+
+    df['duration'] = pd.to_datetime(df['duration'], unit='s')
+    df['duration_formatted'] = df['duration'].dt.strftime('%H:%M:%S')
+
+    return df[['first_name', 'type', 'duration_formatted']]
+    
+# ======================================================================
+# 3126. Server Utilization Time ###
+# ======================================================================
+
+def server_utilization_time(servers: pd.DataFrame) -> pd.DataFrame:
+
+    df = servers.sort_values(by=['server_id', 'status_time', 'session_status'])
+    df['status_time'] = pd.to_datetime(df['status_time'])
+
+    df['after'] = df.groupby('server_id')['status_time'].shift(-1)
+    df = df[df.session_status == 'start']
+
+    df['diff'] = (df['after'] - df['status_time']).dt.seconds / (60 * 60 * 24)
+
+    return pd.DataFrame({'total_uptime_days' : [floor(df['diff'].sum())]})
+
+# ======================================================================
+# 3140. Consecutive Available Seats II ###
+# ======================================================================
+
+def consecutive_available_seats(cinema: pd.DataFrame) -> pd.DataFrame:
+
+    cinema['free'] = cinema['free'].astype(int)
+    df = cinema[cinema.free == 1]
+    df.sort_values(by='seat_id', inplace=True)
+
+    df['diff'] = df['seat_id'] - df['free'].cumsum()
+
+    df = df.groupby('diff').agg(
+        first_seat_id=('seat_id', 'min'),
+        last_seat_id=('seat_id', 'max'),
+        consecutive_seats_len=('seat_id', 'count')
+    ).reset_index()
+
+    df['rk'] = df['consecutive_seats_len'].rank(method='dense', ascending=False)
+
+    return df[df.rk == 1].drop(['rk', 'diff'], axis=1)
+
+# ======================================================================
+# 3150. Invalid Tweets II ###
+# ======================================================================
+
+def find_invalid_tweets(tweets: pd.DataFrame) -> pd.DataFrame:
+
+    df = tweets[(tweets.content.str.len() > 140) |
+                (tweets.content.str.count('#') > 3) |
+                (tweets.content.str.count('@') > 3)]
+    
+    return df[['tweet_id']].sort_values(by='tweet_id')
+    
+# ======================================================================
+#
+# ======================================================================
+
+
+# ======================================================================
+#
+# ======================================================================
+
+
+# ======================================================================
+#
+# ======================================================================
+
+
+# ======================================================================
+#
 # ======================================================================
 
 # ======================================================================
-# 
+#
 # ======================================================================
-
-# ======================================================================
-# 
-# ======================================================================
-
-# ======================================================================
-# 
-# ======================================================================
-
-
-
-
-
-
-
-
-
-
-
 
