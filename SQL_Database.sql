@@ -1603,28 +1603,18 @@ having count(c.course_id) = sum(e.grade='A')
 order by 1
 
 -- =========================================================
--- 
+-- 3198. Find Cities in Each State ###
 -- ========================================================= 
 
-
-
+select state
+     , group_concat(city order by city SEPARATOR ', ') cities
+from cities
+group by state
 
 -- =========================================================
--- 
+-- 3204. Bitwise User Permissions Analysis ###
 -- ========================================================= 
 
-
--- =========================================================
--- 
--- ========================================================= 
-
-
-
-
-
-
-
-
-
-
-
+select BIT_AND(permissions) common_perms
+     , BIT_OR(permissions) any_perms
+from user_permissions
