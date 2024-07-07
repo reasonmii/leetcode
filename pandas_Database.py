@@ -1919,23 +1919,99 @@ def find_invalid_tweets(tweets: pd.DataFrame) -> pd.DataFrame:
     return df[['tweet_id']].sort_values(by='tweet_id')
     
 # ======================================================================
+# 3156. Employee Task Duration and Concurrent Tasks
+# ======================================================================
+
+def find_total_duration(tasks: pd.DataFrame) -> pd.DataFrame:
+    
+    df = tasks.sort_values(by=['employee_id', 'start_time'])
+    df['next'] = df.groupby('employee_id')['start_time'].shift(-1)
+    df['diff'] = (df['end_time'] - df['start_time']).dt.seconds
+
+    df['overlap'] = np.where(df['end_time'] > df['next'], (df['end_time'] - df['next']).dt.seconds, 0)
+    df['tot'] = np.where(df['overlap'] > 0, df['diff'] - df['overlap'], df['diff'])
+
+    df['cnt'] = np.where(df['end_time'] > df['next'], 1, 0)
+
+    df = df.groupby('employee_id').agg(
+        total_task_hours=('tot', 'sum'),
+        max_concurrent_tasks=('cnt', 'max')
+    ).reset_index()
+
+    df['total_task_hours'] = (df['total_task_hours'] // 3600).astype(int)
+    df['max_concurrent_tasks'] = df['max_concurrent_tasks'] + 1
+
+    return df
+
+# ======================================================================
+# 3166. Calculate Parking Fees and Duration
+# ======================================================================
+
+def calculate_fees_and_duration(parking_transactions: pd.DataFrame) -> pd.DataFrame:
+
+    df = parking_transactions.sort_values(by=['car_id', 'entry_time'])
+    df['diff'] = (df['exit_time'] - df['entry_time']).dt.seconds / 3600
+
+    pl = df.groupby(['car_id', 'lot_id']).agg({'diff':'sum'}).reset_index()
+    pl['max_d'] = pl.groupby('car_id')['diff'].transform('max')
+    pl = pl[pl['diff'] == pl['max_d']]
+
+    df = df.groupby(['car_id']).agg(
+        total_fee_paid=('fee_paid','sum'),
+        hours=('diff', 'sum')
+    ).reset_index()
+
+    df['avg_hourly_fee'] = round( df['total_fee_paid'] / df['hours'], 2)
+
+    df = df.merge(pl, on='car_id', how='left')
+    df.rename(columns={'lot_id':'most_time_lot'}, inplace=True)
+
+    return df[['car_id', 'total_fee_paid', 'avg_hourly_fee', 'most_time_lot']]
+    
+# ======================================================================
+# 3172. Second Day Verification ###
+# ======================================================================
+
+def find_second_day_signups(emails: pd.DataFrame, texts: pd.DataFrame) -> pd.DataFrame:
+
+    df = texts[texts['signup_action'] == 'Verified']
+    df = emails.merge(df, on='email_id', how='inner')
+    df['diff'] = df['action_date'].dt.date - df['signup_date'].dt.date
+    df = df[df['diff'] == pd.Timedelta(days=1)]
+
+    return df[['user_id']].sort_values(by='user_id')
+
+# ======================================================================
+# 3182. Find Top Scoring Students ###
+# ======================================================================
+
+def find_top_scoring_students(enrollments: pd.DataFrame, students: pd.DataFrame, courses: pd.DataFrame) -> pd.DataFrame:
+    
+    df = students.merge(courses, on='major', how='left')
+
+    enrollments = enrollments[enrollments['grade'] == 'A']
+    df = df.merge(enrollments, on=['course_id', 'student_id'], how='left')
+
+    df = df.groupby('student_id').agg({'course_id':'count', 'grade':'count'}).reset_index()
+
+    return df[df.course_id == df.grade][['student_id']].sort_values(by='student_id')
+
+# ======================================================================
 #
 # ======================================================================
 
+# ======================================================================
+#
+# ======================================================================
 
 # ======================================================================
 #
 # ======================================================================
 
-
 # ======================================================================
 #
 # ======================================================================
 
-
-# ======================================================================
-#
-# ======================================================================
 
 # ======================================================================
 #
