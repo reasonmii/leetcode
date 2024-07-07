@@ -1997,23 +1997,24 @@ def find_top_scoring_students(enrollments: pd.DataFrame, students: pd.DataFrame,
     return df[df.course_id == df.grade][['student_id']].sort_values(by='student_id')
 
 # ======================================================================
-#
+# 3198. Find Cities in Each State ###
 # ======================================================================
 
-# ======================================================================
-#
-# ======================================================================
+def find_cities(cities: pd.DataFrame) -> pd.DataFrame:
+
+    df = cities.sort_values(by=['state', 'city'])
+    df = df.groupby('state').agg(cities=('city', ', '.join)).reset_index()
+    return df.sort_values(by='state')
 
 # ======================================================================
-#
+# 3204. Bitwise User Permissions Analysis ###
 # ======================================================================
 
-# ======================================================================
-#
-# ======================================================================
+def analyze_permissions(user_permissions: pd.DataFrame) -> pd.DataFrame:
 
+    p_val = user_permissions['permissions'].values
+    
+    b_and = reduce(and_, p_val)
+    b_or = reduce(or_, p_val)
 
-# ======================================================================
-#
-# ======================================================================
-
+    return pd.DataFrame({'common_perms':[b_and], 'any_perms':[b_or]})
