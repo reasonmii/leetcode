@@ -1528,28 +1528,79 @@ or LENGTH(content) - length(replace(content, '#', '')) > 3
 or length(content) - length(replace(content, '@', '')) > 3
 
 -- =========================================================
--- 
+-- 3156. Employee Task Duration and Concurrent Tasks
 -- ========================================================= 
 
-
-
+WITH T1 AS (
+    select *
+        , LEAD(start_time, 1)over(partition by employee_id order by start_time) next_t
+        , TIMESTAMPDIFF(SECOND, start_time, end_time) diff
+    from tasks
+    order by employee_id, start_time
+), T2 AS (
+    select *
+         , case when TIMESTAMPDIFF(SECOND, next_t, end_time) > 0 then TIMESTAMPDIFF(SECOND, next_t, end_time)
+                else 0 end as overlap
+         , case when TIMESTAMPDIFF(SECOND, next_t, end_time) > 0 then 1 else 0 end as cnt
+    FROM T1
+)
+select employee_id
+     , FLOOR(SUM(diff - overlap) / 3600) as total_task_hours
+     , MAX(cnt) + 1 max_concurrent_tasks
+from T2
+group by 1
 
 -- =========================================================
--- 
+-- 3166. Calculate Parking Fees and Duration
 -- ========================================================= 
 
+WITH T AS (
+    select *
+        , TIMESTAMPDIFF(SECOND, entry_time, exit_time) / 3600 hr
+    FROM parkingtransactions
+), P AS (
+    select car_id
+         , lot_id
+         , SUM(hr) time_sp
+    FROM t
+    group by 1,2
+)
+select t.car_id
+     , round(sum(fee_paid), 2) total_fee_paid
+     , round(sum(fee_paid)/sum(hr), 2) avg_hourly_fee
+     , p.lot_id most_time_lot
+from t
+left join (
+    select *
+         , rank()over(partition by car_id order by time_sp desc) rk
+    FROM p
+) p on t.car_id = p.car_id and p.rk = 1
+group by t.car_id
+order by t.car_id
 
 -- =========================================================
--- 
+-- 3172. Second Day Verification
 -- ========================================================= 
 
-
-
+select e.user_id
+from emails e
+left join texts t on e.email_id = t.email_id and t.signup_action = 'Verified'
+where DATEDIFF(t.action_date, e.signup_date) = 1
+order by e.user_id
 
 -- =========================================================
--- 
+-- 3182. Find Top Scoring Students ###
 -- ========================================================= 
 
+select s.student_id
+from students s
+join courses c on s.major = c.major
+left join enrollments e on s.student_id = e.student_id
+                        and c.course_id = e.course_id
+                        and e.grade='A'
+group by 1
+having count(c.course_id) = sum(e.grade='A')
+order by 1
 
 -- =========================================================
 -- 
