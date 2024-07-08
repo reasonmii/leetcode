@@ -746,6 +746,36 @@ group by ad.month
 order by ad.month
 
 -- =========================================================
+-- 1651. Hopper Company Queries III
+-- ========================================================= 
+
+WITH RECURSIVE m as (
+    select 1 as month
+    union all
+    select month + 1 from m where month < 12
+), r as (
+    select MONTH(r.requested_at) month
+         , sum(a.ride_distance) dist
+         , sum(a.ride_duration) dura
+    from rides r
+    left join acceptedrides a on r.ride_id = a.ride_id
+    where YEAR(requested_at) = 2020
+    group by 1
+), t as (
+    select m.month
+         , IFNULL(r.dist, 0) dist
+         , IFNULL(r.dura, 0) dura
+    from m
+    left join r on m.month = r.month
+)
+select t.month
+     , round((t.dist + t2.dist + t3.dist)/3, 2) average_ride_distance
+     , round((t.dura + t2.dura + t3.dura)/3, 2) average_ride_duration
+from t
+join t t2 on t.month + 1 = t2.month
+join t t3 on t.month + 2 = t3.month 
+    
+-- =========================================================
 -- 1667. Fix Names in a Table
 -- ========================================================= 
 
