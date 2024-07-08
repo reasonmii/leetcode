@@ -484,6 +484,51 @@ class Solution(object):
         return maj
 
 # ======================================================================
+# 171. Excel Sheet Column Number
+# Topic : dic
+# ======================================================================
+
+class Solution(object):
+    def titleToNumber(self, columnTitle):
+
+        res = 0
+        val = [i for i in range(1, 27)]
+        letters = list("ABCDEFGHIJKLMNOPQRSTUVWXYZ")
+        d = dict(zip(letters, val))
+
+        for col in columnTitle:
+            res = res * 26 + d[col]
+        return res
+
+# ======================================================================
+# 202. Happy Number
+# Topic : set
+# ======================================================================
+
+class Solution(object):
+    def isHappy(self, n):
+        
+        nums = set()
+
+        while n != 1:
+            if n in nums:
+                return False
+            nums.add(n)
+            n = sum([int(i) ** 2 for i in str(n)])
+        else:
+            return True
+
+# ======================================================================
+# 205. Isomorphic Strings
+# Topic : string
+# ======================================================================
+
+class Solution(object):
+    def isIsomorphic(self, s, t):
+        
+        return len(set(zip(s,t))) == len(set(s)) == len(set(t))
+
+# ======================================================================
 # 206. Reverse Linked List
 # Topic : Linked List
 # ======================================================================
@@ -492,13 +537,12 @@ class Solution(object):
     def reverseList(self, head):
         
         prev = None
-        cur = head
 
-        while cur:
+        while head:
             next_p = cur.next
-            cur.next = prev
-            prev = cur
-            cur = next_p
+            head.next = prev
+            prev = head
+            head = next_p
 
         return prev
 
@@ -510,6 +554,23 @@ class Solution(object):
 class Solution(object):
     def containsDuplicate(self, nums):
         return len(set(nums)) != len(nums)
+
+
+# ======================================================================
+# 219. Contains Duplicate II
+# Topic : dic
+# ======================================================================
+
+class Solution(object):
+    def containsNearbyDuplicate(self, nums, k):
+
+        dic = {}
+        for i, n in enumerate(nums):
+            if n in dic and i - dic[n] <= k:
+                return True
+            else:
+                dic[n] = i
+        return False
 
 # ======================================================================
 # 225. Implement Stack using Queues
@@ -535,6 +596,22 @@ class MyStack(object):
     def empty(self):
         return len(self.queue) == 0
 
+# ======================================================================
+# 231. Power of Two
+# Topic : math
+# ======================================================================    
+
+class Solution(object):
+    def isPowerOfTwo(self, n):
+        
+        if n <= 0:
+            return False
+
+        while n % 2 == 0:
+            n /= 2
+
+        return n == 1
+        
 # ======================================================================
 # 232. Implement Queue using Stacks
 # Topic : queue
