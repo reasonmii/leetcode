@@ -1269,6 +1269,24 @@ def calculate_special_bonus(employees: pd.DataFrame) -> pd.DataFrame:
     return df[['employee_id', 'bonus']]    
 
 # ======================================================================
+# 1892. Page Recommendations II
+# ======================================================================
+
+def recommend_page(friendship: pd.DataFrame, likes: pd.DataFrame) -> pd.DataFrame:
+
+    df = pd.concat([friendship, friendship.rename(columns={'user1_id':'user2_id','user2_id':'user1_id'})])
+
+    df = df.merge(likes, left_on='user2_id', right_on='user_id', how='left')
+    df = df.groupby(['user1_id', 'page_id']).size().reset_index(name='friends_likes')
+    df.rename(columns={'user1_id':'user_id'}, inplace=True)
+
+    likes['flag'] = 1
+    df = df.merge(likes, on=['user_id', 'page_id'], how='left')
+    df = df[df.flag.isna()]
+
+    return df.drop('flag', axis=1)
+
+# ======================================================================
 # 1907. Count Salary Categories
 # ======================================================================
 
@@ -1300,7 +1318,24 @@ def recommend_friends(listens: pd.DataFrame, friendship: pd.DataFrame) -> pd.Dat
     fr['fr'] = 'friend'
     df = df.merge(fr, how='left', on=['user1_id', 'user2_id']).rename(columns={'user1_id':'user_id', 'user2_id':'recommended_id'})
     return df[df.fr.isna()][['user_id', 'recommended_id']]
+
+# ======================================================================
+# 1919. Leetcodify Similar Friends
+# ======================================================================
+
+def leetcodify_similar_friends(listens: pd.DataFrame, friendship: pd.DataFrame) -> pd.DataFrame:
     
+    df = listens.merge(listens, on=['song_id', 'day'], how='inner')
+    df.rename(columns={'user_id_x':'user1_id', 'user_id_y':'user2_id'}, inplace=True)
+    df = df[df.user1_id < df.user2_id]
+
+    df = df.groupby(['user1_id','user2_id','day']).agg(song=('song_id', 'nunique')).reset_index()
+    df = df[df.song >= 3]
+
+    df = friendship.merge(df, how='inner', on=['user1_id', 'user2_id'])
+
+    return df[['user1_id', 'user2_id']].drop_duplicates()
+
 # ======================================================================
 # 1939. Users That Actively Request Confirmation Messages
 # ======================================================================
@@ -1312,6 +1347,24 @@ def find_requesting_users(signups: pd.DataFrame, confirmations: pd.DataFrame) ->
     df['diff'] = (df['time_stamp'] - df['prev']) / pd.Timedelta(hours=1)
 
     return df[df['diff'] <= 24][['user_id']].drop_duplicates()
+
+# ======================================================================
+# 1949. Strong Friendship
+# ======================================================================
+
+def strong_friendship(friendship: pd.DataFrame) -> pd.DataFrame:
+
+    df = friendship.rename(columns={'user1_id':'user2_id', 'user2_id':'user1_id'})
+    df = pd.concat([friendship, df])
+
+    df = df.merge(df, on=['user2_id'], how='left')
+    df = df[df.user1_id_x < df.user1_id_y]
+
+    df = df.merge(friendship, left_on=['user1_id_x', 'user1_id_y'], right_on=['user1_id', 'user2_id'], how='inner')
+    df = df.groupby(['user1_id_x', 'user1_id_y']).agg(common_friend=('user2_id_x','nunique')).reset_index()
+    df.rename(columns={'user1_id_x':'user1_id', 'user1_id_y':'user2_id'}, inplace=True)
+
+    return df[df.common_friend >= 3]
 
 # ======================================================================
 # 1972. First and Last Call On the Same Day
