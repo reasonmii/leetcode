@@ -1315,6 +1315,21 @@ class Solution(object):
         self.inOrder(root.right, out)
 
 # ======================================================================
+# 102. Binary Tree Level Order Traversal
+# Topic : Binary Tree
+# ======================================================================
+
+class Solution(object):
+    def levelOrder(self, root):
+
+        ans, level = [], [root]
+        while root and level:
+            ans.append([node.val for node in level])
+            pair = [(node.left, node.right) for node in level]
+            level = [n for node in pair for n in node if n]
+        return ans
+
+# ======================================================================
 # 103. Binary Tree Zigzag Level Order Traversal
 # Topic : Binary Tree, while, queue
 # ======================================================================
@@ -1369,6 +1384,53 @@ class Solution(object):
             return root
 
 # ======================================================================
+# 109. Convert Sorted List to Binary Search Tree
+# Topic : Binary Tree, sort
+# ======================================================================
+
+class Solution(object):
+    def sortedListToBST(self, head):
+        
+        if not head:
+            return
+        
+        if not head.next:
+            return TreeNode(head.val)
+
+        slow, fast, prev = head, head, None
+        while fast and fast.next:
+            slow, fast, prev = slow.next, fast.next.next, slow
+        
+        if prev:
+            prev.next = None
+        
+        mid = slow
+        root = TreeNode(mid.val)
+        root.right = self.sortedListToBST(mid.next)
+        mid.next = None
+        root.left = self.sortedListToBST(head)
+        return root
+
+# ======================================================================
+# 114. Flatten Binary Tree to Linked List
+# Topic : Binary Tree
+# ======================================================================
+
+class Solution(object):
+    def flatten(self, root):
+
+        cur = root
+        while cur:
+            if cur.left:
+                prev = cur.left
+                while prev.right:
+                    prev = prev.right
+                prev.right = cur.right
+                cur.right = cur.left
+                cur.left = None
+            cur = cur.right
+        
+# ======================================================================
 # 116. Populating Next Right Pointers in Each Node
 # Topic : Binary Tree
 # ======================================================================
@@ -1376,8 +1438,7 @@ class Solution(object):
 class Solution(object):
     def connect(self, root):
 
-        if not root:
-            return root
+        if not root: return
 
         if root.left:
             left, right = root.left, root.right
