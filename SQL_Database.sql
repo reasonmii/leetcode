@@ -857,6 +857,34 @@ select DATE_FORMAT(day, '%W, %M %e, %Y') day -- Tuesday, April 12, 2022
 from days
 
 -- =========================================================
+-- 1892. Page Recommendations II
+-- ========================================================= 
+    
+with t as (
+    select * from friendship f
+    union all
+    select user2_id as user1_id, user1_id as user2_id from friendship f
+), t2 as (
+    select t.user1_id
+         , t.user2_id
+         , l.page_id
+    from t
+    left join likes l on t.user2_id = l.user_id
+), t3 as (
+    select user1_id user_id
+         , page_id
+         , count(distinct user2_id) friends_likes
+    from t2
+    group by 1,2
+)
+select t3.user_id
+     , t3.page_id
+     , t3.friends_likes
+from t3
+left join likes l on t3.user_id = l.user_id and t3.page_id = l.page_id
+where l.user_id is null
+    
+-- =========================================================
 -- 1917. Leetcodify Friends Recommendations
 -- ========================================================= 
 
@@ -883,6 +911,20 @@ select user2_id user_id
 from t2
 
 -- =========================================================
+-- 1919. Leetcodify Similar Friends
+-- ========================================================= 
+
+SELECT distinct l1.user_id user1_id
+     , l2.user_id user2_id
+FROM listens l1
+JOIN listens l2 on l1.song_id = l2.song_id
+                and l1.day = l2.day
+                and l1.user_id < l2.user_id
+                and (l1.user_id, l2.user_id) in (select * from friendship)
+group by 1, 2, l1.day
+having count(distinct l1.song_id) >= 3
+    
+-- =========================================================
 -- 1939. Users That Actively Request Confirmation Messages
 -- ========================================================= 
 
@@ -893,6 +935,26 @@ from (
     from confirmations
 ) t
 where t.diff <= 24
+
+-- =========================================================
+-- 1949. Strong Friendship
+-- =========================================================  
+    
+with t as (
+    select * from friendship
+    union all 
+    select user2_id user1_id, user1_id user2_id from friendship
+)
+select t1.user1_id
+     , t2.user1_id user2_id
+     , count(distinct t1.user2_id) common_friend
+from t t1
+left join t t2 on t1.user2_id = t2.user2_id
+where t1.user1_id < t2.user1_id
+and (t1.user1_id, t2.user1_id) in (select * from friendship)
+group by 1,2
+having count(distinct t1.user2_id) >= 3
+order by 1,2
 
 -- =========================================================
 -- 1951. All the Pairs With the Maximum Number of Common Followers
