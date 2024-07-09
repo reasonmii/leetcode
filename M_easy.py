@@ -633,7 +633,37 @@ class MyQueue(object):
 
     def empty(self):
         return len(self.q) == 0
+
+# ======================================================================
+# 234. Palindrome Linked List
+# Topic : Linked List
+# ======================================================================    
+
+class Solution(object):
+    def isPalindrome(self, head):
+
+        ### Find mid-point
+        slow, fast = head, head
+
+        while fast and fast.next:
+            slow, fast = slow.next, fast.next.next
+
+        ### Reverse
+        prev = None
+
+        while slow:
+            next_p = slow.next
+            slow.next = prev
+            prev = slow
+            slow = next_p
+
+        while prev:
+            if prev.val != head.val:
+                return False
+            prev, head = prev.next, head.next
         
+        return True
+
 # ======================================================================
 # 242. Valid Anagram
 # Topic : string, zip, setdefault
@@ -653,6 +683,79 @@ class Solution(object):
 
         # check if there's at least one true value
         return not any(dic.values())
+
+# ======================================================================
+# 257. Binary Tree Paths
+# Topic : Binary Tree
+# ======================================================================    
+
+class Solution(object):
+    def binaryTreePaths(self, root):
+
+        def dfs(node, path, rst):
+            if not node:
+                return
+
+            path += str(node.val)
+            if not node.left and not node.right:
+                rst.append(path)
+            else:
+                dfs(node.left, path+'->', rst)
+                dfs(node.right, path+'->', rst)
+
+        rst = []
+        dfs(root, '', rst)
+        return rst
+
+# ======================================================================
+# 268. Missing Number
+# Topic : range
+# ======================================================================    
+
+class Solution(object):
+    def missingNumber(self, nums):
+        
+        return sum(range(len(nums)+1)) - sum(nums)
+        
+# ======================================================================
+# 283. Move Zeroes
+# Topic : list, index
+# ======================================================================    
+
+class Solution(object):
+    def moveZeroes(self, nums):
+
+        idx = 0
+        for i in range(len(nums)):
+            if nums[i] != 0:
+                nums[i], nums[idx] = nums[idx], nums[i]
+                idx += 1
+
+# ======================================================================
+# 345. Reverse Vowels of a String
+# Topic : String
+# ======================================================================    
+
+class Solution(object):
+    def reverseVowels(self, s):
+
+        i, j = 0, len(s)-1
+        s = list(s)
+
+        while i < j:
+            if s[i].lower() in 'aeiou' and s[j].lower() in 'aeiou':
+                s[i], s[j] = s[j], s[i]
+                i += 1
+                j -= 1
+            elif s[i].lower() not in 'aeiou' and s[j].lower() in 'aeiou':
+                i += 1
+            elif s[j].lower() not in 'aeiou' and s[i].lower() in 'aeiou':
+                j -= 1
+            else:
+                i += 1
+                j -= 1
+
+        return ''.join(s)
 
 # ======================================================================
 # 349. Intersection of Two Arrays
@@ -687,6 +790,20 @@ class Solution(object):
                 right = mid - 1
 
         return  False            
+
+# ======================================================================
+# 387. First Unique Character in a String
+# Topic : String
+# ======================================================================    
+
+class Solution(object):
+    def firstUniqChar(self, s):
+
+        dic = Counter(s)
+        for i, c in enumerate(s):
+            if dic[c] == 1:
+                return i
+        return -1
 
 # ======================================================================
 # 496. Next Greater Element I
