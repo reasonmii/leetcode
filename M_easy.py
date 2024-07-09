@@ -806,6 +806,51 @@ class Solution(object):
         return -1
 
 # ======================================================================
+# 392. Is Subsequence
+# Topic : String
+# ======================================================================    
+
+class Solution(object):
+    def isSubsequence(self, s, t):
+
+        i = 0
+        for ch in t:
+            if i < len(s) and s[i] == ch:
+                i += 1
+
+        return i == len(s)
+
+# ======================================================================
+# 412. Fizz Buzz
+# Topic : List, Math
+# ======================================================================
+
+class Solution(object):
+    def fizzBuzz(self, n):
+
+        rst = []
+        for i in range(1, n+1):
+            if i % 3 == 0 and i % 5 == 0:
+                rst.append("FizzBuzz")
+            elif i % 3 == 0:
+                rst.append('Fizz')
+            elif i % 5 == 0:
+                rst.append('Buzz')
+            else:
+                rst.append(str(i))
+
+        return rst
+
+# ======================================================================
+# 461. Hamming Distance
+# Topic : bit
+# ======================================================================
+
+class Solution(object):
+    def hammingDistance(self, x, y):
+        return bin(x^y).count('1') # x^y : XOR
+
+# ======================================================================
 # 496. Next Greater Element I
 # Topic : stack
 # ======================================================================
@@ -853,6 +898,31 @@ class Solution(object):
         return dp[-1]
 
 # ======================================================================
+# 543. Diameter of Binary Tree
+# Topic : binary tree
+# ======================================================================
+
+class Solution:
+    def diameterOfBinaryTree(self, root: Optional[TreeNode]) -> int:
+
+        d = 0
+
+        def longestPath(node):
+            if not node: return 0
+
+            nonlocal d
+
+            left = longestPath(node.left)
+            right = longestPath(node.right)
+            
+            d = max(d, left+right)
+            
+            return max(left, right) + 1          
+
+        longestPath(root)
+        return d
+
+# ======================================================================
 # 605. Can Place Flowers
 # Topic : list
 # ======================================================================
@@ -872,6 +942,20 @@ class Solution(object):
                 if n == 0:
                     return True
         return False
+
+# ======================================================================
+# 628. Maximum Product of Three Numbers
+# Topic : list
+# ======================================================================
+
+class Solution(object):
+    def maximumProduct(self, nums):
+
+        nums.sort()
+        n1 = nums[-3] * nums[-2] * nums[-1]
+        n2 = nums[0] * nums[1] * nums[-1]
+
+        return max(n1, n2)
 
 # ======================================================================
 # 704. Binary Search
@@ -915,6 +999,25 @@ class MyHashMap(object):
         self.data[key] = None
 
 # ======================================================================
+# 724. Find Pivot Index
+# Topic : list
+# ======================================================================
+
+class Solution(object):
+    def pivotIndex(self, nums):
+
+        left = 0
+        right = sum(nums)
+
+        for i, n in enumerate(nums):
+            right -= n
+            if left == right:
+                return i
+            left += n
+
+        return -1
+
+# ======================================================================
 # 733. Flood Fill
 # Topic : Array, dfs, same as island (medium) question logic (200, 695)
 # ======================================================================
@@ -937,6 +1040,29 @@ class Solution(object):
 
         dfs(sr, sc, image[sr][sc])
         return image
+
+# ======================================================================
+# 746. Min Cost Climbing Stairs
+# Topic : Daynamic Programming
+# ======================================================================
+
+class Solution(object):
+    def minCostClimbingStairs(self, cost):
+
+        step1 = cost[-2]
+        step2 = cost[-1]
+
+        for i in range(len(cost)-3, -1, -1):
+            tmp = step1
+
+            if step1 < step2:
+                step1 += cost[i]
+            else:
+                step1 = step2 + cost[i]
+            
+            step2 = tmp
+
+        return min(step1, step2)
 
 # ======================================================================
 # 859. Buddy Strings
