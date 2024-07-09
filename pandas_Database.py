@@ -1079,6 +1079,29 @@ def hopper_company_queries(drivers: pd.DataFrame, rides: pd.DataFrame, accepted_
     return df[['month', 'working_percentage']].sort_values(by='month')
 
 # ======================================================================
+# 1651. Hopper Company Queries III
+# ======================================================================
+
+def hopper_company_queries(drivers: pd.DataFrame, rides: pd.DataFrame, accepted_rides: pd.DataFrame) -> pd.DataFrame:
+    
+    mon = pd.DataFrame({'month':range(1,13)})
+
+    df = rides[rides.requested_at.dt.year == 2020]
+    df = df.merge(accepted_rides, on='ride_id', how='left')
+    df['month'] = df['requested_at'].dt.month
+    df = df.groupby('month').agg(
+        dist = ('ride_distance', 'sum'),
+        dura = ('ride_duration', 'sum')
+    ).reset_index()
+
+    df = mon.merge(df, on='month', how='left').fillna(0)
+
+    df['average_ride_distance'] = round(df['dist'].rolling(3).mean(), 2).shift(-2) ###
+    df['average_ride_duration'] = round(df['dura'].rolling(3).mean(), 2).shift(-2)
+
+    return df[['month', 'average_ride_distance', 'average_ride_duration']].dropna()
+    
+# ======================================================================
 # 1667. Fix Names in a Table
 # ======================================================================
 
@@ -1174,6 +1197,30 @@ def find_maximum_transaction(transactions: pd.DataFrame) -> pd.DataFrame:
     df = transactions[transactions['max'] == transactions['amount']]
 
     return df[['transaction_id']].sort_values('transaction_id')
+
+# ======================================================================
+# 1841. League Statistics ###
+# ======================================================================
+
+def league_statistics(teams: pd.DataFrame, matches: pd.DataFrame) -> pd.DataFrame:
+
+    df = matches
+
+    df = pd.concat([df, df.rename(columns={
+        df.columns[i]:df.columns[j] for i, j in ((0,1),(1,0),(2,3),(3,2))
+        })])
+    
+    df = teams.merge(df, left_on='team_id', right_on='home_team_id')
+
+    df.rename(columns={'home_team_goals':'goal_for', 'away_team_goals':'goal_against'}, inplace=True)
+    df['points'] = np.where(df.goal_for > df.goal_against, 3, np.where(df.goal_for == df.goal_against, 1, 0))
+    df['goal_diff'] = df['goal_for'] - df['goal_against']
+    df['matches_played'] = 1
+
+    df = df.groupby('team_name').sum().reset_index()
+    df = df[['team_name', 'matches_played', 'points', 'goal_for', 'goal_against', 'goal_diff']]
+
+    return df.sort_values(by=['points', 'goal_diff', 'team_name'], ascending=[False, False, True])
 
 # ======================================================================
 # 1843. Suspicious Bank Accounts
