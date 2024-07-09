@@ -1451,6 +1451,32 @@ class Solution(object):
         return root
 
 # ======================================================================
+# 117. Populating Next Right Pointers in Each Node II
+# Topic : Binary Tree
+# ======================================================================
+
+class Solution(object):
+    def connect(self, root):
+
+        if not root: return
+
+        q = [root]
+        while len(q) > 0:
+            l = len(q)
+            x = Node(0)
+            for _ in range(l):
+                r = q.pop(0)
+                x.next = r
+                x = x.next
+                if r.left:
+                    q.append(r.left)
+                if r.right:
+                    q.append(r.right)
+            x.next = None
+
+        return root
+        
+# ======================================================================
 # 122. Best Time to Buy and Sell Stock II
 # Topic : for
 # ======================================================================
@@ -1613,6 +1639,17 @@ class LRUCache(object):
         self.cache[key] = value
 
 # ======================================================================
+# 151. Reverse Words in a String
+# Topic : String
+# ======================================================================          
+
+class Solution(object):
+    def reverseWords(self, s):
+        
+        s = s.split()
+        return ' '.join(s[::-1])
+
+# ======================================================================
 # 153. Find Minimum in Rotated Sorted Array
 # Topic : Array, mid
 # ======================================================================          
@@ -1631,6 +1668,62 @@ class Solution(object):
                 right = mid
 
         return nums[left]
+
+# ======================================================================
+# 162. Find Peak Element
+# Topic : Binary Search
+# ======================================================================          
+
+class Solution(object):
+    def findPeakElement(self, nums):
+        
+        left, right = 0, len(nums)-1
+
+        while left < right:
+            mid = (left + right) // 2
+            if nums[mid] < nums[mid+1]:
+                left = mid +1
+            else:
+                right = mid
+        return left
+        
+        # peak = sorted(nums)[-1]
+        # return nums.index(peak)
+
+# ======================================================================
+# 165. Compare Version Numbers
+# Topic : string, int, list, compare
+# ======================================================================          
+
+class Solution(object):
+    def compareVersion(self, version1, version2):
+
+        v1 = [int(i) for i in version1.split('.')]
+        v2 = [int(i) for i in version2.split('.')]
+
+        s1 = len(v1)
+        s2 = len(v2)
+
+        if s1 < s2:
+            v1 += [0] * (s2 - s1)
+        else:
+            v2 += [0] * (s1 - s2)
+
+        return (v1 > v2) - (v1 < v2)
+
+# ======================================================================
+# 179. Largest Number
+# Topic : map, cmp_to_key
+# ======================================================================          
+
+class Solution(object):
+    def largestNumber(self, nums):
+
+        nums = map(str, nums)
+        rule = lambda x, y : 1 if x + y > y + x else -1
+
+        nums = sorted(nums, key=functools.cmp_to_key(rule), reverse=True) ###
+        return '0' if nums[0] == '0' else ''.join(nums)
 
 # ======================================================================
 # 186. Reverse Words in a String II
@@ -1656,7 +1749,24 @@ class Solution(object):
         
         # last word
         reverse(left, len(s)-1)
-        
+
+# ======================================================================
+# 189. Rotate Array
+# Topic : Array
+# ======================================================================          
+
+class Solution(object):
+    def rotate(self, nums, k):
+
+        k = k % len(nums)
+
+        r = len(nums) - k
+
+        new = nums[0:r]
+        nums[0:r] = []
+
+        nums.extend(new)
+
 # ======================================================================
 # 198. House Robber
 # Topic : swap, adjacent
@@ -1670,6 +1780,21 @@ class Solution(object):
             bf3, bf2, adj = bf2, adj, cur + max(bf3, bf2)
 
         return max(bf2, adj)
+
+# ======================================================================
+# 199. Binary Tree Right Side View
+# Topic : Tree
+# ======================================================================    
+
+class Solution(object):
+    def rightSideView(self, root):
+        
+        if not root: return []
+
+        right = self.rightSideView(root.right)
+        left = self.rightSideView(root.left)
+
+        return [root.val] + right + left[len(right):]
 
 # ======================================================================
 # 200. Number of Islands
