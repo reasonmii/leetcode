@@ -1829,6 +1829,28 @@ class Solution(object):
         return cnt
 
 # ======================================================================
+# 204. Count Primes
+# Topic : prime
+# ======================================================================    
+
+class Solution(object):
+    def countPrimes(self, n):
+
+        if n <= 2:
+            return 0
+
+        primes = [True] * n
+        primes[0] = primes[1] = False
+
+        for num in range(2, n):
+            if primes[num]:
+
+                for i in range(2 * num, n, num):
+                    primes[i] = False
+        
+        return sum(primes)
+
+# ======================================================================
 # 207. Course Schedule
 # Topic : dfs
 # ======================================================================    
