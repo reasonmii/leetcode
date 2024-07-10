@@ -2144,40 +2144,29 @@ def find_top_scoring_students(enrollments: pd.DataFrame, students: pd.DataFrame,
 # 3188. Find Top Scoring Students II ###
 # ======================================================================
 
-WITH T AS (
-    select c.*
-         , e.student_id
-         , e.grade
-         , e.gpa
-    from courses c
-    left join students s on s.major = c.major
-    left join enrollments e on s.student_id = e.student_id and c.course_id = e.course_id
-), ye as (
-    select student_id
-    from t
-    where mandatory = 'yes'
-    group by student_id
-    having max(grade) = 'A'
-    and count(name) = (select count(course_id)
-                       from courses
-                       where mandatory = 'yes' and major=t.major)
-), no as (
-    select student_id
-    from t
-    where mandatory = 'no'
-    group by student_id
-    having max(grade) <= 'B' and count(name) >= 2
-), g as (
-    select student_id
-    from enrollments
-    group by student_id
-    having avg(GPA) >= 2.5
-)
-select ye.student_id
-from ye
-inner join no on ye.student_id = no.student_id
-inner join g on ye.student_id = g.student_id
-order by 1
+def find_top_scoring_students(students: pd.DataFrame, courses: pd.DataFrame, enrollments: pd.DataFrame) -> pd.DataFrame:
+    
+    df = courses.merge(students, on='major', how='left')
+    df = df.merge(enrollments, on=['student_id', 'course_id'], how='left')
+
+    co = courses[courses.mandatory == 'Yes'].groupby('major').size().reset_index(name='cnt')
+
+    ye = df[(df['mandatory'] == 'Yes') & (df['grade'] == 'A')]
+    ye = ye.groupby(['student_id', 'major']).size().reset_index(name='cnt')
+    ye = ye.merge(co, on='major', how='left')
+    ye = ye[ye.cnt_x == ye.cnt_y][['student_id']]
+
+    no = df[(df['mandatory'] == 'No') & (df['grade'] <= 'B')]
+    no = no.groupby('student_id').size().reset_index(name='cnt')
+    no = no[no.cnt >= 2][['student_id']]
+
+    g = enrollments.groupby('student_id')['GPA'].mean().reset_index()
+    g = g[g.GPA >= 2.5][['student_id']]
+
+    df = ye.merge(no, on='student_id', how='inner')
+    df = df.merge(g, on='student_id', how='inner')
+    
+    return df
 
 # ======================================================================
 # 3198. Find Cities in Each State ###
