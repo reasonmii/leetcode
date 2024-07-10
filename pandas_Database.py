@@ -1465,6 +1465,31 @@ def count_passengers_in_bus(buses: pd.DataFrame, passengers: pd.DataFrame) -> pd
     return df.groupby('bus_id').agg(passengers_cnt=('passenger_id', 'count')).reset_index()
 
 # ======================================================================
+# 2153. The Number of Passengers in Each Bus II ###
+# ======================================================================
+
+def number_of_passengers(buses: pd.DataFrame, passengers: pd.DataFrame) -> pd.DataFrame:
+
+    buses.sort_values(by='arrival_time')
+
+    for i, row in buses.iterrows():
+        if i == 0:
+            cnt = passengers[passengers['arrival_time'] <= row.arrival_time].shape[0]
+        else:
+            bf = passengers['arrival_time'] <= row.arrival_time
+            af = passengers['arrival_time'] > buses.at[i-1, 'arrival_time']
+            cnt = passengers[bf & af].shape[0] + buses.at[i-1, 'rem']
+        
+        if cnt <= row.capacity:
+            buses.at[i, 'rem'] = 0
+            buses.at[i, 'cnt'] = cnt
+        else:
+            buses.at[i, 'rem'] = cnt - row.capacity
+            buses.at[i, 'cnt'] = row.capacity
+
+    return buses[['bus_id', 'cnt']].rename(columns={'cnt':'passengers_cnt'}).sort_values(by='bus_id')
+
+# ======================================================================
 # 2173. Longest Winning Streak
 # ======================================================================
 
@@ -1831,7 +1856,26 @@ def maximize_items(inventory: pd.DataFrame) -> pd.DataFrame:
         })
 
     return df.fillna(0)
-    
+
+# ======================================================================
+# 3058. Friends With No Mutual Friends ###
+# ======================================================================
+
+def friends_with_no_mutual_friends(friends: pd.DataFrame) -> pd.DataFrame:
+
+    df = friends.rename(columns={'user_id1':'user_id2', 'user_id2':'user_id1'})
+    df = pd.concat([friends, df])
+
+    df = df.merge(df, on='user_id2')
+    df = df[['user_id1_x', 'user_id1_y']]
+    df.rename(columns={'user_id1_x':'user_id1', 'user_id1_y':'user_id2'}, inplace=True)
+    df['flag'] = 1
+
+    df = friends.merge(df, on=['user_id1', 'user_id2'], how='left')
+    df = df[df.flag.isna()].drop('flag', axis=1)
+
+    return df.sort_values(['user_id1', 'user_id2'])
+
 # ======================================================================
 # 3059. Find All Unique Email Domains ###
 # ======================================================================
@@ -2095,6 +2139,45 @@ def find_top_scoring_students(enrollments: pd.DataFrame, students: pd.DataFrame,
     df = df.groupby('student_id').agg({'course_id':'count', 'grade':'count'}).reset_index()
 
     return df[df.course_id == df.grade][['student_id']].sort_values(by='student_id')
+
+# ======================================================================
+# 3188. Find Top Scoring Students II ###
+# ======================================================================
+
+WITH T AS (
+    select c.*
+         , e.student_id
+         , e.grade
+         , e.gpa
+    from courses c
+    left join students s on s.major = c.major
+    left join enrollments e on s.student_id = e.student_id and c.course_id = e.course_id
+), ye as (
+    select student_id
+    from t
+    where mandatory = 'yes'
+    group by student_id
+    having max(grade) = 'A'
+    and count(name) = (select count(course_id)
+                       from courses
+                       where mandatory = 'yes' and major=t.major)
+), no as (
+    select student_id
+    from t
+    where mandatory = 'no'
+    group by student_id
+    having max(grade) <= 'B' and count(name) >= 2
+), g as (
+    select student_id
+    from enrollments
+    group by student_id
+    having avg(GPA) >= 2.5
+)
+select ye.student_id
+from ye
+inner join no on ye.student_id = no.student_id
+inner join g on ye.student_id = g.student_id
+order by 1
 
 # ======================================================================
 # 3198. Find Cities in Each State ###
