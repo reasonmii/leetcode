@@ -1089,7 +1089,47 @@ select CONCAT(GROUP_CONCAT(
     CONCAT(sign, factor, power2) ORDER BY power desc separator ""),
     '=0') equation
 from t
-    
+
+-- =========================================================
+-- 2153. The Number of Passengers in Each Bus II ###
+-- ========================================================= 
+
+WITH RECURSIVE T AS (
+    SELECT b.bus_id
+         , b.capacity
+         , count(p.passenger_id) cnt
+         , b.arrival_time
+         , row_number()over(order by b.arrival_time) rk
+    FROM buses b
+    left join passengers p on b.arrival_time >= p.arrival_time
+    group by b.bus_id, b.capacity
+), t2 as (
+    select bus_id
+         , capacity
+         , IFNULL(cnt - lag(cnt)over(), cnt) diff
+         , rk
+    from t
+), t3 as (
+    select bus_id
+         , least(capacity, diff) board
+         , greatest(0, diff-capacity) rem
+         , rk
+    from t2
+    where rk = 1
+    union all
+    select t2.bus_id
+         , least(capacity, diff+t3.rem) board
+         , greatest(0, diff+t3.rem - capacity) rem
+         , t2.rk
+    from t2
+    join t3
+    where t2.rk = t3.rk+1
+)
+select bus_id
+     , board passengers_cnt
+from t3
+order by bus_id
+
 -- =========================================================
 -- 2173. Longest Winning Streak ###
 -- ========================================================= 
