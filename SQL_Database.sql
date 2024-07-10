@@ -1477,6 +1477,32 @@ where t.rk <= 0.05
 order by 2, 3 desc, 1
 
 -- =========================================================
+-- 3058. Friends With No Mutual Friends ###
+-- ========================================================= 
+
+WITH T as (
+    select *
+    from friends
+    union all
+    select user_id2 user_id1
+        , user_id1 user_id2
+    from friends
+), T2 as (
+    select t1.user_id1
+         , t2.user_id1 user_id2
+    from t t1
+    join t t2 on t1.user_id2 = t2.user_id2
+)
+select user_id1
+     , user_id2
+from friends
+where (user_id1, user_id2) not in (
+    select user_id1, user_id2
+    from t2
+)
+order by 1,2
+
+-- =========================================================
 -- 3059. Find All Unique Email Domains
 -- ========================================================= 
 
@@ -1734,6 +1760,45 @@ group by 1
 having count(c.course_id) = sum(e.grade='A')
 order by 1
 
+-- =========================================================
+-- 3188. Find Top Scoring Students II ###
+-- ========================================================= 
+    
+WITH T AS (
+    select c.*
+         , e.student_id
+         , e.grade
+         , e.gpa
+    from courses c
+    left join students s on s.major = c.major
+    left join enrollments e on s.student_id = e.student_id and c.course_id = e.course_id
+), ye as (
+    select student_id
+    from t
+    where mandatory = 'yes'
+    group by student_id
+    having max(grade) = 'A'
+    and count(name) = (select count(course_id)
+                       from courses
+                       where mandatory = 'yes' and major=t.major)
+), no as (
+    select student_id
+    from t
+    where mandatory = 'no'
+    group by student_id
+    having max(grade) <= 'B' and count(name) >= 2
+), g as (
+    select student_id
+    from enrollments
+    group by student_id
+    having avg(GPA) >= 2.5
+)
+select ye.student_id
+from ye
+inner join no on ye.student_id = no.student_id
+inner join g on ye.student_id = g.student_id
+order by 1 
+    
 -- =========================================================
 -- 3198. Find Cities in Each State ###
 -- ========================================================= 
