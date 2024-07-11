@@ -1815,3 +1815,22 @@ group by state
 select BIT_AND(permissions) common_perms
      , BIT_OR(permissions) any_perms
 from user_permissions
+
+-- =========================================================
+-- 3214. Year on Year Growth Rate
+-- ========================================================= 
+
+WITH T AS (
+    select year(transaction_date) year
+        , product_id
+        , sum(spend) curr_year_spend
+    from user_transactions
+    group by 1,2
+)
+SELECT t.*
+     , t2.curr_year_spend prev_year_spend
+     , round((t.curr_year_spend - t2.curr_year_spend) / t2.curr_year_spend * 100, 2) yoy_rate
+FROM T
+left join t t2 on t.year = t2.year + 1 and t.product_id = t2.product_id
+order by product_id, year
+
