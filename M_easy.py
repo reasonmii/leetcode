@@ -1069,7 +1069,16 @@ class Solution(object):
 # Topic : string
 # ======================================================================
 
+class Solution(object):
+    def isRectangleOverlap(self, rec1, rec2):
 
+        if rec1[2] <= rec2[0] or rec2[2] <= rec1[0]:
+            return False
+        
+        if rec1[3] <= rec2[1] or rec2[3] <= rec1[1]:
+            return False
+
+        return True
 
 # ======================================================================
 # 859. Buddy Strings
@@ -1097,6 +1106,97 @@ class Solution(object):
         return len(sl) == 2 and sorted(sl) == sorted(gl)
 
 # ======================================================================
+# 905. Sort Array By Parity
+# Topic : list
+# ======================================================================
+
+class Solution(object):
+    def sortArrayByParity(self, nums):
+        
+        n1 = []
+        n2 = []
+        for n in nums:
+            if n % 2 == 1:
+                n2.append(n)
+            else:
+                n1.append(n)
+
+        return n1 + n2
+
+# ======================================================================
+# 993. Cousins in Binary Tree
+# Topic : Tree
+# ======================================================================
+
+class Solution(object):
+    def isCousins(self, root, x, y):
+
+        rst = []
+
+        def dfs(node, parent, depth):
+            if not node:
+                return
+            
+            if node.val == x or node.val == y:
+                rst.append((parent, depth))
+            
+            dfs(node.left, node, depth+1)
+            dfs(node.right, node, depth+1)
+
+        dfs(root, None, 0)
+
+        node_x, node_y = rst
+        return node_x[0] != node_y[0] and node_x[1] == node_y[1]
+
+# ======================================================================
+# 997. Find the Town Judge
+# Topic : List
+# ======================================================================
+
+class Solution(object):
+    def findJudge(self, n, trust):
+        
+        person = [0] * (n+1)
+        judge = [0] * (n+1)
+
+        for p, j in trust:
+            person[p] += 1
+            judge[j] += 1
+        
+        for i in range(1, n+1):
+            if person[i] == 0 and judge[i] == n-1:
+                return i
+        return -1
+
+# ======================================================================
+# 1002. Find Common Characters
+# Topic : Character
+# ======================================================================
+
+class Solution(object):
+    def commonChars(self, words):
+
+        def count(word):
+            freq = [0] * 26
+            for ch in word:
+                freq[ord(ch) - ord('a')] += 1
+            return freq
+        
+        def inter(freq1, freq2):
+            return [min(f1, f2) for f1, f2 in zip(freq1, freq2)]
+
+        cnt = count(words[0])
+
+        for word in words[1:]:
+            cnt = inter(cnt, count(word))
+
+        rst = []
+        for i in range(26):
+            rst.extend([chr(i + ord('a'))] * cnt[i])
+
+        return rst
+
+# ======================================================================
 # 1047. Remove All Adjacent Duplicates In String
 # Topic : stack
 # ======================================================================
@@ -1114,6 +1214,25 @@ class Solution(object):
         return ''.join(rst)
 
 # ======================================================================
+# 1071. Greatest Common Divisor of Strings
+# Topic : string
+# ======================================================================
+
+class Solution(object):
+    def gcdOfStrings(self, str1, str2):
+
+        if str1 + str2 != str2 + str1:
+            return ""
+
+        if len(str1) == len(str2):
+            return str1
+        
+        if len(str1) > len(str2):
+            return self.gcdOfStrings(str1[len(str2):], str2)
+        
+        return self.gcdOfStrings(str1, str2[len(str1):])
+        
+# ======================================================================
 # 1189. Maximum Number of Balloons
 # Topic : text.count
 # ======================================================================
@@ -1122,6 +1241,34 @@ class Solution(object):
     def maxNumberOfBalloons(self, text):
 
         return min(text.count('b'), text.count('a'), text.count('l') // 2, text.count('o') // 2, text.count('n'))
+
+# ======================================================================
+# 1207. Unique Number of Occurrences
+# Topic : count
+# ======================================================================
+
+class Solution(object):
+    def uniqueOccurrences(self, arr):
+        
+        rst = Counter(arr).values()
+        return len(rst) == len(set(rst))
+
+# ======================================================================
+# 1539. Kth Missing Positive Number
+# Topic : count
+# ======================================================================
+
+class Solution(object):
+    def findKthPositive(self, arr, k):
+        j = 0
+        for i in range(1, arr[-1]+1):
+            if arr[j] > i:
+                k -= 1
+            else:
+                j += 1
+            if k == 0:
+                return i
+        return arr[-1] + k
 
 # ======================================================================
 # 1661. Average Time of Process per Machine
