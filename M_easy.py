@@ -1303,17 +1303,14 @@ class Solution(object):
     def mergeAlternately(self, word1, word2):
 
         rst = ''
-        idx = 0
-        word1, word2 = list(word1), list(word2)
+        for w1 in word1:
+            rst += w1
+            for w2 in word2:
+                rst += w2
+                word2 = word2[1:]
+                break
 
-        while word1 and word2:
-            if idx % 2 == 0 and word1:
-                rst += word1.pop(0)
-            else:
-                rst += word2.pop(0)
-            idx += 1
-
-        return rst + ''.join(word1) if word1 else rst + ''.join(word2)
+        return rst + word2
 
 # ======================================================================
 # 2235. Add Two Integers
