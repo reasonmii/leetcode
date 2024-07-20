@@ -1932,10 +1932,66 @@ class Trie(object):
             t = t[c]
         return True
 
+
+# ======================================================================
+# 209. Minimum Size Subarray Sum
+# Topic : left, right
+# ======================================================================    
+
+class Solution(object):
+    def minSubArrayLen(self, target, nums):
+
+        rst = float('inf')
+        right, left, sum_v = 0, 0, 0
+
+        while right < len(nums):
+            sum_v += nums[right]
+            while sum_v >= target:
+                rst = min(rst, right-left+1)
+                sum_v -= nums[left]
+                left += 1
+            right += 1
+
+        return 0 if rst == float('inf') else rst
+
 # ======================================================================
 # 210. Course Schedule II
 # Topic : dfs
 # ======================================================================    
+
+class Solution(object):
+    def findOrder(self, numCourses, prerequisites):
+
+        graph = collections.defaultdict(list)
+        rst = []
+        
+        for a, b in prerequisites:
+            graph[a].append(b)
+        
+        visit = [0 for _ in range(numCourses)]
+
+        for i in range(numCourses):
+            if not self.dfs(i, graph, visit, rst):
+                return []
+        
+        return rst
+
+    def dfs(self, node, graph, visit, rst):
+
+        if visit[node] == -1: # cycle
+            return False
+        
+        if visit[node] == 1: # finish
+            return True
+
+        visit[node] = -1 # mark as visit
+        for i in graph[node]:
+            if not self.dfs(i, graph, visit, rst):
+                return False
+        
+        visit[node] = 1
+        rst.append(node)
+        return True
 
 # ======================================================================
 # 211. Design Add and Search Words Data Structure
@@ -2026,7 +2082,18 @@ class Solution(object):
             return root
 
         return left if left else right
- 
+
+# ======================================================================
+# 237. Delete Node in a Linked List
+# Topic : Linked List
+# ======================================================================    
+
+class Solution(object):
+    def deleteNode(self, node):
+
+        node.val = node.next.val
+        node.next = node.next.next
+        
 # ======================================================================
 # 238. Product of Array Except Self
 # Topic : Array
@@ -2050,6 +2117,27 @@ class Solution(object):
         return cal
 
 # ======================================================================
+# 240. Search a 2D Matrix II
+# Topic : Matrix
+# ======================================================================    
+
+class Solution(object):
+    def searchMatrix(self, matrix, target):
+
+        i = 0
+        j = len(matrix[0]) - 1
+
+        while i < len(matrix) and j >= 0:
+            if target < matrix[i][j]:
+                j -= 1
+            elif target > matrix[i][j]:
+                i += 1
+            else:
+                return True
+
+        return False
+
+# ======================================================================
 # 253. Meeting Rooms II
 # Topic : Array, heap, heapq, heapreplace, heappush
 # ======================================================================    
@@ -2067,6 +2155,44 @@ class Solution(object):
                 heapq.heappush(heap, arr[1])
             # print(heap) # [30], [10, 30], [20, 30]
         return len(heap)
+        
+# ======================================================================
+# 260. Single Number III
+# Topic : Dic
+# ======================================================================    
+
+class Solution(object):
+    def singleNumber(self, nums):
+
+        nums = Counter(nums)
+        
+        rst = []
+        for i, v in nums.items():
+            if v == 1:
+                rst.append(i)
+
+        return rst
+
+# ======================================================================
+# 277. Find the Celebrity
+# Topic : graph
+# ======================================================================  
+
+class Solution(object):
+    def findCelebrity(self, n):
+
+        x = 0
+        for i in range(n):
+            if knows(x, i):
+                x = i
+        
+        if any(knows(x, i) for i in range(x)):
+            return -1
+        
+        if any(not knows(i, x) for i in range(n)):
+            return -1
+        
+        return x
 
 # ======================================================================
 # 285. Inorder Successor in BST
